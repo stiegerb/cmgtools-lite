@@ -35,7 +35,7 @@ MODULES.append( ('leptonJetReCleanerTTH', lambda : LeptonJetReCleaner("Recl",
                    selectJet = lambda jet: abs(jet.eta)<2.4, # also cuts on the discarded jets as calculated by the recleaner
                    isFastSim = False,
                    CSVbtagFileName = None, EFFbtagFileName = None, CSVbtagFileNameFastSim = None,
-                   cleanWithTaus = False,
+                   cleanWithTaus = True,
                    coneptdef = lambda lep: conept_TTH(lep) ) ))
 
 #MODULES.append( ('leptonJetReCleaner_special_TTHbtagTightVeto', lambda : LeptonJetReCleaner("ReclBtagTightVeto", 
@@ -47,7 +47,7 @@ MODULES.append( ('leptonJetReCleanerTTH', lambda : LeptonJetReCleaner("Recl",
 #                   selectJet = lambda jet: abs(jet.eta)<2.4, # also cuts on the discarded jets as calculated by the recleaner
 #                   isFastSim = False,
 #                   CSVbtagFileName = None, EFFbtagFileName = None, CSVbtagFileNameFastSim = None,
-#                   cleanWithTaus = False,
+#                   cleanWithTaus = True,
 #                   coneptdef = lambda lep: conept_TTH(lep) ) ))
 #MODULES.append( ('leptonJetReCleaner_special_TTHnoBtagMediumVeto', lambda : LeptonJetReCleaner("ReclNoBtagMediumVeto", 
 #                   looseLeptonSel = lambda lep : lep.miniRelIso < 0.4 and lep.sip3d < 8,
@@ -58,7 +58,7 @@ MODULES.append( ('leptonJetReCleanerTTH', lambda : LeptonJetReCleaner("Recl",
 #                   selectJet = lambda jet: abs(jet.eta)<2.4, # also cuts on the discarded jets as calculated by the recleaner
 #                   isFastSim = False,
 #                   CSVbtagFileName = None, EFFbtagFileName = None, CSVbtagFileNameFastSim = None,
-#                   cleanWithTaus = False,
+#                   cleanWithTaus = True,
 #                   coneptdef = lambda lep: conept_TTH(lep) ) ))
 #MODULES.append( ('leptonJetReCleaner_special_TTHconept15', lambda : LeptonJetReCleaner("ReclConept15", 
 #                   looseLeptonSel = lambda lep : lep.miniRelIso < 0.4 and lep.sip3d < 8,
@@ -69,7 +69,7 @@ MODULES.append( ('leptonJetReCleanerTTH', lambda : LeptonJetReCleaner("Recl",
 #                   selectJet = lambda jet: abs(jet.eta)<2.4, # also cuts on the discarded jets as calculated by the recleaner
 #                   isFastSim = False,
 #                   CSVbtagFileName = None, EFFbtagFileName = None, CSVbtagFileNameFastSim = None,
-#                   cleanWithTaus = False,
+#                   cleanWithTaus = True,
 #                   coneptdef = lambda lep: conept_TTH(lep) ) ))
 
 #--- Susy multilep instances
