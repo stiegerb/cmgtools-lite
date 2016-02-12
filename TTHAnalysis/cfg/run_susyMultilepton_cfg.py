@@ -354,19 +354,27 @@ if runData and not isTest: # For running on data
     is50ns = False
     dataChunks = []
 
-    # Oct05 rereco of Run2015C
-    json = os.environ['CMSSW_BASE']+'/src/CMGTools/TTHAnalysis/data/json/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt'
-    processing = "Run2015C_25ns-05Oct2015-v1"; short = "Run2015C_Oct05"; run_ranges = [ (254231,254914) ]; useAAA=False;
-    dataChunks.append((json,processing,short,run_ranges,useAAA))
+#    # Oct05 rereco of Run2015C
+#    json = os.environ['CMSSW_BASE']+'/src/CMGTools/TTHAnalysis/data/json/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt'
+#    processing = "Run2015C_25ns-05Oct2015-v1"; short = "Run2015C_Oct05"; run_ranges = [ (254231,254914) ]; useAAA=False;
+#    dataChunks.append((json,processing,short,run_ranges,useAAA))
+#
+#    # Oct05 rereco of Run2015D-PromptReco-v3 (up to run 258158)
+#    json = os.environ['CMSSW_BASE']+'/src/CMGTools/TTHAnalysis/data/json/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt'
+#    processing = "Run2015D-05Oct2015-v1"; short = "Run2015D_Oct05"; run_ranges = [ (256630,258158) ]; useAAA=False;
+#    dataChunks.append((json,processing,short,run_ranges,useAAA))
+#
+#    # Run2015D PromptReco-v4 (258159-260627) - WARNING: beware of CACHING in .cmgdataset
+#    json = os.environ['CMSSW_BASE']+'/src/CMGTools/TTHAnalysis/data/json/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt'
+#    processing = "Run2015D-PromptReco-v4"; short = "Run2015D_PromptV4"; run_ranges = [ (258159,260627) ]; useAAA=False;
+#    dataChunks.append((json,processing,short,run_ranges,useAAA))
 
-    # Oct05 rereco of Run2015D-PromptReco-v3 (up to run 258158)
-    json = os.environ['CMSSW_BASE']+'/src/CMGTools/TTHAnalysis/data/json/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt'
-    processing = "Run2015D-05Oct2015-v1"; short = "Run2015D_Oct05"; run_ranges = [ (256630,258158) ]; useAAA=False;
+    # Run2015C_25ns + Run2015D, 16Dec2015 rereco (76X)
+    json = os.environ['CMSSW_BASE']+'/src/CMGTools/TTHAnalysis/data/json/Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON.txt'
+    processing = "Run2015C_25ns-16Dec2015-v1"; short = "Run2015C_25ns_16Dec2015"; run_ranges = []; useAAA=False;
     dataChunks.append((json,processing,short,run_ranges,useAAA))
-
-    # Run2015D PromptReco-v4 (258159-260627) - WARNING: beware of CACHING in .cmgdataset
-    json = os.environ['CMSSW_BASE']+'/src/CMGTools/TTHAnalysis/data/json/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt'
-    processing = "Run2015D-PromptReco-v4"; short = "Run2015D_PromptV4"; run_ranges = [ (258159,260627) ]; useAAA=False;
+    json = os.environ['CMSSW_BASE']+'/src/CMGTools/TTHAnalysis/data/json/Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON.txt'
+    processing = "Run2015D-16Dec2015-v1"; short = "Run2015D_16Dec2015"; run_ranges = []; useAAA=False;
     dataChunks.append((json,processing,short,run_ranges,useAAA))
 
     compSelection = ""; compVeto = ""
@@ -404,17 +412,21 @@ if runData and not isTest: # For running on data
                         assert(False)
 
     for json,processing,short,run_ranges,useAAA in dataChunks:
+        if len(run_ranges)==0: run_ranges=[None]
         vetos = []
         for pd,triggers in DatasetsAndTriggers:
             for run_range in run_ranges:
-                label = "runs_%d_%d" % run_range if run_range[0] != run_range[1] else "run_%d" % (run_range[0],)
-                compname = pd+"_"+short+"_"+label
+                label = ""
+                if run_range!=None:
+                    label = "_runs_%d_%d" % run_range if run_range[0] != run_range[1] else "run_%d" % (run_range[0],)
+                compname = pd+"_"+short+label
                 if ((compSelection and not re.search(compSelection, compname)) or
                     (compVeto      and     re.search(compVeto,      compname))):
                         print "Will skip %s" % (compname)
                         continue
                 myprocessing = processing
                 if pd=="MuonEG" and ("Run2015D-05Oct2015" in processing): myprocessing = myprocessing.replace("05Oct2015-v1","05Oct2015-v2")
+                if pd=="DoubleEG" and ("Run2015D-16Dec2015" in processing): myprocessing = myprocessing.replace("16Dec2015-v1","16Dec2015-v2")
                 comp = kreator.makeDataComponent(compname, 
                                                  "/"+pd+"/"+myprocessing+"/MINIAOD", 
                                                  "CMS", ".*root", 
