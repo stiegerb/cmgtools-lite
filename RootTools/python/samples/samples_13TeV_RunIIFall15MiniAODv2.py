@@ -459,3 +459,17 @@ if __name__ == "__main__":
    if "test" in sys.argv:
        from CMGTools.RootTools.samples.ComponentCreator import testSamples
        testSamples(samples)
+   if "locality" in sys.argv:
+       import re
+       from CMGTools.Production.localityChecker import LocalityChecker
+       tier2Checker = LocalityChecker("T2_CH_CERN", datasets="/*/*/MINIAOD*")
+       for comp in samples:
+           if len(comp.files) == 0: 
+               print '\033[34mE: Empty component: '+comp.name+'\033[0m'
+           if not hasattr(comp,'dataset'): continue
+           if not re.match("/[^/]+/[^/]+/MINIAOD(SIM)?", comp.dataset): continue
+           if "/store/" not in comp.files[0]: continue
+           if re.search("/store/(group|user|cmst3)/", comp.files[0]): continue
+           if not tier2Checker.available(comp.dataset):
+               print "\033[1;31mN: Dataset %s (%s) is not available on T2_CH_CERN\033[0m" % (comp.name,comp.dataset)
+           else: print "Y: Dataset %s (%s) is available on T2_CH_CERN" % (comp.name,comp.dataset)
