@@ -175,7 +175,7 @@ dataSamples_Run2015D_05Oct = [JetHT_Run2015D_05Oct, HTMHT_Run2015D_05Oct, MET_Ru
 ### ----------------------------- Run2015C_25ns-16Dec2015 + Run2015D-16Dec2015 ----------------------------------------
 ## https://hypernews.cern.ch/HyperNews/CMS/get/datasets/4154.html
 
-JetHT_Run2015B_16Dec          = kreator.makeDataComponent("JetHT_Run2015B_16Dec"         , "/JetHT/Run2015B-16Dec2015-v1/MINIAOD"         , "CMS", ".*root", json)
+#JetHT_Run2015B_16Dec          = kreator.makeDataComponent("JetHT_Run2015B_16Dec"         , "/JetHT/Run2015B-16Dec2015-v1/MINIAOD"         , "CMS", ".*root", json)
 HTMHT_Run2015B_16Dec          = kreator.makeDataComponent("HTMHT_Run2015B_16Dec"         , "/HTMHT/Run2015B-16Dec2015-v1/MINIAOD"         , "CMS", ".*root", json)
 MET_Run2015B_16Dec            = kreator.makeDataComponent("MET_Run2015B_16Dec"           , "/MET/Run2015B-16Dec2015-v1/MINIAOD"           , "CMS", ".*root", json)
 SingleElectron_Run2015B_16Dec = kreator.makeDataComponent("SingleElectron_Run2015B_16Dec", "/SingleElectron/Run2015B-16Dec2015-v1/MINIAOD", "CMS", ".*root", json)
@@ -219,7 +219,7 @@ MuonEG_Run2015D_16Dec         = kreator.makeDataComponent("MuonEG_Run2015D_16Dec
 DoubleMuon_Run2015D_16Dec     = kreator.makeDataComponent("DoubleMuon_Run2015D_16Dec"    , "/DoubleMuon/Run2015D-16Dec2015-v1/MINIAOD"    , "CMS", ".*root", json)
 Tau_Run2015D_16Dec            = kreator.makeDataComponent("Tau_Run2015D_16Dec"           , "/Tau/Run2015D-16Dec2015-v1/MINIAOD"           , "CMS", ".*root", json)
 
-dataSamples_Run2015B_16Dec = [JetHT_Run2015B_16Dec, HTMHT_Run2015B_16Dec, MET_Run2015B_16Dec, SingleElectron_Run2015B_16Dec, SingleMuon_Run2015B_16Dec, SinglePhoton_Run2015B_16Dec, DoubleEG_Run2015B_16Dec, MuonEG_Run2015B_16Dec, DoubleMuon_Run2015B_16Dec, Tau_Run2015B_16Dec]
+dataSamples_Run2015B_16Dec = [HTMHT_Run2015B_16Dec, MET_Run2015B_16Dec, SingleElectron_Run2015B_16Dec, SingleMuon_Run2015B_16Dec, SinglePhoton_Run2015B_16Dec, DoubleEG_Run2015B_16Dec, MuonEG_Run2015B_16Dec, DoubleMuon_Run2015B_16Dec, Tau_Run2015B_16Dec]
 dataSamples_Run2015C_50ns_16Dec = [JetHT_Run2015C_50ns_16Dec, HTMHT_Run2015C_50ns_16Dec, MET_Run2015C_50ns_16Dec, SingleElectron_Run2015C_50ns_16Dec, SingleMuon_Run2015C_50ns_16Dec, SinglePhoton_Run2015C_50ns_16Dec, DoubleEG_Run2015C_50ns_16Dec, MuonEG_Run2015C_50ns_16Dec, DoubleMuon_Run2015C_50ns_16Dec, Tau_Run2015C_50ns_16Dec]
 dataSamples_Run2015C_25ns_16Dec = [JetHT_Run2015C_25ns_16Dec, HTMHT_Run2015C_25ns_16Dec, MET_Run2015C_25ns_16Dec, SingleElectron_Run2015C_25ns_16Dec, SingleMuon_Run2015C_25ns_16Dec, SinglePhoton_Run2015C_25ns_16Dec, DoubleEG_Run2015C_25ns_16Dec, MuonEG_Run2015C_25ns_16Dec, DoubleMuon_Run2015C_25ns_16Dec, Tau_Run2015C_25ns_16Dec]
 dataSamples_Run2015D_16Dec = [JetHT_Run2015D_16Dec, HTMHT_Run2015D_16Dec, MET_Run2015D_16Dec, SingleElectron_Run2015D_16Dec, SingleMuon_Run2015D_16Dec, SinglePhoton_Run2015D_16Dec, DoubleEG_Run2015D_16Dec, MuonEG_Run2015D_16Dec, DoubleMuon_Run2015D_16Dec, Tau_Run2015D_16Dec]
@@ -276,6 +276,7 @@ if __name__ == "__main__":
        for comp in samples:
            if len(comp.files) == 0: 
                print '\033[34mE: Empty component: '+comp.name+'\033[0m'
+               continue
            if not hasattr(comp,'dataset'): continue
            if not re.match("/[^/]+/[^/]+/MINIAOD(SIM)?", comp.dataset): continue
            if "/store/" not in comp.files[0]: continue
