@@ -22,6 +22,7 @@ scaleProdToLumi = float(getHeppyOption("scaleProdToLumi",-1)) # produce rough eq
 SOS = getHeppyOption("SOS",False) ## switch True to overwrite settings for SOS skim (N.B. default settings are those from multilepton preselection)
 saveSuperClusterVariables = getHeppyOption("saveSuperClusterVariables",False)
 removeJetReCalibration = getHeppyOption("removeJetReCalibration",False)
+removeJecUncertainty = getHeppyOption("removeJecUncertainty",False)
 doMETpreprocessor = getHeppyOption("doMETpreprocessor",False)
 doT1METCorr = getHeppyOption("doT1METCorr",False)
 #doAK4PFCHSchargedJets = getHeppyOption("doAK4PFCHSchargedJets",False)
@@ -48,11 +49,14 @@ isolation = "miniIso"
 
 jetAna.copyJetsByValue = True # do not remove this
 metAna.copyMETsByValue = True # do not remove this
-jetAna.addJECShifts = True
-susyCoreSequence.insert(susyCoreSequence.index(jetAna)+1, jetAnaScaleDown)
-susyCoreSequence.insert(susyCoreSequence.index(jetAna)+1, jetAnaScaleUp)
-susyCoreSequence.insert(susyCoreSequence.index(metAna)+1, metAnaScaleDown)
-susyCoreSequence.insert(susyCoreSequence.index(metAna)+1, metAnaScaleUp)
+if not removeJecUncertainty:
+    jetAna.addJECShifts = True
+    susyCoreSequence.insert(susyCoreSequence.index(jetAna)+1, jetAnaScaleDown)
+    susyCoreSequence.insert(susyCoreSequence.index(jetAna)+1, jetAnaScaleUp)
+    susyCoreSequence.insert(susyCoreSequence.index(metAna)+1, metAnaScaleDown)
+    susyCoreSequence.insert(susyCoreSequence.index(metAna)+1, metAnaScaleUp)
+
+
 
 
 if SOS == True:
@@ -207,11 +211,12 @@ if saveSuperClusterVariables:
             NTupleVariable("superCluster_seed.energy", lambda x: x.superCluster().seed().energy() if (abs(x.pdgId())==11 and hasattr(x,"superCluster")) else -999, help="Electron superCluster.seed.energy"),
 ])
 
-susyMultilepton_globalObjects.update({
-        "met_jecUp" : NTupleObject("met_jecUp", metType, help="PF E_{T}^{miss}, after type 1 corrections (JEC plus 1sigma)"),
-        "met_jecDown" : NTupleObject("met_jecDown", metType, help="PF E_{T}^{miss}, after type 1 corrections (JEC minus 1sigma)"),
-        })
-susyMultilepton_collections.update({
+if not removeJecUncertainty:
+    susyMultilepton_globalObjects.update({
+            "met_jecUp" : NTupleObject("met_jecUp", metType, help="PF E_{T}^{miss}, after type 1 corrections (JEC plus 1sigma)"),
+            "met_jecDown" : NTupleObject("met_jecDown", metType, help="PF E_{T}^{miss}, after type 1 corrections (JEC minus 1sigma)"),
+            })
+    susyMultilepton_collections.update({
             "cleanJets_jecUp"       : NTupleCollection("Jet_jecUp",     jetTypeSusyExtraLight, 15, help="Cental jets after full selection and cleaning, sorted by pt (JEC plus 1sigma)"),
             "cleanJets_jecDown"     : NTupleCollection("Jet_jecDown",     jetTypeSusyExtraLight, 15, help="Cental jets after full selection and cleaning, sorted by pt (JEC minus 1sigma)"),
             "discardedJets_jecUp"   : NTupleCollection("DiscJet_jecUp", jetTypeSusyExtraLight, 15, help="Jets discarted in the jet-lepton cleaning (JEC +1sigma)"),
@@ -230,7 +235,6 @@ treeProducer = cfg.Analyzer(
      collections = susyMultilepton_collections,
 )
 
-if getHeppyOption('dropLHEweights',False): treeProducer.collections.pop("LHE_weights")
 
 ## histo counter
 if not runSMS:
@@ -309,19 +313,34 @@ from CMGTools.RootTools.samples.samples_13TeV_DATA2015 import *
 
 selectedComponents = [ TTLep_pow ];
 
+
+from CMGTools.HToZZ4L.tools.configTools import printSummary, configureSplittingFromTime, cropToLumi
+
+_Wjets_DY = [WJetsToLNu,DYJetsToLL_M10to50,DYJetsToLL_M50]
+_fakes = [TTJets_DiLepton,TTJets_SingleLeptonFromT,TTJets_SingleLeptonFromTbar] # WWTo2L2Nu
+_ttH = [TTHnobb,TTHnobb_pow]
+_TTV = [TTWToLNu,TTLLJets_m1to10] # TTZToLLNuNu
+_convs = [TTGJets,TGJets,WGToLNuG,ZGTo2LG]
+_singleTop = [TToLeptons_sch_amcatnlo,TToLeptons_tch_amcatnlo,T_tWch,TBar_tWch]
+_diboson = [WZTo3LNu,ZZTo4L]
+_other = [tZq_ll,TTTT,WpWpJJ,WWDouble,WZZ] # WWZ ZZZ
+
+#selectedComponents = _Wjets_DY + _fakes + _ttH + _TTV + _convs + _singleTop + _diboson + _other
+print 'Before cropping to lumi and adjusting the splitting:'
+printSummary(selectedComponents)
+
+_fast = [DYJetsToLL_M10to50,WJetsToLNu,TTJets_SingleLeptonFromT,TTJets_SingleLeptonFromTbar,TTGJets,TGJets,WGToLNuG]+_singleTop
+_slow = [DYJetsToLL_M50,TTJets_DiLepton,TTLLJets_m1to10,ZGTo2LG,TTWToLNu]+_ttH+_diboson+_other # TTZToLLNuNu WWTo2L2Nu
+
+cropToLumi(_convs+_diboson+_other,30)
+
+configureSplittingFromTime(_fast,30,5)
+configureSplittingFromTime(_slow,100,5)
+
+print 'After cropping to lumi and adjusting the splitting:'
+printSummary(selectedComponents)
 # Use the dropLHEweights option if you don't need the per-event LHE weights! It saves a lot of space.
 
-# for tth
-#selectedComponents = [WpWpJJ,TTGJets,TGJets,WGToLNuG,ZGTo2LG]
-#selectedComponentsB = [WWDouble,ZZTo4L,tZq_ll,GGHZZ4L,VHToNonbb,WWZ,ZZZ,WZZ,TTTT]
-# to do: single top, WJets, WWTo2L2Nu
-
-#selectedComponentsA = [TToLeptons_tch_amcatnlo,TToLeptons_sch_amcatnlo,T_tWch,TBar_tWch]
-#selectedComponentsB = [WWTo2L2Nu,WWDouble,WpWpJJ,WWZ,WZZ,ZZZ,TTTT,tZq_ll]
-#for c in selectedComponentsA: c.splitFactor = len(c.files)/2
-#for c in selectedComponentsB: c.splitFactor = len(c.files)
-#
-#selectedComponents = selectedComponentsA + selectedComponentsB
 
 #selectedComponents = SMS_miniAODv2_T1tttt
 #susyCounter.SMS_varying_masses = ['genSusyMGluino','genSusyMNeutralino']
@@ -617,6 +636,10 @@ if getHeppyOption("fast"):
         sequence.insert(sequence.index(jsonAna)+1, fastSkim)
     else:
         sequence.insert(sequence.index(skimAnalyzer)+1, fastSkim)
+if getHeppyOption("dropLHEweights",False):
+    treeProducer.collections.pop("LHE_weights")
+    if lheWeightAna in sequence: sequence.remove(lheWeightAna)
+    susyCounter.doLHE = False
 
 ## Auto-AAA
 if not getHeppyOption("isCrab"):
@@ -632,6 +655,8 @@ if not getHeppyOption("isCrab"):
         if not tier2Checker.available(comp.dataset):
             print "Dataset %s is not available, will use AAA" % comp.dataset
             changeComponentAccessMode.convertComponent(comp, "root://cms-xrd-global.cern.ch/%s")
+            if 'X509_USER_PROXY' not in os.environ or "/afs/" not in os.environ['X509_USER_PROXY']:
+                raise RuntimeError, "X509_USER_PROXY not defined or not pointing to /afs"
 
 ## output histogram
 outputService=[]
