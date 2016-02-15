@@ -419,6 +419,16 @@ def _tthlep_lepId(lep):
             return True
         return False
 
+def _ttH_idEmu_cuts_E2(lep):
+    if (abs(lep.pdgId)!=11): return True
+    if (lep.hadronicOverEm>=(0.10-0.03*(abs(lep.etaSc)>1.479))): return False
+    if (abs(lep.dEtaScTrkIn)>=(0.01-0.002*(abs(lep.etaSc)>1.479))): return False
+    if (abs(lep.dPhiScTrkIn)>=(0.04+0.03*(abs(lep.etaSc)>1.479))): return False
+    if (lep.eInvMinusPInv<=-0.05): return False
+    if (lep.eInvMinusPInv>=(0.01-0.005*(abs(lep.etaSc)>1.479))): return False
+    if (lep.sigmaIEtaIEta>=(0.011+0.019*(abs(lep.etaSc)>1.479))): return False
+    return True
+
 def _susy2lss_lepId_CBloose(lep):
         if abs(lep.pdgId) == 13:
             if lep.pt <= 5: return False
