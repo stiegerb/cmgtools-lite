@@ -8,6 +8,7 @@ MODULES = []
 from CMGTools.TTHAnalysis.tools.leptonJetReCleaner import LeptonJetReCleaner,_ttH_idEmu_cuts_E2,_susy2lss_lepId_CB,_susy2lss_lepId_CBloose,_susy2lss_multiIso,_tthlep_lepId,_susy2lss_idEmu_cuts,_susy2lss_idIsoEmu_cuts,_susy2lss_lepId_loosestFO,_susy2lss_lepId_tighterFO,_susy2lss_lepId_IPcuts,_susy2lss_lepConePt1015,_susy2lss_lepId_inSituLoosestFO,_susy2lss_lepId_inSituTighterFO,_susy2lss_multiIso_relaxedForInSituApp
 from CMGTools.TTHAnalysis.tools.leptonChoiceRA5 import LeptonChoiceRA5
 from CMGTools.TTHAnalysis.tools.conept import conept_RA5, conept_TTH
+from CMGTools.TTHAnalysis.tools.btagRWTs_ND import BTagWeightCalculator,BTagReweightFriend,BTagLeptonReweightFriend
 ##--- TTH instances
 #MODULES.append( ('leptonJetReCleanerTTH', lambda : LeptonJetReCleaner("I03Sip8", 
 #                lambda lep : lep.relIso03 < 0.5 and lep.sip3d < 8 and _tthlep_lepId(lep), 
@@ -20,10 +21,22 @@ from CMGTools.TTHAnalysis.tools.conept import conept_RA5, conept_TTH
 
 isFastSim = False
 
+utility_files_dir_tth= "/afs/cern.ch/work/p/peruzzi/tthtrees/cms_utility_files"
 utility_files_dir= "/afs/cern.ch/work/p/peruzzi/ra5trees/cms_utility_files"
 btagSF = utility_files_dir+"/CSVv2_25ns.csv"
 btagEFF = utility_files_dir+"/btageff__ttbar_powheg_pythia8_25ns.root"
 btagSF_FastSim = utility_files_dir+"/CSV_13TEV_Combined_20_11_2015_FullSim_FastSim.csv"
+
+
+# btag reweighting in 76X
+BTagReweight76X = lambda : BTagWeightCalculator(utility_files_dir_tth+"/csv_rwt_fit_hf_76x_2016_02_08.root",
+                                                utility_files_dir_tth+"/csv_rwt_fit_lf_76x_2016_02_08.root")
+MODULES.append( ('btagRWJet', lambda: BTagReweightFriend(BTagReweight76X,
+                                                        outlabel="btagCSVWeight",
+                                                        rwtSyst="nominal") ))
+MODULES.append( ('btagRWLep', lambda: BTagLeptonReweightFriend(BTagReweight76X,
+                                                               outlabel="jetBTagCSVWeight",
+                                                               rwtSyst="nominal") ))
 
 #--- Susy multilep instances
 MODULES.append( ('leptonJetReCleanerTTH', lambda : LeptonJetReCleaner("Recl", # b1E2 definition of FO
