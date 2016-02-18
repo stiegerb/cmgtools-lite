@@ -180,7 +180,7 @@ from CMGTools.TTHAnalysis.tools.vertexWeightFriend import VertexWeightFriend
 #MODULES.append ( ('puWeightsTrue_down', lambda : VertexWeightFriend(putruefilemc,putruefiledata_down,"nTrueInt_signal","pileup",verbose=True,vtx_coll_to_reweight="nTrueInt",postfix="down",name="vtxWeightDown") ) )
 
 putruefiledata_central="/afs/cern.ch/user/p/peruzzi/work/tthtrees/cms_utility_files/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2_pileup_69000_50.root"
-putruefilemc = "/afs/cern.ch/user/p/peruzzi/work/cmgtools/CMSSW_7_4_14/src/CMGTools/TTHAnalysis/python/plotter/susy-multilepton/for-pu-rew/pu_plots/zjets-4-nvtx_plots_true.root"
+putruefilemc = "/afs/cern.ch/user/p/peruzzi/work/cmgtools/CMSSW_7_6_3_patch2/src/CMGTools/TTHAnalysis/python/plotter/susy-multilepton/for-pu-rew/pu_plots/zjets-4-nvtx_plots_true.root"
 MODULES.append ( ('puWeightsTrue_central', lambda : VertexWeightFriend(putruefilemc,putruefiledata_central,"nTrueInt_signal","pileup",verbose=True,vtx_coll_to_reweight="nTrueInt",name="vtxWeight") ) )
 
 
