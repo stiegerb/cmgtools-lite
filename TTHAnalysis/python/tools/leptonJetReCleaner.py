@@ -74,9 +74,10 @@ class LeptonJetReCleaner:
                     "mhtJet25"+label+self.systsJEC[key],
                     ])
             for bkey in self.systsBTAG:
-                if self.select_jec_btag_unc_combinations(key,bkey):
+                thisvar = self.select_jec_btag_unc_combinations(key,bkey)
+                if thisvar:
                     biglist.extend([
-                            ("eventBTagSF"+label+self.systsBTAG[bkey]+self.systsJEC[key], "F")
+                            ("eventBTagSF"+label+thisvar, "F")
                             ])
         for jfloat in "pt eta phi mass btagCSV rawPt".split():
             biglist.append( ("JetSel"+label+"_"+jfloat,"F",20,"nJetSel"+label) )
@@ -304,7 +305,8 @@ class LeptonJetReCleaner:
         for var in self.systsJEC:
             cleanjets[var] = self.recleanJets(jetsc[var],jetsd[var],lepsc+taus_forclean,self.label+self.systsJEC[var],retwlabel,jetret,discjetret,(var==0))
             for btagsyst in self.systsBTAG:
-                if self.select_jec_btag_unc_combinations(var,btagsyst): retwlabel["eventBTagSF"+self.label+self.systsBTAG[btagsyst]+self.systsJEC[var]] = self.bTag_eventRWT_SF(event,lepsc,cleanjets[var],self.systsBTAG[btagsyst]) if self.doBtagRWT else 1
+                thisvar = self.select_jec_btag_unc_combinations(var,btagsyst)
+                if thisvar: retwlabel["eventBTagSF"+self.label+thisvar] = self.bTag_eventRWT_SF(event,lepsc,cleanjets[var],self.systsBTAG[btagsyst]) if self.doBtagRWT else 1
 
         # calculate FOs and tight leptons using the cleaned HT, sorted by conept
         lepsf = []; lepsfv = [];
@@ -335,9 +337,9 @@ class LeptonJetReCleaner:
         for j in jets: sf = sf * getattr(j,"btagCSVWeight"+systlabel)
         return sf
     def select_jec_btag_unc_combinations(self,jetunc,btagunc):
-        if "JESUp" in self.systsBTAG[btagunc] and not "jecUp" in self.systsJEC[jetunc]: return False
-        if "JESDown" in self.systsBTAG[btagunc] and not "jecDown" in self.systsJEC[jetunc]: return False
-        return (jetunc*btagunc==0)
+        if "JESUp" in self.systsBTAG[btagunc]: return "_jecUp " if self.systsJEC[jetunc]=="_jecUp" else None
+        if "JESDown" in self.systsBTAG[btagunc]: return "_jecDown" if self.systsJEC[jetunc]=="_jecDown" else None
+        return self.systsBTAG[btagunc]+self.systsJEC[jetunc] if self.systsJEC[jetunc]=="" else None
 
 def passMllVeto(l1, l2, mZmin, mZmax, isOSSF ):
     if  l1.pdgId == -l2.pdgId or not isOSSF:
