@@ -10,6 +10,7 @@ purew = "-W 'puw(nTrueInt)'"
 
 def base(selection):
 
+    print 'echo WARNING: remember to add the missing samples!'
     CORE="-P /data1/peruzzi/TREES_76X_150216_noLHE_jecV1_noJecUnc_skim_reclv8 -F sf/t {P}/2_recleaner_v8_b1E2_approx/evVarFriend_{cname}.root -F sf/t {P}/4_kinMVA_74XtrainingMilosJan31_v3_reclv8/evVarFriend_{cname}.root"
 
     CORE+=" -f -j 8 -l 2.26 --neg --s2v --tree treeProducerSusyMultilepton --mcc ttH-multilepton/lepchoice-ttH-FO.txt --mcc ttH-multilepton/ttH_2lss3l_triggerdefs.txt"
@@ -115,7 +116,8 @@ if __name__ == '__main__':
     if 'cr_ttbar' in torun:
         x = base('2lss')
         x = fulltrees(x)
-        if '_data' in torun: x = x.replace('mca-2lss-mc.txt','mca-2lss-mcdata-ttbar.txt')
+        x = x.replace('mca-2lss-mc.txt','mca-2lss-mcdata-ttbar.txt')
+        if '_data' not in torun: x = add(x,'--xp data')
         if '_appl' in torun: x = add(x,'-I TT')
         if '_1fo' in torun: x = add(x,"-A alwaystrue 1FO 'LepGood1_isTight+LepGood2_isTight==1'")
         if '_leadmupt25' in torun: x = add(x,"-A 'entry point' leadmupt25 'abs(LepGood1_pdgId)==13 && LepGood1_pt>25'")

@@ -36,7 +36,7 @@ met: 		met_pt					: 40,0,600 ; XTitle="E_{T}^{miss} [GeV]"
 2lep_mtWmin: 	if3(nLepFO>1,min(mt_2(LepGood1_conePt,LepGood1_phi,met_pt,met_phi),mt_2(LepGood2_conePt,LepGood2_phi,met_pt,met_phi)),-99) 		  : 40,0,200; XTitle="min M_{T}(l_{i}\,E_{T}^{miss}) [GeV]"
 2lep_htllv:	if3(nLepFO>1,LepGood1_conePt+LepGood2_conePt+met_pt,-99)										  : 40,0,400; XTitle="l_{1} p_{T} + l_{2} p_{T} + E_{T}^{miss} [GeV]"
 metLD:		met_pt*0.00397 + mhtJet25*0.00265													  : 40,0,1.5; XTitle="MET LD"
-minMllAFAS:	minMllAFAS																  : 40,0,120; XTitle="min M_{ll} [GeV]", Legend='TL'
+minMllAFAS:	minMllAFAS																  : 40,0,200; XTitle="min M_{ll} [GeV]", Legend='TL'
 mZ1:		mZ1																  	  : 80,50,130; XTitle="Best Z candidate mass [GeV]"
 nVert:		nVert													  				  : 50,-0.5,49.5; XTitle="N_{vtx}"
 
