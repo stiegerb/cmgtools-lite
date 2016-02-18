@@ -40,7 +40,7 @@ class BTagLeptonReweightFriend(BTagReweightFriend):
         fl = abs(lep.mcMatchAny)
         if fl not in (4,5): fl = 1
         jetpt = lep.pt/lep.jetPtRatiov2
-        return self._reweight._calcJetWeight(jetpt, abs(lep.eta), fl, getattr(lep,self.blabel), self.rwtKind, self.rwtSyst)
+        return self._reweight.calcJetWeightImpl(jetpt, abs(lep.eta), fl, getattr(lep,self.blabel), self.rwtKind, self.rwtSyst)
     
 if __name__ == '__main__':
     from sys import argv

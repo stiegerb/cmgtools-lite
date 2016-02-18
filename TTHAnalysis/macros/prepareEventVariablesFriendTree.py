@@ -31,12 +31,13 @@ btagSF_FastSim = utility_files_dir+"/CSV_13TEV_Combined_20_11_2015_FullSim_FastS
 # btag reweighting in 76X
 BTagReweight76X = lambda : BTagWeightCalculator(utility_files_dir_tth+"/csv_rwt_fit_hf_76x_2016_02_08.root",
                                                 utility_files_dir_tth+"/csv_rwt_fit_lf_76x_2016_02_08.root")
-MODULES.append( ('btagRWJet', lambda: BTagReweightFriend(BTagReweight76X,
-                                                        outlabel="btagCSVWeight",
-                                                        rwtSyst="nominal") ))
-MODULES.append( ('btagRWLep', lambda: BTagLeptonReweightFriend(BTagReweight76X,
-                                                               outlabel="jetBTagCSVWeight",
-                                                               rwtSyst="nominal") ))
+systsBTAG = ["nominal", "_JESUp", "_JESDown", "_LFUp", "_LFDown", "_HFUp", "_HFDown", \
+                 "_HFStats1Up", "_HFStats1Down", "_HFStats2Up", "_HFStats2Down", \
+                 "_LFStats1Up", "_LFStats1Down", "_LFStats2Up", "_LFStats2Down", \
+                 "_cErr1Up", "_cErr1Down", "_cErr2Up", "_cErr2Down" ]
+for syst in systsBTAG: # should be converted to lambda functions
+    MODULES.append( ('btagRWJet%s'%syst, BTagReweightFriend(BTagReweight76X, outlabel='btagCSVWeight%s'%syst.replace('nominal',''), rwtSyst=syst.replace('_','')) ))
+    MODULES.append( ('btagRWLep%s'%syst, BTagLeptonReweightFriend(BTagReweight76X, outlabel='jetBTagCSVWeight%s'%syst.replace('nominal',''), rwtSyst=syst.replace('_','')) ))
 
 #--- Susy multilep instances
 MODULES.append( ('leptonJetReCleanerTTH', lambda : LeptonJetReCleaner("Recl", # b1E2 definition of FO

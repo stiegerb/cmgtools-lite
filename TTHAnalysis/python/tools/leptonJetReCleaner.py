@@ -33,8 +33,10 @@ class LeptonJetReCleaner:
             print 'WARNING: will apply b-tag scale factors for FastSim'
             print '-'*15
         self.systsJEC = {0:"", 1:"_jecUp", -1:"_jecDown"}
-        self.systsBTAG = {0:""}
-#        self.systsBTAG = {0:"", 1:"_BCUp", -1:"_BCDown", 2:"_LightUp", -2:"_LightDown", 3:"_FS_BCUp", -3:"_FS_BCDown", 4:"_FS_LightUp", -4:"_FS_LightDown"}
+        self.systsBTAG = dict(enumerate(["", "_JESUp", "_JESDown", "_LFUp", "_LFDown", "_HFUp", "_HFDown", \
+                                             "_HFStats1Up", "_HFStats1Down", "_HFStats2Up", "_HFStats2Down", \
+                                             "_LFStats1Up", "_LFStats1Down", "_LFStats2Up", "_LFStats2Down", \
+                                             "_cErr1Up", "_cErr1Down", "_cErr2Up", "_cErr2Down" ]))
         self.cleanWithTaus = cleanWithTaus
         self.coneptdef = coneptdef
         self.debugprinted = False
@@ -72,9 +74,10 @@ class LeptonJetReCleaner:
                     "mhtJet25"+label+self.systsJEC[key],
                     ])
             for bkey in self.systsBTAG:
-                biglist.extend([
-                        ("eventBTagSF"+label+self.systsBTAG[bkey]+self.systsJEC[key], "F")
-                        ])
+                if self.select_jec_btag_unc_combinations(key,bkey):
+                    biglist.extend([
+                            ("eventBTagSF"+label+self.systsBTAG[bkey]+self.systsJEC[key], "F")
+                            ])
         for jfloat in "pt eta phi mass btagCSV rawPt".split():
             biglist.append( ("JetSel"+label+"_"+jfloat,"F",20,"nJetSel"+label) )
             biglist.append( ("DiscJetSel"+label+"_"+jfloat,"F",20,"nDiscJetSel"+label) )
@@ -300,7 +303,8 @@ class LeptonJetReCleaner:
         cleanjets={}
         for var in self.systsJEC:
             cleanjets[var] = self.recleanJets(jetsc[var],jetsd[var],lepsc+taus_forclean,self.label+self.systsJEC[var],retwlabel,jetret,discjetret,(var==0))
-            for btagsyst in self.systsBTAG: retwlabel["eventBTagSF"+self.label+self.systsBTAG[btagsyst]+self.systsJEC[var]] = bTag_eventRWT_SF(event,lepsc,cleanjets[var],self.systsBTAG[btagsyst]) if self.doBtagRWT else 1
+            for btagsyst in self.systsBTAG:
+                if self.select_jec_btag_unc_combinations(var,btagsyst): retwlabel["eventBTagSF"+self.label+self.systsBTAG[btagsyst]+self.systsJEC[var]] = self.bTag_eventRWT_SF(event,lepsc,cleanjets[var],self.systsBTAG[btagsyst]) if self.doBtagRWT else 1
 
         # calculate FOs and tight leptons using the cleaned HT, sorted by conept
         lepsf = []; lepsfv = [];
@@ -324,12 +328,16 @@ class LeptonJetReCleaner:
             fullret["DiscJetSel%s_%s" % (self.label,k)] = v
         return fullret
 
-def bTag_eventRWT_SF(ev,leps,jets,systlabel):
-    if ev.isData: return 1
-    sf = 1
-    for l in leps: sf = sf * getattr(l,"jetBTagCSVWeight"+systlabel)
-    for j in jets: sf = sf * getattr(j,"btagCSVWeight"+systlabel)
-    return sf
+    def bTag_eventRWT_SF(self,ev,leps,jets,systlabel):
+        if ev.isData: return 1
+        sf = 1
+        for l in leps: sf = sf * getattr(l,"jetBTagCSVWeight"+systlabel)
+        for j in jets: sf = sf * getattr(j,"btagCSVWeight"+systlabel)
+        return sf
+    def select_jec_btag_unc_combinations(self,jetunc,btagunc):
+        if "JESUp" in self.systsBTAG[btagunc] and not "jecUp" in self.systsJEC[jetunc]: return False
+        if "JESDown" in self.systsBTAG[btagunc] and not "jecDown" in self.systsJEC[jetunc]: return False
+        return (jetunc*btagunc==0)
 
 def passMllVeto(l1, l2, mZmin, mZmax, isOSSF ):
     if  l1.pdgId == -l2.pdgId or not isOSSF:
