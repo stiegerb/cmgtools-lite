@@ -47,7 +47,7 @@ MODULES.append( ('leptonJetReCleanerTTH', lambda : LeptonJetReCleaner("Recl", # 
                    cleanJet = lambda lep,jet,dr : dr<0.4,
                    selectJet = lambda jet: abs(jet.eta)<2.4, # also cuts on the discarded jets as calculated by the recleaner
                    isFastSim = False,
-                   CSVbtagFileName = None, EFFbtagFileName = None, CSVbtagFileNameFastSim = None,
+                   doBtagRWT = True,
                    cleanWithTaus = True,
                    coneptdef = lambda lep: conept_TTH(lep) ) ))
 
