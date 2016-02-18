@@ -10,7 +10,7 @@ purew = "-W 'puw(nTrueInt)'"
 
 def base(selection):
 
-    CORE="-P /data1/peruzzi/TREES_76X_150216_noLHE_jecV1_noJecUnc -F sf/t {P}/2_recleaner_v8_b1E2_approx/evVarFriend_{cname}.root -F sf/t {P}/4_kinMVA_74XtrainingMilosJan31_v3_reclv8/evVarFriend_{cname}.root"
+    CORE="-P /data1/peruzzi/TREES_76X_150216_noLHE_jecV1_noJecUnc_skim_reclv8 -F sf/t {P}/2_recleaner_v8_b1E2_approx/evVarFriend_{cname}.root -F sf/t {P}/4_kinMVA_74XtrainingMilosJan31_v3_reclv8/evVarFriend_{cname}.root"
 
     CORE+=" -f -j 8 -l 2.26 --neg --s2v --tree treeProducerSusyMultilepton --mcc ttH-multilepton/lepchoice-ttH-FO.txt --mcc ttH-multilepton/ttH_2lss3l_triggerdefs.txt"
     if doplots: CORE+=" --lspam '#bf{CMS} #it{Preliminary}' --legendWidth 0.20 --legendFontSize 0.035 --showRatio --maxRatioRange 0 3  --showMCError --rebin 2"
@@ -43,13 +43,13 @@ def setwide(x):
     x2 = x2.replace('--legendWidth 0.35','--legendWidth 0.20')
     return x2
 def fulltrees(x):
-    return x.replace('/data1/peruzzi/TREES_76X_150216_noLHE_jecV1_noJecUnc','/data1/peruzzi/TREES_76X_150216_noLHE_jecV1_noJecUnc')
+    return x.replace('/data1/peruzzi/TREES_76X_150216_noLHE_jecV1_noJecUnc_skim_reclv8','/data1/peruzzi/TREES_76X_150216_noLHE_jecV1_noJecUnc')
 def prep74vs76(x):
     x = x.replace('ttH-multilepton/mca','ttH-multilepton/test_74vs76/mca')
     x = x.replace(purew,"")
     print 'echo NO PU REW'
     x = add(x,"--plotmode nostack")
-    x = x.replace("-P /data1/peruzzi/TREES_76X_150216_noLHE_jecV1_noJecUnc -F sf/t {P}/2_recleaner_v8_b1E2_approx/evVarFriend_{cname}.root -F sf/t {P}/4_kinMVA_74XtrainingMilosJan31_v3_reclv8/evVarFriend_{cname}.root",\
+    x = x.replace("-P /data1/peruzzi/TREES_76X_150216_noLHE_jecV1_noJecUnc_skim_reclv8 -F sf/t {P}/2_recleaner_v8_b1E2_approx/evVarFriend_{cname}.root -F sf/t {P}/4_kinMVA_74XtrainingMilosJan31_v3_reclv8/evVarFriend_{cname}.root",\
                   "-P /data1/peruzzi/test_74vs76 -F sf/t {P}/2_recleaner/evVarFriend_{cname}.root -F sf/t {P}/4_kinMVA/evVarFriend_{cname}.root")
     return x
 
