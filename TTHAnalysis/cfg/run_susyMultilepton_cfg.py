@@ -328,9 +328,9 @@ selectedComponents = [ TTLep_pow ];
 from CMGTools.HToZZ4L.tools.configTools import printSummary, configureSplittingFromTime, cropToLumi
 
 _Wjets_DY = [WJetsToLNu,DYJetsToLL_M10to50,DYJetsToLL_M50]
-_fakes = [TTJets_DiLepton,TTJets_SingleLeptonFromT,TTJets_SingleLeptonFromTbar] # WWTo2L2Nu
+_fakes = [TTJets_DiLepton,TTJets_SingleLeptonFromT,TTJets_SingleLeptonFromTbar,WWTo2L2Nu]
 _ttH = [TTHnobb,TTHnobb_pow]
-_TTV = [TTWToLNu,TTLLJets_m1to10] # TTZToLLNuNu
+_TTV = [TTWToLNu,TTZToLLNuNu_LO,TTLLJets_m1to10]
 _convs = [TTGJets,TGJets,WGToLNuG,ZGTo2LG]
 _singleTop = [TToLeptons_sch_amcatnlo,TToLeptons_tch_amcatnlo,T_tWch,TBar_tWch]
 _diboson = [WZTo3LNu,ZZTo4L]
@@ -341,9 +341,9 @@ print 'Before cropping to lumi and adjusting the splitting:'
 printSummary(selectedComponents)
 
 _fast = [DYJetsToLL_M10to50,WJetsToLNu,TTJets_SingleLeptonFromT,TTJets_SingleLeptonFromTbar,TTGJets,TGJets,WGToLNuG]+_singleTop
-_slow = [DYJetsToLL_M50,TTJets_DiLepton,TTLLJets_m1to10,ZGTo2LG,TTWToLNu]+_ttH+_diboson+_other # TTZToLLNuNu WWTo2L2Nu
+_slow = [DYJetsToLL_M50,TTJets_DiLepton,ZGTo2LG,WWTo2L2Nu]+_TTV+_ttH+_diboson+_other
 
-cropToLumi(_convs+_diboson+_other,30)
+cropToLumi(_convs+_diboson+_other,50)
 
 configureSplittingFromTime(_fast,30,5)
 configureSplittingFromTime(_slow,100,5)
@@ -424,9 +424,8 @@ if runData and not isTest: # For running on data
         DatasetsAndTriggers.append( ("SingleElectron", triggers_1e + triggers_1e_50ns) )
 
         if runDataQCD: # for fake rate measurements in data
-#            lepAna.loose_muon_dxy = 999
-#            lepAna.loose_electron_dxy = 999
             ttHLepSkim.minLeptons = 1
+            if getHeppyOption("fast"): raise RuntimeError, 'Already added ttHFastLepSkimmer with 2-lep configuration, this is wrong.'
             FRTrigs = triggers_FR_1mu_iso + triggers_FR_1mu_noiso + triggers_FR_1e_noiso + triggers_FR_1e_iso + triggers_FR_1e_b2g
             for t in FRTrigs:
                 tShort = t.replace("HLT_","FR_").replace("_v*","")
@@ -476,14 +475,13 @@ if runData and not isTest: # For running on data
         susyCoreSequence.remove(jsonAna)
 
 if runFRMC: 
-    selectedComponents = QCD_Mu5 + QCDPtEMEnriched + QCDPtbcToE
-    selectedComponents = [ WJetsToLNu_LO ]
-#    lepAna.loose_muon_dxy = 999
-#    lepAna.loose_electron_dxy = 999
+    selectedComponents = [QCD_Mu15] + QCD_Mu5 + QCDPtEMEnriched + QCDPtbcToE + [WJetsToLNu_LO,DYJetsToLL_M10to50,DYJetsToLL_M50]
+    printSummary(selectedComponents)
     ttHLepSkim.minLeptons = 1
+    if getHeppyOption("fast"): raise RuntimeError, 'Already added ttHFastLepSkimmer with 2-lep configuration, this is wrong.'
     FRTrigs = triggers_FR_1mu_iso + triggers_FR_1mu_noiso + triggers_FR_1e_noiso + triggers_FR_1e_iso + triggers_FR_1e_b2g
     for c in selectedComponents:
-        c.triggers = [] # FRTrigs
+        c.triggers = []
         c.vetoTriggers = [] 
         c.splitFactor = len(c.files)/4
     for t in FRTrigs:
@@ -516,7 +514,7 @@ if runFRMC:
     if True: # fask skim 
         from CMGTools.TTHAnalysis.analyzers.ttHFastLepSkimmer import ttHFastLepSkimmer
         fastSkim = cfg.Analyzer(
-            ttHFastLepSkimmer, name="ttHFastLepSkimmer",
+            ttHFastLepSkimmer, name="ttHFastLepSkimmer1lep",
             muons = 'slimmedMuons', muCut = lambda mu : mu.pt() > 5 and mu.isLooseMuon(),
             electrons = 'slimmedElectrons', eleCut = lambda ele : ele.pt() > 7,
             minLeptons = 1,
@@ -638,7 +636,7 @@ if getHeppyOption("fast"):
     susyCounter.doLHE = False
     from CMGTools.TTHAnalysis.analyzers.ttHFastLepSkimmer import ttHFastLepSkimmer
     fastSkim = cfg.Analyzer(
-        ttHFastLepSkimmer, name="ttHFastLepSkimmer",
+        ttHFastLepSkimmer, name="ttHFastLepSkimmer2lep",
         muons = 'slimmedMuons', muCut = lambda mu : mu.pt() > 5 and mu.isLooseMuon(),
         electrons = 'slimmedElectrons', eleCut = lambda ele : ele.pt() > 7,
         minLeptons = 2, 
