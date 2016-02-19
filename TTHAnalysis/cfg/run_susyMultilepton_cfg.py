@@ -56,18 +56,6 @@ if not removeJecUncertainty:
     susyCoreSequence.insert(susyCoreSequence.index(metAna)+1, metAnaScaleDown)
     susyCoreSequence.insert(susyCoreSequence.index(metAna)+1, metAnaScaleUp)
 
-# cleaning b1E2 by default
-from CMGTools.TTHAnalysis.tools.conept import conept_TTH_production
-from CMGTools.TTHAnalysis.tools.emulateElectronTriggerCuts import _ttH_idEmu_cuts_E2
-jetLepArbitration_b1E2 = (lambda jet,lep: lep if ((abs(lep.pdgId())!=11 and abs(lep.pdgId())!=13) or ( \
-            conept_TTH_production(lep)>10 and \
-            (lep.jet.btag('pfCombinedInclusiveSecondaryVertexV2BJetTags') if hasattr(lep,'jet') and hasattr(lep.jet, 'btag') else -99)<0.89 and \
-            (abs(lep.pdgId)!=11 or conept_TTH_production(lep)<30 or _ttH_idEmu_cuts_E2(lep)) and \
-            (((lep.pt()/jetLepAwareJEC(lep).Pt() if hasattr(lep,'jet') else -1)>0.3 and (lep.jet.btag('pfCombinedInclusiveSecondaryVertexV2BJetTags') if hasattr(lep,'jet') and hasattr(lep.jet, 'btag') else -99)<0.605) or lep.mvaValueTTH>0.75) \
-            )) else jet)
-jetAna.jetLepArbitration = jetLepArbitration_b1E2
-jetAnaScaleUp.jetLepArbitration = jetLepArbitration_b1E2
-jetAnaScaleDown.jetLepArbitration = jetLepArbitration_b1E2
 
 
 if SOS == True:
