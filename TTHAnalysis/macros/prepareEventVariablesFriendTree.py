@@ -37,6 +37,8 @@ systsBTAG = ["nominal", "_JESUp", "_JESDown", "_LFUp", "_LFDown", "_HFUp", "_HFD
                  "_cErr1Up", "_cErr1Down", "_cErr2Up", "_cErr2Down" ]
 for syst in systsBTAG: # should be converted to lambda functions
     MODULES.append( ('btagRWJet%s'%syst, BTagReweightFriend(BTagReweight76X, outlabel='btagCSVWeight%s'%syst.replace('nominal',''), rwtSyst=syst.replace('_','')) ))
+    MODULES.append( ('btagRWJetUp%s'%syst, BTagReweightFriend(BTagReweight76X, jets=["Jet_jecUp","DiscJet_jecUp"], outlabel='btagCSVWeight%s'%syst.replace('nominal',''), rwtSyst=syst.replace('_','')) ))
+    MODULES.append( ('btagRWJetDown%s'%syst, BTagReweightFriend(BTagReweight76X, jets=["Jet_jecDown","DiscJet_jecDown"], outlabel='btagCSVWeight%s'%syst.replace('nominal',''), rwtSyst=syst.replace('_','')) ))
     MODULES.append( ('btagRWLep%s'%syst, BTagLeptonReweightFriend(BTagReweight76X, outlabel='jetBTagCSVWeight%s'%syst.replace('nominal',''), rwtSyst=syst.replace('_','')) ))
 
 #--- Susy multilep instances
