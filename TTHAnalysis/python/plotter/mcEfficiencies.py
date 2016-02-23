@@ -13,13 +13,15 @@ def addMCEfficiencyOptions(parser):
     parser.add_option("--rebin", dest="globalRebin", type="int", default="0", help="Rebin all plots by this factor")
     parser.add_option("--xrange", dest="xrange", default=None, nargs=2, type='float', help="X axis range");
     parser.add_option("--xcut", dest="xcut", default=None, nargs=2, type='float', help="X axis cut");
+    parser.add_option("--xline", dest="xlines", default=[], action="append", type='float', help="Lines to draw at given X axis values");
     parser.add_option("--yrange", dest="yrange", default=None, nargs=2, type='float', help="Y axis range");
     parser.add_option("--logy", dest="logy", default=False, action='store_true', help="Do y axis in log scale");
     parser.add_option("--ytitle", dest="ytitle", default="Efficiency", type='string', help="Y axis title");
-    parser.add_option("--fontsize", dest="fontsize", default=0, type='float', help="Legend font size");
+    parser.add_option("--fontsize", dest="fontsize", default=0.035, type='float', help="Legend font size");
     parser.add_option("--grid", dest="showGrid", action="store_true", default=False, help="Show grid lines")
     parser.add_option("--groupBy",  dest="groupBy",  default="process",  type="string", help="Group by: cut, process")
     parser.add_option("--legend",  dest="legend",  default="TR",  type="string", help="Legend position (BR, TR)")
+    parser.add_option("--legendWidth", dest="legendWidth", type="float", default=0.35, help="Width of the legend")
     parser.add_option("--compare", dest="compare", default="", help="Samples to compare (by default, all except the totals)")
     parser.add_option("--showRatio", dest="showRatio", action="store_true", default=False, help="Add a data/sim ratio plot at the bottom")
     parser.add_option("--rr", "--ratioRange", dest="ratioRange", type="float", nargs=2, default=(-1,-1), help="Min and max for the ratio")
@@ -27,12 +29,13 @@ def addMCEfficiencyOptions(parser):
 
 
 def doLegend(rocs,options,textSize=0.035):
+        lwidth = options.legendWidth
         if options.legend == "TR":
-            (x1,y1,x2,y2) = (.6, .85 - textSize*max(len(rocs)-3,0), .93, .98)
+            (x1,y1,x2,y2) = (.93-lwidth, .98 - 1.2*textSize*max(len(rocs),3), .93, .98)
         elif options.legend == "TL":
-            (x1,y1,x2,y2) = (.2, .85 - textSize*max(len(rocs)-3,0), .53, .98)
+            (x1,y1,x2,y2) = (.2, .98 - 1.2*textSize*max(len(rocs),3), .2+lwidth, .98)
         else:
-            (x1,y1,x2,y2) = (.6, .30 + textSize*max(len(rocs)-3,0), .93, .18)
+            (x1,y1,x2,y2) = (.93-lwidth, .18 + 1.2*textSize*max(len(rocs),3), .93, .18)
         leg = ROOT.TLegend(x1,y1,x2,y2)
         leg.SetFillColor(0)
         leg.SetShadowColor(0)
@@ -46,7 +49,7 @@ def doLegend(rocs,options,textSize=0.035):
         legend_ = leg 
         return leg
 
-def effFromH2D(h2d,options):
+def effFromH2D(h2d,options,uncertainties="CP"):
     points = []
     for xbin in xrange(1,h2d.GetNbinsX()+1):
         xval = h2d.GetXaxis().GetBinCenter(xbin)
@@ -58,8 +61,13 @@ def effFromH2D(h2d,options):
         if yall <= 0 or ypass < 0: continue 
         eff = ypass/yall 
         neff = (yall**2)/(ypassErr**2 + yfailErr**2)
-        errsCP = [ ROOT.TEfficiency.ClopperPearson(int(neff),int(neff*eff), 0.6827, i)-eff for i in (False,True) ]
-        points.append( (xval, xerrs, eff, errsCP) )
+        if uncertainties == "CP":
+            errs = [ ROOT.TEfficiency.ClopperPearson(int(neff),int(neff*eff), 0.6827, i)-eff for i in (False,True) ]
+        elif uncertainties == "PF":
+            err = hypot(yfail * ypassErr, ypass * yfailErr)/(yall*yall)
+            errs = [ -err, err ]
+        #print h2d.GetName(), xval, ypass, ypassErr, yfail, yfailErr, eff, neff, eff*neff, (1-eff)*neff, errs
+        points.append( (xval, xerrs, eff, errs) )
     if not points: return None
     ret = ROOT.TGraphAsymmErrors(len(points))
     for i,(xval, xerrs, yval, yerrs) in enumerate(points):
@@ -68,6 +76,7 @@ def effFromH2D(h2d,options):
     ret._xrange = h2d.GetXaxis().GetXmin(), h2d.GetXaxis().GetXmax()
     ret.GetXaxis().SetRangeUser(ret._xrange[0], ret._xrange[1])
     ret.GetXaxis().SetTitle(h2d.GetXaxis().GetTitle())
+    ret.SetName(h2d.GetName()+"_graph")
     return ret
 
 def dumpEffFromH2D(h2d,xbin):
@@ -148,8 +157,11 @@ def stackEffs(outname,x,effs,options):
     if options.yrange:
         frame.GetYaxis().SetRangeUser(options.yrange[0], options.yrange[1])
 
-    leg = doLegend(effs,options)
-    if options.fontsize: leg.SetTextSize(options.fontsize)
+    liner = ROOT.TLine(); liner.SetLineStyle(2)
+    for x in options.xlines:
+        liner.DrawLine(x, frame.GetYaxis().GetXmin(), x, frame.GetYaxis().GetXmax())
+
+    leg = doLegend(effs,options,textSize=options.fontsize)
     if doRatio:
         p2.cd()
         keepme = doEffRatio(x,effs,frame,options)
@@ -159,7 +171,17 @@ def stackEffs(outname,x,effs,options):
     c1.Print(outname.replace(".root","")+".png")
     c1.Print(outname.replace(".root","")+".eps")
     c1.Print(outname.replace(".root","")+".pdf")
-
+    dump = open(outname.replace(".root","")+".txt","w")
+    for n,e in effs:
+        dump.write(" ===  %s === \n" % n)
+        dump.write("  x min    x max      eff   -err   +err  \n")
+        dump.write("-------- --------    ----- ------ ------ \n")
+        for i in xrange(e.GetN()):
+            dump.write("%8.3f %8.3f    %.3f -%.3f +%.3f \n" % (
+                 e.GetX()[i]-e.GetErrorYlow(i),
+                 e.GetX()[i]+e.GetErrorYhigh(i),
+                 e.GetY()[i], e.GetErrorYlow(i), e.GetErrorYhigh(i) ))
+        dump.write("\n\n");
 def graphFromSlice(h,axis,bins):
         (aobj,ai) = (h.GetXaxis(),0) if axis == "X" else (h.GetYaxis(),1)
         ret = ROOT.TGraphAsymmErrors(len(bins))
@@ -248,9 +270,35 @@ def doEffRatio(x,effs,frame,options):
     unity.Draw("E2 SAME");
     for ratio in effrels[1:]:
         ratio.Draw("PZ SAME");
+
+    liner = ROOT.TLine(); liner.SetLineStyle(2)
+    for x in options.xlines: liner.DrawLine(x, rmin, x, rmax)
+
     return (cframe,line,effrels)
 
     
+def makeDataSub(report,mca):
+    data_sub      = report['data'].Clone(report['data'].GetName()+'_sub')
+    data_sub_syst = report['data'].Clone(report['data'].GetName()+'_sub_syst')
+    for p in mca.listBackgrounds():
+        if p not in report: continue
+        b = report[p]
+        data_sub.Add(b, -1.0)
+        data_sub_syst.Add(b, -1.0)
+        syst = mca.getProcessOption(p,'NormSystematic',0.) 
+        #print "subtracting background %s from data with systematic %r" % (p,syst)
+        if syst <= 0: continue
+        if "TH1" in b.ClassName():
+            for bx in xrange(1,b.GetNbinsX()+1):
+                data_sub_syst.SetBinError(bx, hypot(data_sub_syst.GetBinError(bx), syst * b.GetBinContent(bx)))
+        elif "TH2" in b.ClassName():
+            for (bx,by) in itertools.product(range(1,b.GetNbinsX()+1), range(1,b.GetNbinsY()+1)):
+                data_sub_syst.SetBinError(bx, by, hypot(data_sub_syst.GetBinError(bx, by), syst * b.GetBinContent(bx, by)))
+        elif "TH3" in b.ClassName():
+            for (bx,by,bz) in itertools.product(range(1,b.GetNbinsX()+1), range(1,b.GetNbinsY()+1), range(1,b.GetNbinsZ()+1)):
+                data_sub_syst.SetBinError(bx, by, bz, hypot(data_sub_syst.GetBinError(bx, by, bz), syst * b.GetBinContent(bx, by, bz)))
+    report['data_sub']      = data_sub
+    report['data_sub_syst'] = data_sub_syst
 
 def makeEff(mca,cut,idplot,xvarplot,returnSeparatePassFail=False,notDoProfile="auto",mainOptions=None):
     import copy
@@ -276,14 +324,37 @@ def makeEff(mca,cut,idplot,xvarplot,returnSeparatePassFail=False,notDoProfile="a
     if 'signal' in report and 'background' in report:
         report['total'] = mergePlots(pspec.name+"_total", [ report[s] for s in ('signal','background') ] )
     if 'data' in report and 'background' in report:
-        report['data_sub'] = report['data'].Clone(pspec.name+'_data_sub')
-        report['data_sub'].Add(report['background'], -1.0)
-    if mainOptions and mainOptions.compare:
-        print report.keys()
+        makeDataSub(report, mca)
     if notDoProfile and not returnSeparatePassFail:
         if is2D: report = dict([(title, effFromH3D(hist,mainOptions)) for (title, hist) in report.iteritems()])
         else:    report = dict([(title, effFromH2D(hist,mainOptions)) for (title, hist) in report.iteritems()])
     return report
+
+def styleEffsByProc(effmap,procs,mca):
+    allprocs = mca.listSignals(True)+mca.listBackgrounds(True)+mca.listOptionsOnlyProcesses()
+    effs = []
+    for proc in procs:
+        if proc not in effmap: continue
+        eff = effmap[proc]
+        if not eff: continue
+        if proc in allprocs:
+            eff.SetLineColor(mca.getProcessOption(proc,"FillColor",SAFE_COLOR_LIST[len(effs)]))
+            eff.SetFillColor(mca.getProcessOption(proc,"FillColor",SAFE_COLOR_LIST[len(effs)]))
+            eff.SetMarkerColor(mca.getProcessOption(proc,"FillColor",SAFE_COLOR_LIST[len(effs)]))
+            eff.SetMarkerStyle(mca.getProcessOption(proc,"MarkerStyle",20))
+            eff.SetMarkerSize(mca.getProcessOption(proc,"MarkerSize",1.6)*0.8)
+            eff.SetLineWidth(4)
+            effs.append((mca.getProcessOption(proc,"Label",proc),eff))
+            if mca.getProcessOption(proc,'DrawOption'):
+                eff.DrawOption = mca.getProcessOption(proc,'DrawOption')
+        else:
+            eff.SetLineColor(SAFE_COLOR_LIST[len(effs)])
+            eff.SetMarkerColor(SAFE_COLOR_LIST[len(effs)])
+            eff.SetMarkerStyle(20)
+            eff.SetMarkerSize(1.6*0.8)
+            eff.SetLineWidth(4)
+            effs.append((proc,eff))
+    return effs
 
 if __name__ == "__main__":
     from optparse import OptionParser
@@ -361,26 +432,9 @@ if __name__ == "__main__":
         for x in xvars:
             for y,ex,pmap in effplots:
                 if ex != x: continue
-                effs = []
                 myname = outname.replace(".root","_%s_%s.root" % (y.name,x.name))
                 procsToStack = options.compare.split(",") if options.compare else procs
-                for proc in procsToStack:
-                    eff = pmap[proc]
-                    if not eff: continue
-                    if proc in procs:
-                        eff.SetLineColor(mca.getProcessOption(proc,"FillColor",SAFE_COLOR_LIST[len(effs)]))
-                        eff.SetMarkerColor(mca.getProcessOption(proc,"FillColor",SAFE_COLOR_LIST[len(effs)]))
-                        eff.SetMarkerStyle(mca.getProcessOption(proc,"MarkerStyle",20))
-                        eff.SetMarkerSize(mca.getProcessOption(proc,"MarkerSize",1.6)*0.8)
-                        eff.SetLineWidth(4)
-                        effs.append((mca.getProcessOption(proc,"Label",proc),eff))
-                    else:
-                        eff.SetLineColor(SAFE_COLOR_LIST[len(effs)])
-                        eff.SetMarkerColor(SAFE_COLOR_LIST[len(effs)])
-                        eff.SetMarkerStyle(20)
-                        eff.SetMarkerSize(1.6*0.8)
-                        eff.SetLineWidth(4)
-                        effs.append((proc,eff))
+                effs = styleEffsByProc(pmap,procsToStack,mca)
                 if len(effs) == 0: continue
                 stackEffs(myname,x,effs,options)
     if "process" in options.groupBy:
