@@ -1,14 +1,14 @@
 ttH+    : TTHnobb : 0.5071*0.418 : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge; FillColor=ROOT.kOrange+10
 
 TTW     : TTWToLNu : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ;  FillColor=ROOT.kGreen-5
-TTZ     : TTZToLLNuNu_LO : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ;  FillColor=ROOT.kSpring+2
+TTZ     : TTZToLLNuNu_LO : 0.8393 : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ;  FillColor=ROOT.kSpring+2
 TTZ     : TTLLJets_m1to10 : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ;  FillColor=ROOT.kSpring+2
 TTZ	: TTJets_DiLepton : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kSpring+2
 TTZ   	: TTJets_SingleLeptonFromT : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kSpring+2
 TTZ     : TTJets_SingleLeptonFromTbar : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kSpring+2
 
 WZ 	: WZTo3LNu : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ;  FillColor=ROOT.kViolet-4
-ZZ      : ZZTo4L : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ;  FillColor=ROOT.kAzure-9
+Rares      : ZZTo4L : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ;  FillColor=ROOT.kAzure-9
 
 Gstar   : DYJetsToLL_M10to50: xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kCyan+1
 Gstar   : DYJetsToLL_M50: xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kCyan+1
@@ -64,13 +64,13 @@ flips_data: SingleMuon_Run2015D_16Dec2015 ; FakeRate="ttH-multilepton/flipRate-2
 
 ttH_jec_Up+    : TTHnobb : 0.5071*0.418 : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge; FillColor=ROOT.kOrange+10, FakeRate="ttH-multilepton/fr-jecUp.txt", SkipMe=True
 TTW_jec_Up     : TTWToLNu : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ;  FillColor=ROOT.kGreen-5, FakeRate="ttH-multilepton/fr-jecUp.txt", SkipMe=True
-TTZ_jec_Up     : TTZToLLNuNu_LO : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ;  FillColor=ROOT.kSpring+2, FakeRate="ttH-multilepton/fr-jecUp.txt", SkipMe=True
+TTZ_jec_Up     : TTZToLLNuNu_LO : 0.8393 : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ;  FillColor=ROOT.kSpring+2, FakeRate="ttH-multilepton/fr-jecUp.txt", SkipMe=True
 TTZ_jec_Up     : TTLLJets_m1to10 : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ;  FillColor=ROOT.kSpring+2, FakeRate="ttH-multilepton/fr-jecUp.txt", SkipMe=True
 TTZ_jec_Up     : TTJets_DiLepton : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kSpring+2, FakeRate="ttH-multilepton/fr-jecUp.txt", SkipMe=True
 TTZ_jec_Up     : TTJets_SingleLeptonFromT : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kSpring+2, FakeRate="ttH-multilepton/fr-jecUp.txt", SkipMe=True
 TTZ_jec_Up     : TTJets_SingleLeptonFromTbar : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kSpring+2, FakeRate="ttH-multilepton/fr-jecUp.txt", SkipMe=True
 WZ_jec_Up 	: WZTo3LNu : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ;  FillColor=ROOT.kViolet-4, FakeRate="ttH-multilepton/fr-jecUp.txt", SkipMe=True
-ZZ_jec_Up      : ZZTo4L : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ;  FillColor=ROOT.kAzure-9, FakeRate="ttH-multilepton/fr-jecUp.txt", SkipMe=True
+Rares_jec_Up      : ZZTo4L : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ;  FillColor=ROOT.kAzure-9, FakeRate="ttH-multilepton/fr-jecUp.txt", SkipMe=True
 Gstar_jec_Up   : DYJetsToLL_M10to50: xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kCyan+1, FakeRate="ttH-multilepton/fr-jecUp.txt", SkipMe=True
 Gstar_jec_Up   : DYJetsToLL_M50: xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kCyan+1, FakeRate="ttH-multilepton/fr-jecUp.txt", SkipMe=True
 WWss_jec_Up    : WpWpJJ : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kOrange-3, FakeRate="ttH-multilepton/fr-jecUp.txt", SkipMe=True
@@ -87,13 +87,13 @@ Convs_jec_Up   : TGJets : xsec : ((LepGood1_mcMatchId==0 && LepGood1_mcPromptGam
 
 ttH_jec_Dn+    : TTHnobb : 0.5071*0.418 : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge; FillColor=ROOT.kOrange+10, FakeRate="ttH-multilepton/fr-jecDn.txt", SkipMe=True
 TTW_jec_Dn     : TTWToLNu : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ;  FillColor=ROOT.kGreen-5, FakeRate="ttH-multilepton/fr-jecDn.txt", SkipMe=True
-TTZ_jec_Dn     : TTZToLLNuNu_LO : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ;  FillColor=ROOT.kSpring+2, FakeRate="ttH-multilepton/fr-jecDn.txt", SkipMe=True
+TTZ_jec_Dn     : TTZToLLNuNu_LO : 0.8393 : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ;  FillColor=ROOT.kSpring+2, FakeRate="ttH-multilepton/fr-jecDn.txt", SkipMe=True
 TTZ_jec_Dn     : TTLLJets_m1to10 : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ;  FillColor=ROOT.kSpring+2, FakeRate="ttH-multilepton/fr-jecDn.txt", SkipMe=True
 TTZ_jec_Dn     : TTJets_DiLepton : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kSpring+2, FakeRate="ttH-multilepton/fr-jecDn.txt", SkipMe=True
 TTZ_jec_Dn     : TTJets_SingleLeptonFromT : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kSpring+2, FakeRate="ttH-multilepton/fr-jecDn.txt", SkipMe=True
 TTZ_jec_Dn     : TTJets_SingleLeptonFromTbar : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kSpring+2, FakeRate="ttH-multilepton/fr-jecDn.txt", SkipMe=True
 WZ_jec_Dn 	: WZTo3LNu : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ;  FillColor=ROOT.kViolet-4, FakeRate="ttH-multilepton/fr-jecDn.txt", SkipMe=True
-ZZ_jec_Dn      : ZZTo4L : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ;  FillColor=ROOT.kAzure-9, FakeRate="ttH-multilepton/fr-jecDn.txt", SkipMe=True
+Rares_jec_Dn      : ZZTo4L : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ;  FillColor=ROOT.kAzure-9, FakeRate="ttH-multilepton/fr-jecDn.txt", SkipMe=True
 Gstar_jec_Dn   : DYJetsToLL_M10to50: xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kCyan+1, FakeRate="ttH-multilepton/fr-jecDn.txt", SkipMe=True
 Gstar_jec_Dn   : DYJetsToLL_M50: xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kCyan+1, FakeRate="ttH-multilepton/fr-jecDn.txt", SkipMe=True
 WWss_jec_Dn    : WpWpJJ : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kOrange-3, FakeRate="ttH-multilepton/fr-jecDn.txt", SkipMe=True
