@@ -27,7 +27,7 @@ BTight=" -E BTight "
 ZeroTau=" -E 0tau "
 OneTau=" -E 1tau "
 
-OPTIONS="${OPTIONS} --Fs {P}/2_recleaner_v8_b1E2_approx --Fs {P}/4_kinMVA_74XtrainingMilosJan31_v3_reclv8"
+OPTIONS="${OPTIONS} --Fs {P}/2_recleaner_v8_b1E2_approx --Fs {P}/4_kinMVA_74XtrainingMilosJan31_v3_reclv8 --Fs {P}/5_eventBTagRWT_onlyJets_v1"
 OPTIONS="${OPTIONS} --mcc ttH-multilepton/lepchoice-ttH-FO.txt --mcc ttH-multilepton/ttH_2lss3l_triggerdefs.txt"
 OPTIONS="${OPTIONS} --asimov --xp data --xp '.*data.*'" # safety!
 
