@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
-ODIR="~/www/25ns_run2015cd_76X_24febNEW"
+ODIR="~/www/25ns_run2015cd_76X_24febNEW_weightJets"
 MYTREEDIR="/data1/peruzzi/TREES_76X_200216_jecV1M2"
 MYLUMI="2.26"
 
 EXE="python mcPlots.py"
 WDIR="ttH-multilepton/lepMVA-vars"
-COMMOPT='--s2v --tree treeProducerSusyMultilepton -W "puw(nTrueInt)*eventBTagSF" -F sf/t {P}/2_recleaner_v8_b1E2/evVarFriend_{cname}.root -F sf/t {P}/5_eventBTagRWT_v0/evVarFriend_{cname}.root --mcc ttH-multilepton/ttH_2lss3l_triggerdefs.txt --rspam "%(lumi) (13 TeV)  " --lspam "#bf{CMS} #it{Preliminary}" --legendBorder=0 --legendFontSize 0.055 --legendWidth=0.35 --showRatio --maxRatioRange 0 2 --showRatio --poisson --showMCError -j 12 -f --sp ".*"'
+COMMOPT='--s2v --tree treeProducerSusyMultilepton -W "puw(nTrueInt)*eventBTagSF" -F sf/t {P}/2_recleaner_v8_b1E2/evVarFriend_{cname}.root -F sf/t {P}/5_eventBTagRWT_onlyJets_v1/evVarFriend_{cname}.root --mcc ttH-multilepton/ttH_2lss3l_triggerdefs.txt --rspam "%(lumi) (13 TeV)  " --lspam "#bf{CMS} #it{Preliminary}" --legendBorder=0 --legendFontSize 0.055 --legendWidth=0.35 --showRatio --maxRatioRange 0 2 --showRatio --poisson --showMCError -j 12 -f --sp ".*"'
 
 SELECTIONS=["ttbar_MLM","ttbar_semiLeptonic","ZtoEE","ZtoMuMu","Wl","Zl"]#,"ttbar_Powheg","ttbar_MLM","ttbar_aMCatNLO","ttbar_Powheg_scaleUp","ttbar_aMCatNLO_scaleUp"]
 

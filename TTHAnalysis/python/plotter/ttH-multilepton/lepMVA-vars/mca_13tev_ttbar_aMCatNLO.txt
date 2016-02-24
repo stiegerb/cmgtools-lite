@@ -1,12 +1,12 @@
 DY : DYJetsToLL_M10to50: xsec ; FillColor=ROOT.kCyan
 DY : DYJetsToLL_M50: xsec ; FillColor=ROOT.kCyan
  
-TT : TTJets: xsec ;  FillColor=ROOT.kGray, Label="TT FXFX"
+TT : TTJets: xsec ;  FillColor=ROOT.kGray, Label="TT aMC@NLO"
 #TT : TT_pow_ext: xsec  ;  FillColor=ROOT.kGray, Label="TT Powheg"
 #TT  : TTJets_DiLepton : xsec ;  FillColor=ROOT.kGray, Label="TT MLM"
 #TT  : TTJets_SingleLeptonFromT : xsec ;  FillColor=ROOT.kGray, Label="TT MLM"
 #TT  : TTJets_SingleLeptonFromTbar : xsec ;  FillColor=ROOT.kGray, Label="TT MLM"
-#TT : TTJets_scaleup : xsec ; FillColor=ROOT.kGray, Label="TT FXFX scaleUp"
+#TT : TTJets_scaleup : xsec ; FillColor=ROOT.kGray, Label="TT aMC@NLO scaleUp"
 #TT : TT_pow_scaleup : xsec ; FillColor=ROOT.kGray, Label="TT Powheg scaleUp"
 
 VV : WZTo3LNu: xsec ; FillColor=ROOT.kViolet-4

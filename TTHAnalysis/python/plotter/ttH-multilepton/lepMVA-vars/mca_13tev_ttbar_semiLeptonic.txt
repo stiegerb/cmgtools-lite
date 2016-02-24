@@ -1,7 +1,15 @@
-TTTb : TTJets: xsec : LepGood2_mcMatchId ==0 && LepGood2_mcMatchAny == 5;    FillColor=ROOT.kGreen-5,    Label="tt\, b\#rightarrowl"
-TTTj : TTJets: xsec : LepGood2_mcMatchId ==0 && LepGood2_mcMatchAny < 4 ;    FillColor=ROOT.kGreen-8, Label="tt\, j\#rightarrowl"
-TTTc : TTJets: xsec : LepGood2_mcMatchId ==0 && LepGood2_mcMatchAny == 4;    FillColor=ROOT.kGreen-9,    Label="tt\, c\#rightarrowl"
-TTT2l: TTJets: xsec : LepGood2_mcMatchId !=0;    FillColor=ROOT.kGray,    Label="tt\, prompt"
+TTTb : TTJets_DiLepton: xsec : LepGood2_mcMatchId ==0 && LepGood2_mcMatchAny == 5;    FillColor=ROOT.kGreen-5,    Label="tt\, b\#rightarrowl"
+TTTj : TTJets_DiLepton: xsec : LepGood2_mcMatchId ==0 && LepGood2_mcMatchAny < 4 ;    FillColor=ROOT.kGreen-8, Label="tt\, j\#rightarrowl"
+TTTc : TTJets_DiLepton: xsec : LepGood2_mcMatchId ==0 && LepGood2_mcMatchAny == 4;    FillColor=ROOT.kGreen-9,    Label="tt\, c\#rightarrowl"
+TTT2l: TTJets_DiLepton: xsec : LepGood2_mcMatchId !=0;    FillColor=ROOT.kGray,    Label="tt\, prompt"
+TTTb : TTJets_SingleLeptonFromT: xsec : LepGood2_mcMatchId ==0 && LepGood2_mcMatchAny == 5;    FillColor=ROOT.kGreen-5,    Label="tt\, b\#rightarrowl"
+TTTj : TTJets_SingleLeptonFromT: xsec : LepGood2_mcMatchId ==0 && LepGood2_mcMatchAny < 4 ;    FillColor=ROOT.kGreen-8, Label="tt\, j\#rightarrowl"
+TTTc : TTJets_SingleLeptonFromT: xsec : LepGood2_mcMatchId ==0 && LepGood2_mcMatchAny == 4;    FillColor=ROOT.kGreen-9,    Label="tt\, c\#rightarrowl"
+TTT2l: TTJets_SingleLeptonFromT: xsec : LepGood2_mcMatchId !=0;    FillColor=ROOT.kGray,    Label="tt\, prompt"
+TTTb : TTJets_SingleLeptonFromTbar: xsec : LepGood2_mcMatchId ==0 && LepGood2_mcMatchAny == 5;    FillColor=ROOT.kGreen-5,    Label="tt\, b\#rightarrowl"
+TTTj : TTJets_SingleLeptonFromTbar: xsec : LepGood2_mcMatchId ==0 && LepGood2_mcMatchAny < 4 ;    FillColor=ROOT.kGreen-8, Label="tt\, j\#rightarrowl"
+TTTc : TTJets_SingleLeptonFromTbar: xsec : LepGood2_mcMatchId ==0 && LepGood2_mcMatchAny == 4;    FillColor=ROOT.kGreen-9,    Label="tt\, c\#rightarrowl"
+TTT2l: TTJets_SingleLeptonFromTbar: xsec : LepGood2_mcMatchId !=0;    FillColor=ROOT.kGray,    Label="tt\, prompt"
 
 DY : DYJetsToLL_M10to50: xsec ; FillColor=ROOT.kCyan
 DY : DYJetsToLL_M50: xsec ; FillColor=ROOT.kCyan
