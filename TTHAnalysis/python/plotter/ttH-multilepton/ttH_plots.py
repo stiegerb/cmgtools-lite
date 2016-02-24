@@ -66,11 +66,15 @@ if __name__ == '__main__':
         if '_splitfakes' in torun:
             x = x.replace('mca-2lss-mc.txt','mca-2lss-mc-flavsplit.txt')
             
-        if '_closure' in torun:
+        if '_closuretest' in torun:
+            x = x.replace('mca-2lss-mc.txt','mca-2lss-mc-closuretest.txt')
             x = x.replace("--xP 'kinMVA_input.*'","--sP 'kinMVA_input.*'")
+            x = x.replace("--maxRatioRange 0 3","--maxRatioRange 0.5 1.5")
             x = add(x,"--AP --plotmode nostack --sP kinMVA_2lss_ttbar --sP kinMVA_2lss_ttV")
-            x = procs(x,['TT_1lep','TT_frmc_tt','TT_frmc_qcd'])
-            x = add(x,"--ratioDen TT_1lep --ratioNums TT_frmc_tt,TT_frmc_qcd --rebin 4 --errors")
+            x = add(x,"--ratioDen FR_QCD --ratioNums FR_TT --rebin 4 --errors")
+            if '_closuretest_norm' in torun:
+                x = x.replace("--plotmode nostack","--plotmode norm")
+                x = add(x,"--fitRatio 1")
             if '_bloose' in torun: x = add(x,'-E BLoose')
             if '_btight' in torun: x = add(x,'-E BTight')
             if '_nobcut' in torun: x = add(x,'-X 2b1B')
@@ -89,6 +93,16 @@ if __name__ == '__main__':
             if not '_data' in torun: raise RuntimeError
             x = add(x,"--xp data")
             x = x.replace('mca-3l-mcdata.txt','mca-3l-mcdata-frdata.txt')
+        if '_closuretest' in torun:
+            x = x.replace('mca-3l-mc.txt','mca-3l-mc-closuretest.txt')
+            x = x.replace("--xP 'kinMVA_input.*'","--sP 'kinMVA_input.*'")
+            x = x.replace("--maxRatioRange 0 3","--maxRatioRange 0.5 1.5")
+            x = add(x,"--AP --plotmode nostack --sP kinMVA_3l_ttbar --sP kinMVA_3l_ttV")
+            x = add(x,"--ratioDen FR_QCD --ratioNums FR_TT --rebin 4 --errors")
+            if '_closuretest_norm' in torun:
+                x = x.replace("--plotmode nostack","--plotmode norm")
+                x = add(x,"--fitRatio 1")
+            if '_notrigger' in torun: x = add(x,'-X trigger')
         runIt(x,'%s'%torun)
 
     if 'cr_3j' in torun:

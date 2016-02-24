@@ -40,7 +40,7 @@ CMS_ttHl_WZ_4j : WZ : .*2lss.* : 2.0
 
 # Other normalizations
 CMS_ttHl_Rares		: Rares|Gstar|WWss : .* : 1.5
-CMS_ttHl_Convs		: Convs : .* : 1.3
+CMS_ttHl_Convs		: Convs : .* : 1.3 # unused at the moment (convs from FR)
 
 
 # common theoretical uncertainties (fully correlated everywhere)
