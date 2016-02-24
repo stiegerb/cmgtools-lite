@@ -477,3 +477,27 @@ Convs_bTag_cErr2_Dn   : TTGJets : xsec : eventBTagSF_cErr2Down/eventBTagSF*((Lep
 Convs_bTag_cErr2_Dn   : WGToLNuG : xsec : eventBTagSF_cErr2Down/eventBTagSF*((LepGood1_mcMatchId==0 && LepGood1_mcPromptGamma==1) || (LepGood2_mcMatchId==0 && LepGood2_mcPromptGamma==1)) ; SkipMe=True
 Convs_bTag_cErr2_Dn   : ZGTo2LG : xsec : eventBTagSF_cErr2Down/eventBTagSF*((LepGood1_mcMatchId==0 && LepGood1_mcPromptGamma==1) || (LepGood2_mcMatchId==0 && LepGood2_mcPromptGamma==1)) ; SkipMe=True
 Convs_bTag_cErr2_Dn   : TGJets : xsec : eventBTagSF_cErr2Down/eventBTagSF*((LepGood1_mcMatchId==0 && LepGood1_mcPromptGamma==1) || (LepGood2_mcMatchId==0 && LepGood2_mcPromptGamma==1)) ; SkipMe=True
+
+
+ttH_trigEff_ee+    : TTHnobb : 0.5071*0.418 : if3((LepGood1_pt<40 && LepGood2_pt<40),1.07,1.03)*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge); FillColor=ROOT.kOrange+10, SkipMe=True
+TTW_trigEff_ee     : TTWToLNu : xsec : if3((LepGood1_pt<40 && LepGood2_pt<40),1.07,1.03)*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ;  FillColor=ROOT.kGreen-5, SkipMe=True
+TTZ_trigEff_ee     : TTZToLLNuNu_LO : 0.8393 : if3((LepGood1_pt<40 && LepGood2_pt<40),1.07,1.03)*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ;  FillColor=ROOT.kSpring+2, SkipMe=True
+TTZ_trigEff_ee     : TTLLJets_m1to10 : xsec : if3((LepGood1_pt<40 && LepGood2_pt<40),1.07,1.03)*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ;  FillColor=ROOT.kSpring+2, SkipMe=True
+TTZ_trigEff_ee     : TTJets_DiLepton : xsec : if3((LepGood1_pt<40 && LepGood2_pt<40),1.07,1.03)*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ; FillColor=ROOT.kSpring+2, SkipMe=True
+TTZ_trigEff_ee     : TTJets_SingleLeptonFromT : xsec : if3((LepGood1_pt<40 && LepGood2_pt<40),1.07,1.03)*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ; FillColor=ROOT.kSpring+2, SkipMe=True
+TTZ_trigEff_ee     : TTJets_SingleLeptonFromTbar : xsec : if3((LepGood1_pt<40 && LepGood2_pt<40),1.07,1.03)*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ; FillColor=ROOT.kSpring+2, SkipMe=True
+WZ_trigEff_ee 	: WZTo3LNu : xsec : if3((LepGood1_pt<40 && LepGood2_pt<40),1.07,1.03)*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ;  FillColor=ROOT.kViolet-4, SkipMe=True
+Rares_trigEff_ee      : ZZTo4L : xsec : if3((LepGood1_pt<40 && LepGood2_pt<40),1.07,1.03)*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ;  FillColor=ROOT.kAzure-9, SkipMe=True
+Gstar_trigEff_ee   : DYJetsToLL_M10to50: xsec : if3((LepGood1_pt<40 && LepGood2_pt<40),1.07,1.03)*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ; FillColor=ROOT.kCyan+1, SkipMe=True
+Gstar_trigEff_ee   : DYJetsToLL_M50: xsec : if3((LepGood1_pt<40 && LepGood2_pt<40),1.07,1.03)*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ; FillColor=ROOT.kCyan+1, SkipMe=True
+WWss_trigEff_ee    : WpWpJJ : xsec : if3((LepGood1_pt<40 && LepGood2_pt<40),1.07,1.03)*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ; FillColor=ROOT.kOrange-3, SkipMe=True
+Rares_trigEff_ee   : WWDouble : xsec : if3((LepGood1_pt<40 && LepGood2_pt<40),1.07,1.03)*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ; FillColor=ROOT.kMagenta-7, SkipMe=True
+#Rares_trigEff_ee   : WWZ : xsec : if3((LepGood1_pt<40 && LepGood2_pt<40),1.07,1.03)*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ; FillColor=ROOT.kMagenta-7, SkipMe=True
+Rares_trigEff_ee   : WZZ : xsec : if3((LepGood1_pt<40 && LepGood2_pt<40),1.07,1.03)*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ; FillColor=ROOT.kMagenta-7, SkipMe=True
+#Rares_trigEff_ee   : ZZZ : xsec : if3((LepGood1_pt<40 && LepGood2_pt<40),1.07,1.03)*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ; FillColor=ROOT.kMagenta-7, SkipMe=True
+Rares_trigEff_ee   : TTTT : xsec : if3((LepGood1_pt<40 && LepGood2_pt<40),1.07,1.03)*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ; FillColor=ROOT.kMagenta-7, SkipMe=True
+Rares_trigEff_ee   : tZq_ll : xsec : if3((LepGood1_pt<40 && LepGood2_pt<40),1.07,1.03)*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ; FillColor=ROOT.kMagenta-7, SkipMe=True
+Convs_trigEff_ee   : TTGJets : xsec : if3((LepGood1_pt<40 && LepGood2_pt<40),1.07,1.03)*((LepGood1_mcMatchId==0 && LepGood1_mcPromptGamma==1) || (LepGood2_mcMatchId==0 && LepGood2_mcPromptGamma==1)) ; FillColor=ROOT.kOrange, SkipMe=True
+Convs_trigEff_ee   : WGToLNuG : xsec : if3((LepGood1_pt<40 && LepGood2_pt<40),1.07,1.03)*((LepGood1_mcMatchId==0 && LepGood1_mcPromptGamma==1) || (LepGood2_mcMatchId==0 && LepGood2_mcPromptGamma==1)) ; FillColor=ROOT.kOrange, SkipMe=True
+Convs_trigEff_ee   : ZGTo2LG : xsec : if3((LepGood1_pt<40 && LepGood2_pt<40),1.07,1.03)*((LepGood1_mcMatchId==0 && LepGood1_mcPromptGamma==1) || (LepGood2_mcMatchId==0 && LepGood2_mcPromptGamma==1)) ; FillColor=ROOT.kOrange, SkipMe=True
+Convs_trigEff_ee   : TGJets : xsec : if3((LepGood1_pt<40 && LepGood2_pt<40),1.07,1.03)*((LepGood1_mcMatchId==0 && LepGood1_mcPromptGamma==1) || (LepGood2_mcMatchId==0 && LepGood2_mcPromptGamma==1)) ; FillColor=ROOT.kOrange, SkipMe=True

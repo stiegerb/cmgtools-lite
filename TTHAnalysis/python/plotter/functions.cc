@@ -490,10 +490,11 @@ float leptonSF_ttH(int pdgid, float pt, float eta, int nlep, float var=0){
 }
 
 float triggerSF_ttH(int pdgid1, float pt1, int pdgid2, float pt2, int nlep, float var_ee=0){
+  if (var_ee!=0) assert(0); // NOT IMPLEMENTED
   if (nlep>2) return 1;
   if (abs(pdgid1)==11 && abs(pdgid2)==11){
-    if (std::max(pt1,pt2)<40) return 0.95+var_ee*0.07;
-    else return 0.99+var_ee*0.03;
+    if (std::max(pt1,pt2)<40) return 0.95;
+    else return 0.99;
   }
   else if (abs(pdgid1)==13 && abs(pdgid2)==13) {
     return 1.;
