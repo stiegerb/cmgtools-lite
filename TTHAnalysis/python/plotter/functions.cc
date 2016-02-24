@@ -446,7 +446,9 @@ TH2F *_histo_looseToTight_leptonSF_mu_3l = NULL;
 TFile *_file_looseToTight_leptonSF_el_3l = NULL;
 TH2F *_histo_looseToTight_leptonSF_el_3l = NULL;
 
-float _get_looseToTight_leptonSF_ttH(int pdgid, float pt, float eta, int nlep, float var){
+float _get_looseToTight_leptonSF_ttH(int pdgid, float _pt, float eta, int nlep, float var){
+
+  float pt = std::min(float(79.9),_pt);
 
   if (var!=0) assert(0); // NOT IMPLEMENTED
 
