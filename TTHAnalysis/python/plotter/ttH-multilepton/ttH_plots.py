@@ -80,6 +80,16 @@ if __name__ == '__main__':
             if '_nobcut' in torun: x = add(x,'-X 2b1B')
             if '_notrigger' in torun: x = add(x,'-X trigger')
 
+        if '_varsFR' in torun:
+            torun += "_"+sys.argv[-1]
+            x = x.replace('mca-2lss-mc.txt','mca-2lss-data-frdata-%s.txt'%sys.argv[-1])
+            x = x.replace("--maxRatioRange 0 3","--maxRatioRange 0 2")
+            x = add(x,"--plotmode nostack --sP kinMVA_2lss_ttbar --sP kinMVA_2lss_ttV")
+            x = add(x,"--ratioDen fakes_data --ratioNums fakes_data_%s --rebin 4 --errors"%sys.argv[-1])
+            if '_varsFR_norm' in torun:
+                x = x.replace("--plotmode nostack","--plotmode norm")
+                x = add(x,"--fitRatio 1")
+
         runIt(x,'%s/all'%torun)
         if '_flav' in torun:
             for flav in ['mm','ee','em']: runIt(add(x,'-E %s'%flav),'%s/%s'%(torun,flav))
@@ -103,6 +113,15 @@ if __name__ == '__main__':
                 x = x.replace("--plotmode nostack","--plotmode norm")
                 x = add(x,"--fitRatio 1")
             if '_notrigger' in torun: x = add(x,'-X trigger')
+        if '_varsFR' in torun:
+            torun += "_"+sys.argv[-1]
+            x = x.replace('mca-3l-mc.txt','mca-3l-data-frdata-%s.txt'%sys.argv[-1])
+            x = x.replace("--maxRatioRange 0 3","--maxRatioRange 0 2")
+            x = add(x,"--plotmode nostack --sP kinMVA_3l_ttbar --sP kinMVA_3l_ttV")
+            x = add(x,"--ratioDen fakes_data --ratioNums fakes_data_%s --rebin 4 --errors"%sys.argv[-1])
+            if '_varsFR_norm' in torun:
+                x = x.replace("--plotmode nostack","--plotmode norm")
+                x = add(x,"--fitRatio 1")
         runIt(x,'%s'%torun)
 
     if 'cr_3j' in torun:
