@@ -91,20 +91,25 @@ def getYieldScale(mass,process):
                 scale *= splines['efficiency_'+dec].Eval(mass)
             break
     return scale 
+
+import math
 def rebin2Dto1D(h,funcstring):
     nbins,fname = funcstring.split(':',1)
     func = getattr(ROOT,fname)
     nbins = int(nbins)
-    newh = ROOT.TH1D(h.GetName(),h.GetTitle(),nbins,0.5,nbins+0.5)
+    goodname = h.GetName()
+    h.SetName(goodname+"_torebin")
+    newh = ROOT.TH1D(goodname,h.GetTitle(),nbins,0.5,nbins+0.5)
     x = h.GetXaxis()
     y = h.GetYaxis()
-    allowed = [i+1 for i in xrange(nbins)]
+    allowed = range(1,nbins+1)
     if 'TH2' not in h.ClassName(): raise RuntimeError, "Calling rebin2Dto1D on something that is not TH2"
     for i in xrange(x.GetNbins()):
         for j in xrange(y.GetNbins()):
             bin = int(func(x.GetBinCenter(i+1),y.GetBinCenter(j+1)))
             if bin not in allowed: raise RuntimeError, "Binning function gives not admissible result"
             newh.SetBinContent(bin,newh.GetBinContent(bin)+h.GetBinContent(i+1,j+1))
+            newh.SetBinError(bin,math.hypot(newh.GetBinError(bin),h.GetBinError(i+1,j+1)))
     newh.SetLineWidth(h.GetLineWidth())
     newh.SetLineStyle(h.GetLineStyle())
     newh.SetLineColor(h.GetLineColor())
@@ -150,6 +155,11 @@ for sysfile in args[4:]:
             if re.match(binmap+"$",truebinname) == None: continue
             if name not in systs: systsEnv[name] = []
             systsEnv[name].append((re.compile(procmap+"$"),amount,field[4]))
+        elif field[4] in ["stat_foreach_shape_bins"]:
+            (name, procmap, binmap, amount) = field[:4]
+            if re.match(binmap+"$",binname) == None: continue
+            if name not in systsEnv: systsEnv[name] = []
+            systsEnv[name].append((re.compile(procmap),amount,field[4],field[5].split(',')))
         else:
             raise RuntimeError, "Unknown systematic type %s" % field[4]
     if options.verbose:
@@ -166,12 +176,13 @@ for name in systs.keys():
         if mca._projection != None and effect not in ["-","0","1"]:
             if "/" in effect:
                 e1, e2 = effect.split("/")
-                effect = "%.3f/%.3f" % (mca._projection.scaleSyst(name, float(e1)), mca._projection.scaleSyst(name, float(e1)))
+                effect = "%.3f/%.3f" % (mca._projection.scaleSyst(name, float(e1)), mca._projection.scaleSyst(name, float(e2)))
             else:
                 effect = str(mca._projection.scaleSyst(name, float(effect)))
         effmap[p] = effect
     systs[name] = effmap
 
+systsEnv1 = {}
 for name in systsEnv.keys():
     effmap0  = {}
     effmap12 = {}
@@ -179,7 +190,8 @@ for name in systsEnv.keys():
         effect = "-"
         effect0  = "-"
         effect12 = "-"
-        for (procmap,amount,mode) in systsEnv[name]:
+        for entry in systsEnv[name]:
+            procmap,amount,mode = entry[:3]
             if re.match(procmap, p): effect = float(amount) if mode not in ["templates","alternateShape", "alternateShapeOnly"] else amount
         if mca._projection != None and effect not in ["-","0","1",1.0,0.0] and type(effect) == type(1.0):
             effect = mca._projection.scaleSyst(name, effect)
@@ -206,7 +218,7 @@ for name in systsEnv.keys():
             c1def = lambda x: 2*(x-0.5) # straight line from (0,-1) to (1,+1)
             c2def = lambda x: 1 - 8*(x-0.5)**2 # parabola through (0,-1), (0.5,~1), (1,-1)
             if '2D' not in mode:
-                if 'TH1' not in nominal.ClassName(): raise RuntimeError, 'Trying to use 1D shape systs on a 2D histogram'
+                if 'TH1' not in nominal.ClassName(): raise RuntimeError, 'Trying to use 1D shape systs on a 2D histogram'+nominal.ClassName()+" "+nominal.GetName()
                 for b in xrange(1,nbinx+1):
                     x = (nominal.GetBinCenter(bx)-xmin)/(xmax-xmin)
                     c1 = c1def(x)
@@ -294,7 +306,72 @@ for name in systsEnv.keys():
             effect12 = "-"
         effmap0[p]  = effect0 
         effmap12[p] = effect12 
-    systsEnv[name] = (effmap0,effmap12,mode)
+    systsEnv1[name] = (effmap0,effmap12,mode)
+
+for n,h in report.iteritems():
+    if options.binfunction: report[n] = rebin2Dto1D(h,options.binfunction)
+
+systsEnv2={}
+for name in systsEnv.keys():
+    effmap0  = {}
+    effmap12 = {}
+    for p in procs:
+        effect = "-"
+        effect0  = "-"
+        effect12 = "-"
+        for entry in systsEnv[name]:
+            procmap,amount,mode = entry[:3]
+            if re.match(procmap, p):
+                effect = float(amount) if mode not in ["templates","alternateShape", "alternateShapeOnly"] else amount
+                morefields=entry[3:]
+        if mca._projection != None and effect not in ["-","0","1",1.0,0.0] and type(effect) == type(1.0):
+            effect = mca._projection.scaleSyst(name, effect)
+        if effect == "-" or effect == "0": 
+            effmap0[p]  = "-" 
+            effmap12[p] = "-" 
+            continue
+        if mode in ["stat_foreach_shape_bins"]:
+            if mca._projection != None:
+                raise RuntimeError,'mca._projection.scaleSystTemplate not implemented in the case of stat_foreach_shape_bins'
+            nominal = report[p]
+            if 'TH1' in nominal.ClassName():
+                for bin in xrange(1,nominal.GetNbinsX()+1):
+                    for binmatch in morefields[0]:
+                        if re.match(binmatch+"$",'%d'%bin):
+                            if (effect*nominal.GetBinError(bin)<0.1*sqrt(nominal.GetBinContent(bin)+1)):
+                                if options.verbose: print 'skipping stat_foreach_shape_bins %s %d because it is irrelevant'%(p,bin)
+                                break
+                            p0Up = nominal.Clone("%s_%s_%s_bin%dUp"% (nominal.GetName(),name,p,bin))
+                            p0Dn = nominal.Clone("%s_%s_%s_bin%dDown"% (nominal.GetName(),name,p,bin))
+                            p0Up.SetBinContent(bin,p0Up.GetBinContent(bin)+effect*p0Up.GetBinError(bin))
+                            p0Up.SetBinError(bin,p0Up.GetBinError(bin)*(p0Up.GetBinContent(bin)/nominal.GetBinContent(bin) if nominal.GetBinContent(bin)!=0 else 1))
+                            p0Dn.SetBinContent(bin,max(1e-5,p0Dn.GetBinContent(bin)-effect*p0Dn.GetBinError(bin)))
+                            p0Dn.SetBinError(bin,p0Dn.GetBinError(bin)*(p0Dn.GetBinContent(bin)/nominal.GetBinContent(bin) if nominal.GetBinContent(bin)!=0 else 1))
+                            report[str(p0Up.GetName())[2:]] = p0Up
+                            report[str(p0Dn.GetName())[2:]] = p0Dn
+                            systsEnv2["%s_%s_bin%d"%(name,p,bin)] = (dict([(_p,"1" if _p==p else "-") for _p in procs]),dict([(_p,"1" if _p==p else "-") for _p in procs]),"templates")
+                            break # otherwise you apply more than once to the same bin if more regexps match
+            elif 'TH2' in nominal.ClassName():
+                for binx in xrange(1,nominal.GetNbinsX()+1):
+                    for biny in xrange(1,nominal.GetNbinsY()+1):
+                        for binmatch in morefields[0]:
+                            if re.match(binmatch+"$",'%d,%d'%(binx,biny)):
+                                if (effect*nominal.GetBinError(binx,biny)<0.1*sqrt(nominal.GetBinContent(binx,biny)+1)):
+                                    if options.verbose: print 'skipping stat_foreach_shape_bins %s %d,%d because it is irrelevant'%(p,binx,biny)
+                                    break
+                                p0Up = nominal.Clone("%s_%s_%s_bin%d_%dUp"% (nominal.GetName(),name,p,binx,biny))
+                                p0Dn = nominal.Clone("%s_%s_%s_bin%d_%dDown"% (nominal.GetName(),name,p,binx,biny))
+                                p0Up.SetBinContent(binx,biny,p0Up.GetBinContent(binx,biny)+effect*p0Up.GetBinError(binx,biny))
+                                p0Up.SetBinError(binx,biny,p0Up.GetBinError(binx,biny)*(p0Up.GetBinContent(binx,biny)/nominal.GetBinContent(binx,biny) if nominal.GetBinContent(binx,biny)!=0 else 1))
+                                p0Dn.SetBinContent(binx,biny,max(1e-5,p0Dn.GetBinContent(binx,biny)-effect*p0Dn.GetBinError(binx,biny)))
+                                p0Dn.SetBinError(binx,biny,p0Dn.GetBinError(binx,biny)*(p0Dn.GetBinContent(binx,biny)/nominal.GetBinContent(binx,biny) if nominal.GetBinContent(binx,biny)!=0 else 1))
+                                report[str(p0Up.GetName())[2:]] = p0Up
+                                report[str(p0Dn.GetName())[2:]] = p0Dn
+                                systsEnv2["%s_%s_bin%d_%d"%(name,p,binx,biny)] = (dict([(_p,"1" if _p==p else "-") for _p in procs]),dict([(_p,"1" if _p==p else "-") for _p in procs]),"templates")
+                                break # otherwise you apply more than once to the same bin if more regexps match
+
+systsEnv.update(systsEnv1)
+systsEnv.update(systsEnv2)
 
 ## create efficiency scale factors, if needed
 if len(masses) > 1 and options.massIntAlgo not in [ "sigmaBR","noeff"]:
@@ -442,7 +519,6 @@ if len(masses) > 1:
 myout = outdir+"/common/" if len(masses) > 1 else outdir;
 workspace = ROOT.TFile.Open(myout+binname+".input.root", "RECREATE")
 for n,h in report.iteritems():
-    if options.binfunction: h = rebin2Dto1D(h,options.binfunction)
     if options.verbose: print "\t%s (%8.3f events)" % (h.GetName(),h.Integral())
     workspace.WriteTObject(h,h.GetName())
 workspace.Close()
