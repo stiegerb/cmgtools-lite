@@ -582,15 +582,17 @@ int lepTnPFriendTreeMaker::PassTTBarSelection(){
 
 bool lepTnPFriendTreeMaker::SelectTagMuon(int i){
    if (LepGood_pt[i] < 25.) return false;
-   if (fabs(LepGood_eta[i]) > 2.1) return false;
-   if (LepGood_relIso03[i] > 0.2) return false;
+   if (fabs(LepGood_eta[i]) > 2.4) return false;
+   if (LepGood_miniRelIso[i] > 0.2) return false;
+   // if (LepGood_relIso03[i] > 0.2) return false;
    return true;
 }
 
 bool lepTnPFriendTreeMaker::SelectTagElectron(int i){
    if (LepGood_pt[i] < 25.) return false;
-   if (fabs(LepGood_eta[i]) > 2.1) return false;
-   if (LepGood_relIso03[i] > 0.2) return false;
+   if (fabs(LepGood_eta[i]) > 2.4) return false;
+   if (LepGood_miniRelIso[i] > 0.2) return false;
+   // if (LepGood_relIso03[i] > 0.2) return false;
    return true;
 }
 

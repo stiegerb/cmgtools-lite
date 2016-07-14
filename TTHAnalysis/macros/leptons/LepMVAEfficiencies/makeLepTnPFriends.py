@@ -6,12 +6,13 @@ from array import array
 from ROOT import TEfficiency
 import os.path as osp
 
-LUMI = 2.07 ## /store/user/mmarionn/heppyTrees/809_June9/
+LUMI = 3.99 ## /store/user/mmarionn/heppyTrees/809_June9/
 WEIGHT = "puWeight"
-PAIRSEL = ("((pdgId*tag_pdgId==-11*11||pdgId*tag_pdgId==-13*13)"
-           "&&abs(mass-91.)<30.&&abs(mcMatchId)>0)")
+PAIRSEL = ("((pdgId*tag_pdgId==-13*13)&&abs(mass-91.)<50.&&abs(mcMatchId)>0)")
+# PAIRSEL = ("((pdgId*tag_pdgId==-11*11||pdgId*tag_pdgId==-13*13)"
+#            "&&abs(mass-91.)<50.&&abs(mcMatchId)>0)")
 SELECTIONS = {
-    'inclusive':      PAIRSEL,
+        'inclusive':      PAIRSEL,
     # 'singleTriggers': PAIRSEL+"&&passSingle",
     # 'doubleTriggers': PAIRSEL+"&&passDouble",
     # 'ttbar': "( (pdgId*tag_pdgId==-11*13)||"
@@ -23,14 +24,14 @@ SELECTIONS = {
 }
 
 LEPSEL = [
-    ('eb', 'abs(pdgId)==11&&abseta<1.479',
-           'Electrons Barrel (#eta < 1.479)'),
-    ('ee', 'abs(pdgId)==11&&abseta>=1.479',
-           'Electrons Endcap (#eta #geq 1.479)'),
+    # ('eb', 'abs(pdgId)==11&&abseta<1.479',
+    #        'Electrons Barrel (#eta < 1.479)'),
+    # ('ee', 'abs(pdgId)==11&&abseta>=1.479',
+    #        'Electrons Endcap (#eta #geq 1.479)'),
     ('mb', 'abs(pdgId)==13&&abseta<1.2',
            'Muons Barrel (#eta < 1.2)'),
-    ('me', 'abs(pdgId)==13&&abseta>=1.2',
-           'Muons Endcap (#eta #geq 1.2)'),
+    # ('me', 'abs(pdgId)==13&&abseta>=1.2',
+    #        'Muons Endcap (#eta #geq 1.2)'),
 ]
 ## Eta binning for 2d plots:
 LEPSEL2D = []
@@ -49,7 +50,7 @@ for n in range(len(ETABINS2D_MU)-1):
                        elo=ETABINS2D_MU[n], ehi=ETABINS2D_MU[n+1]),
                    'Muons {elo} #leq |#eta| < {ehi}'.format(
                        elo=ETABINS2D_MU[n], ehi=ETABINS2D_MU[n+1]) ) )
-LEPSEL.extend(LEPSEL2D)
+# LEPSEL.extend(LEPSEL2D)
 
 MASSBINS  = range(61,122,1)
 PTBINS    = [10.,15.,20.,25.,30.,37.5,45.,60.,80.,100.]
@@ -59,15 +60,16 @@ NJETBINS  = [0,1,2,3,4,5,6]
 NBJETBINS = [0,1,2,3]
 BINNINGS = [
     ('pt',            PTBINS,    'p_{T} [GeV]'),
-    ('nVert',         NVERTBINS, 'N_{vertices}'),
-    ('nJet25',        NJETBINS,  'N_{jets}'),
-    ('nBJetMedium25', NBJETBINS, 'N_{bjets, CSVM}'),
+    # ('nVert',         NVERTBINS, 'N_{vertices}'),
+    # ('nJet25',        NJETBINS,  'N_{jets}'),
+    # ('nBJetMedium25', NBJETBINS, 'N_{bjets, CSVM}'),
 ]
 
-DENOMINATOR = "passLoose"
+DENOMINATOR = "mediumMuonId>0&&miniRelIso<0.2"
 NUMERATORS  = [
-    ('2lss',"passTight&&passTCharge", 'same-sign 2 lepton definition'),
-    ('3l',  "passTight", '3 lepton definition'),
+    ('tc',"mediumMuonId>0&&miniRelIso<0.2&&passTCharge>=1", 'muon dpt/pt < 0.2'),
+    # ('2lss',"passTight&&passTCharge", 'same-sign 2 lepton definition'),
+    # ('3l',  "passTight", '3 lepton definition'),
 ]
 
 INPUTS = {
@@ -120,7 +122,7 @@ class EfficiencyPlot(object):
                        ROOT.kOrange+8, ROOT.kSpring-5]
 
         self.reference = None # reference for ratios
-        self.ratiorange = (0.75, 1.15)
+        self.ratiorange = (0.999, 1.001)
 
     def add(self,eff,tag,includeInRatio=True):
         self.effs.append(eff)
@@ -824,7 +826,7 @@ def main(args, options):
 
     # Make plots
     makePlots(efficiencies, options)
-    make2DMap(efficiencies, options)
+    # make2DMap(efficiencies, options)
 
 
 if __name__ == '__main__':
