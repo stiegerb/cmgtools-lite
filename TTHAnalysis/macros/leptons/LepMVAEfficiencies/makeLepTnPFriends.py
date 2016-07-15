@@ -28,8 +28,9 @@ LEPSEL = [
     #        'Electrons Barrel (#eta < 1.479)'),
     # ('ee', 'abs(pdgId)==11&&abseta>=1.479',
     #        'Electrons Endcap (#eta #geq 1.479)'),
-    ('mb', 'abs(pdgId)==13&&abseta<1.2',
-           'Muons Barrel (#eta < 1.2)'),
+    ('m', 'abs(pdgId)==13', 'Muons inclusive'),
+    # ('mb', 'abs(pdgId)==13&&abseta<1.2',
+    #        'Muons Barrel (#eta < 1.2)'),
     # ('me', 'abs(pdgId)==13&&abseta>=1.2',
     #        'Muons Endcap (#eta #geq 1.2)'),
 ]
@@ -52,13 +53,15 @@ for n in range(len(ETABINS2D_MU)-1):
                        elo=ETABINS2D_MU[n], ehi=ETABINS2D_MU[n+1]) ) )
 # LEPSEL.extend(LEPSEL2D)
 
-MASSBINS  = range(61,122,1)
-PTBINS    = [10.,15.,20.,25.,30.,37.5,45.,60.,80.,100.]
+MASSBINS  = range(61,142,1)
+# MASSBINS  = range(61,122,1)
+PTBINS    = [10.,15.,20.,25.,30.,37.5,45.,60.,80.,100.,200.,1200.]
 ETABINS   = [0.,0.25,0.50,0.75,1.00,1.25,1.50,2.00,2.50]
 NVERTBINS = [0,4,7,8,9,10,11,12,13,14,15,16,17,19,22,25,30]
 NJETBINS  = [0,1,2,3,4,5,6]
 NBJETBINS = [0,1,2,3]
 BINNINGS = [
+    ('abseta',        ETABINS,    '|#eta|'),
     ('pt',            PTBINS,    'p_{T} [GeV]'),
     # ('nVert',         NVERTBINS, 'N_{vertices}'),
     # ('nJet25',        NJETBINS,  'N_{jets}'),
@@ -67,7 +70,7 @@ BINNINGS = [
 
 DENOMINATOR = "mediumMuonId>0&&miniRelIso<0.2"
 NUMERATORS  = [
-    ('tc',"mediumMuonId>0&&miniRelIso<0.2&&passTCharge>=1", 'muon dpt/pt < 0.2'),
+    ('tc',"mediumMuonId>0&&miniRelIso<0.2&&passTCharge>0", 'muon dpt/pt < 0.2'),
     # ('2lss',"passTight&&passTCharge", 'same-sign 2 lepton definition'),
     # ('3l',  "passTight", '3 lepton definition'),
 ]
@@ -122,7 +125,7 @@ class EfficiencyPlot(object):
                        ROOT.kOrange+8, ROOT.kSpring-5]
 
         self.reference = None # reference for ratios
-        self.ratiorange = (0.999, 1.001)
+        self.ratiorange = (0.995, 1.005)
 
     def add(self,eff,tag,includeInRatio=True):
         self.effs.append(eff)
@@ -234,6 +237,7 @@ class EfficiencyPlot(object):
         mainframe.GetXaxis().SetLabelSize(0)
         mainframe.GetXaxis().SetTitleSize(0)
         mainframe.GetYaxis().SetNoExponent()
+        mainframe.GetYaxis().SetRangeUser(0.95, 1.001)
         mainframe.Draw()
 
         # leg = ROOT.TLegend(.12,.15,.60,.30+0.037*max(len(self.effs)-3,0))
@@ -615,7 +619,7 @@ def makePassedFailed(proc,fnames,indir,
 
                         # Some special cases:
                         # Skip eta binnings for non pt vars
-                        if (not lep in ['eb','ee','mb','me'] and
+                        if (not lep in ['eb','ee','mb','me', 'm'] and
                             var != 'pt'): continue
 
                         # Cut at pt>30 for njet and nbjet binnings
@@ -690,7 +694,7 @@ def makePlots(efficiencies, options):
         for nname,_,ntitle in NUMERATORS:
             for var,bins,xtitle in BINNINGS:
 
-                if not lep in ['ee','eb','mb','me']: continue
+                if not lep in ['ee','eb','mb','me', 'm']: continue
 
                 # Compare data/MC for each binning
                 plot = EfficiencyPlot('%s_%s_%s'%(lep,nname,var))

@@ -732,7 +732,8 @@ void lepTnPFriendTreeMaker::Loop(){
             if( abs(LepGood_pdgId[lep1])==13 ) fHCutFlow->Fill(8);
 
             // Find a probe lepton
-            for (int lep2 = lep1+1; lep2 < nLepGood; ++lep2){
+            for (int lep2 = 0; lep2 < nLepGood; ++lep2){
+               if (lep2 == lep1) continue;
                TLorentzVector p_lep1, p_lep2;
                p_lep1.SetPtEtaPhiM(LepGood_pt[lep1],
                                    LepGood_eta[lep1],
