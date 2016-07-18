@@ -6,11 +6,11 @@ systs = {}
 from optparse import OptionParser
 parser = OptionParser(usage="%prog [options] mc.txt cuts.txt var bins systs.txt ")
 addMCAnalysisOptions(parser)
-parser.add_option("-o",   "--out",    dest="outname", type="string", default=None, help="output name") 
-parser.add_option("--od", "--outdir", dest="outdir", type="string", default=None, help="output name") 
+parser.add_option("-o",   "--out",    dest="outname", type="string", default=None, help="output name")
+parser.add_option("--od", "--outdir", dest="outdir", type="string", default=None, help="output name")
 parser.add_option("-v", "--verbose",  dest="verbose",  default=0,  type="int",    help="Verbosity level (0 = quiet, 1 = verbose, 2+ = more)")
 parser.add_option("--masses", dest="masses", default=None, type="string", help="produce results for all these masses")
-parser.add_option("--mass-int-algo", dest="massIntAlgo", type="string", default="sigmaBR", help="Interpolation algorithm for nearby masses") 
+parser.add_option("--mass-int-algo", dest="massIntAlgo", type="string", default="sigmaBR", help="Interpolation algorithm for nearby masses")
 parser.add_option("--asimov", dest="asimov", action="store_true", help="Asimov")
 parser.add_option("--2d-binning-function",dest="binfunction", type="string", default=None, help="Function used to bin the 2D histogram: nbins:func, where func(x,y) = bin in [1,nbins]")
 parser.add_option("--infile",dest="infile", type="string", default=None, help="File to read histos from")
@@ -21,7 +21,7 @@ options.weight = True
 options.final  = True
 options.allProcesses  = True
 
-if "/functions_cc.so" not in ROOT.gSystem.GetLibraries(): 
+if "/functions_cc.so" not in ROOT.gSystem.GetLibraries():
     ROOT.gROOT.ProcessLine(".L %s/src/CMGTools/TTHAnalysis/python/plotter/functions.cc+" % os.environ['CMSSW_BASE']);
 
 mca  = MCAnalysis(args[0],options)
@@ -50,7 +50,8 @@ def file2map(x):
             ret[fields[0]] = dict(zip(headers,fields[1:]))
     return ret
 #YRpath = os.environ['CMSSW_RELEASE_BASE']+"/src/HiggsAnalysis/CombinedLimit/data/lhc-hxswg/sm/";
-YRpath = '/afs/cern.ch/user/p/peruzzi/work/cmgtools/combine/CMSSW_7_4_14/src/HiggsAnalysis/CombinedLimit/data/lhc-hxswg/sm/'
+# YRpath = '/afs/cern.ch/user/p/peruzzi/work/cmgtools/combine/CMSSW_7_4_14/src/HiggsAnalysis/CombinedLimit/data/lhc-hxswg/sm/'
+YRpath = '/afs/cern.ch/user/s/stiegerb/combine/HiggsAnalysis/CombinedLimit/data/lhc-hxswg/sm/'
 #XStth = file2map(YRpath+"xs/8TeV/8TeV-ttH.txt")
 BRhvv = file2map(YRpath+"br/BR2bosons.txt")
 BRhff = file2map(YRpath+"br/BR2fermions.txt")
@@ -59,8 +60,8 @@ def mkspline(table,column,sf=1.0):
     pairs.sort()
     x,y = ROOT.std.vector('double')(), ROOT.std.vector('double')()
     for xi,yi in pairs:
-        x.push_back(xi) 
-        y.push_back(yi) 
+        x.push_back(xi)
+        y.push_back(yi)
     spline = ROOT.ROOT.Math.Interpolator(x,y);
     spline._x = x
     spline._y = y
@@ -70,8 +71,8 @@ def mkOneSpline():
     pairs.sort()
     x,y = ROOT.std.vector('double')(), ROOT.std.vector('double')()
     for xi,yi in pairs:
-        x.push_back(xi) 
-        y.push_back(yi) 
+        x.push_back(xi)
+        y.push_back(yi)
     spline = ROOT.ROOT.Math.Interpolator(x,y);
     spline._x = x
     spline._y = y
@@ -90,12 +91,12 @@ def getYieldScale(mass,process):
     if "ttH_" not in process: return 1.0
     scale = splines['ttH'].Eval(mass)
     for dec in "hww","hzz","htt":
-        if dec in process: 
+        if dec in process:
             scale *= splines[dec].Eval(mass)
             if 'efficiency_'+dec in splines:
                 scale *= splines['efficiency_'+dec].Eval(mass)
             break
-    return scale 
+    return scale
 
 import math
 def rebin2Dto1D(h,funcstring):
@@ -144,9 +145,9 @@ if options.asimov:
     tomerge = []
     for p in mca.listSignals() + mca.listBackgrounds():
         if p in report: tomerge.append(report[p])
-    report['data_obs'] = mergePlots("x_data_obs", tomerge) 
+    report['data_obs'] = mergePlots("x_data_obs", tomerge)
 else:
-    report['data_obs'] = report['data'].Clone("x_data_obs") 
+    report['data_obs'] = report['data'].Clone("x_data_obs")
 
 allyields = dict([(p,h.Integral()) for p,h in report.iteritems()])
 procs = []; iproc = {}
@@ -221,9 +222,9 @@ for name in systsEnv.keys():
             if re.match(procmap, p): effect = float(amount) if mode not in ["templates","alternateShape", "alternateShapeOnly"] else amount
         if mca._projection != None and effect not in ["-","0","1",1.0,0.0] and type(effect) == type(1.0):
             effect = mca._projection.scaleSyst(name, effect)
-        if effect == "-" or effect == "0": 
-            effmap0[p]  = "-" 
-            effmap12[p] = "-" 
+        if effect == "-" or effect == "0":
+            effmap0[p]  = "-"
+            effmap12[p] = "-"
             continue
         if any([re.match(x+'.*',mode) for x in ["envelop","shapeOnly"]]):
             nominal = report[p]
@@ -286,12 +287,12 @@ for name in systsEnv.keys():
 #            report[p+"_"+name+"2Down"] = p2dn
             effect12 = "1"
             # useful for plotting
-            for h in p0up, p0dn, p1up, p1dn, p2up, p2dn: 
+            for h in p0up, p0dn, p1up, p1dn, p2up, p2dn:
                 h.SetFillStyle(0); h.SetLineWidth(2)
             for h in p1up, p1dn: h.SetLineColor(4)
             for h in p2up, p2dn: h.SetLineColor(2)
-        effmap0[p]  = effect0 
-        effmap12[p] = effect12 
+        effmap0[p]  = effect0
+        effmap12[p] = effect12
     systsEnv1[name] = (effmap0,effmap12,mode)
 
 if options.binfunction:
@@ -330,9 +331,9 @@ for name in systsEnv.keys():
                 morefields=entry[3:]
         if mca._projection != None and effect not in ["-","0","1",1.0,0.0] and type(effect) == type(1.0):
             effect = mca._projection.scaleSyst(name, effect)
-        if effect == "-" or effect == "0": 
-            effmap0[p]  = "-" 
-            effmap12[p] = "-" 
+        if effect == "-" or effect == "0":
+            effmap0[p]  = "-"
+            effmap12[p] = "-"
             continue
         if mode in ["stat_foreach_shape_bins"]:
             if mca._projection != None:
@@ -343,7 +344,7 @@ for name in systsEnv.keys():
                     for binmatch in morefields[0]:
                         if re.match(binmatch+"$",'%d'%bin):
                             if nominal.GetBinContent(bin) == 0 or nominal.GetBinError(bin) == 0:
-                                if nominal.Integral() != 0: 
+                                if nominal.Integral() != 0:
                                     print "WARNING: for process %s in truebinname %s, bin %d has zero yield or zero error." % (p,truebinname,bin)
                                 break
                             if (effect*nominal.GetBinError(bin)<0.1*sqrt(nominal.GetBinContent(bin)+0.04)):
@@ -363,7 +364,7 @@ for name in systsEnv.keys():
                         for binmatch in morefields[0]:
                             if re.match(binmatch+"$",'%d,%d'%(binx,biny)):
                                 if nominal.GetBinContent(binx,biny) == 0 or nominal.GetBinError(binx,biny) == 0:
-                                    if nominal.Integral() != 0: 
+                                    if nominal.Integral() != 0:
                                         print "WARNING: for process %s in truebinname %s, bin %d,%d has zero yield or zero error." % (p,truebinname,binx,biny)
                                     break
                                 if (effect*nominal.GetBinError(binx,biny)<0.1*sqrt(nominal.GetBinContent(binx,biny)+0.04)):
@@ -381,7 +382,7 @@ for name in systsEnv.keys():
             nominal = report[p]
             p0Up = report["%s_%s_Up" % (p, effect)]
             p0Dn = report["%s_%s_Dn" % (p, effect)]
-            if not p0Up or not p0Dn: 
+            if not p0Up or not p0Dn:
                 raise RuntimeError, "Missing templates %s_%s_(Up,Dn) for %s" % (p,effect,name)
             p0Up.SetName("%s_%sUp"   % (nominal.GetName(),name))
             p0Dn.SetName("%s_%sDown" % (nominal.GetName(),name))
@@ -435,8 +436,8 @@ for name in systsEnv.keys():
             report[mirror.GetName()] = mirror
             effect0  = "1"
             effect12 = "-"
-        effmap0[p]  = effect0 
-        effmap12[p] = effect12 
+        effmap0[p]  = effect0
+        effmap12[p] = effect12
     if mode not in ["stat_foreach_shape_bins"]: systsEnv2[name] = (effmap0,effmap12,mode)
 
 systsEnv = {}
@@ -451,8 +452,8 @@ if len(masses) > 1 and options.massIntAlgo not in [ "sigmaBR","noeff"]:
         x.push_back(m)
         for d in "htt","hww","hzz":
             p = "ttH_%s_%d" % (d,m)
-            h0 = report[p] 
-            h  = report["ttH_%s" % d] 
+            h0 = report[p]
+            h  = report["ttH_%s" % d]
             #print "efficiency scale factor %s @ %d = %.3f" % (d,m,h.Integral()/h0.Integral())
             y[d].push_back(h.Integral()/h0.Integral())
         if m == 120:
@@ -470,9 +471,9 @@ if len(masses) > 1:
             scale = getYieldScale(mass,p)
             posts = ['']
             for name,(effmap0,effmap12,mode) in systsEnv.iteritems():
-                if re.match('envelop.*',mode) and effmap0[p] != "-": 
+                if re.match('envelop.*',mode) and effmap0[p] != "-":
                     posts += [ "_%s%d%s" % (name,i,d) for (i,d) in [(0,'Up'),(0,'Down'),(1,'Up'),(1,'Down'),(2,'Up'),(2,'Down')]]
-                elif re.match('shapeOnly2D.*',mode): 
+                elif re.match('shapeOnly2D.*',mode):
                     posts += [ "_%s%d%s" % (name,i,d) for (i,d) in [(1,'Up'),(1,'Down'),]]
                 elif effmap0[p]  != "-":
                     posts += [ "_%s%s" % (name,d) for d in ['Up','Down']]
@@ -497,32 +498,32 @@ if len(masses) > 1:
                     for b in xrange(1,template.GetNbinsX()+1):
                         avg = w1*h0_m1.GetBinContent(b) + w2*h0_m2.GetBinContent(b)
                         ref = h0_m0.GetBinContent(b)
-                        if avg > 0 and ref > 0: 
+                        if avg > 0 and ref > 0:
                             template.SetBinContent(b, template.GetBinContent(b) * avg/ref)
                         #print "bin %d: m1 %7.4f   m2 %7.4f  avg %7.4f   ref %7.4f " % (b, h0_m1.GetBinContent(b), h0_m2.GetBinContent(b), avg, ref)
                     template.Scale(norm/template.Integral())
                     #exit(0)
                 report["%s%s%s" % (p,smass,post)] = template
                 #print "created x_%s%s%s" % (p,mass,post)
-if len(masses) > 1: 
+if len(masses) > 1:
     if not os.path.exists(outdir+"/common"): os.mkdir(outdir+"/common")
 for mass in masses:
     smass = str(mass).replace(".0","")
     myout = outdir
     if len(masses) > 1:
-        myout += "%s/" % smass 
+        myout += "%s/" % smass
         if not os.path.exists(myout): os.mkdir(myout)
-        myyields = dict([(k,getYieldScale(mass,k)*v) for (k,v) in allyields.iteritems()]) 
-        datacard = open(myout+binname+".card.txt", "w"); 
+        myyields = dict([(k,getYieldScale(mass,k)*v) for (k,v) in allyields.iteritems()])
+        datacard = open(myout+binname+".card.txt", "w");
         datacard.write("## Datacard for cut file %s (mass %s)\n"%(args[1],mass))
         datacard.write("shapes *        * ../common/%s.input.root x_$PROCESS x_$PROCESS_$SYSTEMATIC\n" % binname)
         datacard.write("shapes ttH_hww  * ../common/%s.input.root x_$PROCESS$MASS x_$PROCESS$MASS_$SYSTEMATIC\n" % binname)
         datacard.write("shapes ttH_hzz  * ../common/%s.input.root x_$PROCESS$MASS x_$PROCESS$MASS_$SYSTEMATIC\n" % binname)
         datacard.write("shapes ttH_htt  * ../common/%s.input.root x_$PROCESS$MASS x_$PROCESS$MASS_$SYSTEMATIC\n" % binname)
     else:
-        myyields = dict([(k,v) for (k,v) in allyields.iteritems()]) 
+        myyields = dict([(k,v) for (k,v) in allyields.iteritems()])
         if not os.path.exists(myout): os.mkdir(myout)
-        datacard = open(myout+binname+".card.txt", "w"); 
+        datacard = open(myout+binname+".card.txt", "w");
         datacard.write("## Datacard for cut file %s\n"%args[1])
         datacard.write("shapes *        * %s.input.root x_$PROCESS x_$PROCESS_$SYSTEMATIC\n" % binname)
     datacard.write('##----------------------------------\n')
@@ -551,9 +552,9 @@ for mass in masses:
                 datacard.write(('%-10s shape' % (name+"2")) + " ".join([kpatt % effmap12[p] for p in procs]) +"\n")
 if len(masses) > 1:
     myout = outdir
-    myyields = dict([(k,-1 if "ttH" in k else v) for (k,v) in allyields.iteritems()]) 
+    myyields = dict([(k,-1 if "ttH" in k else v) for (k,v) in allyields.iteritems()])
     if not os.path.exists(myout): os.mkdir(myout)
-    datacard = open(myout+binname+".card.txt", "w"); 
+    datacard = open(myout+binname+".card.txt", "w");
     datacard.write("## Datacard for cut file %s (all massess, taking signal normalization from templates)\n")
     datacard.write("shapes *        * common/%s.input.root x_$PROCESS x_$PROCESS_$SYSTEMATIC\n" % binname)
     datacard.write("shapes ttH_hww  * common/%s.input.root x_$PROCESS$MASS x_$PROCESS$MASS_$SYSTEMATIC\n" % binname)
