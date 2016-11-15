@@ -3,14 +3,14 @@
 ### Add the remotes for Benjamin's repository and get the `tHq_80X_base` branch:
 
 ```
-git remote add stiegerb https://github.com/stiegerb/cmgtools-lite.git -f -t tHq_80X_base
-git checkout -b tHq_80X_base stiegerb/tHq_80X_base
-git push -u origin tHq_80X_base
+git remote add stiegerb https://github.com/stiegerb/cmgtools-lite.git -f -t 80X_tHq
+git checkout -b tHq_80X_base stiegerb/80X_tHq
+git push -u origin 80X_tHq
 ```
 
 A current set of minitree outputs is at:
 ```
-/afs/cern.ch/work/p/peruzzi/ra5trees/809_June9_ttH_skimOnlyMC_3ltight_relax_prescale
+/afs/cern.ch/work/p/peruzzi/ra5trees/mixture_jecv6prompt_datafull_jul20/
 ```
 You might have to ask Marco Peruzzi for access rights to it.
 
@@ -108,11 +108,11 @@ tHq-multilepton/plots-thq.txt \
 --showRatio --poisson \
 -j 8 \
 -f \
--P 809_June9_ttH_skimOnlyMC_3ltight_relax_prescale/ \
+-P mixture_jecv6prompt_datafull_jul20/ \
 -P treedir/tHq_production_Sep2/ \
 -l 12.9 \
 --pdir tHq-multilepton/plots_Sep9/ \
--F sf/t tHq_eventvars_Aug12/evVarFriend_{cname}.root \
+-F sf/t tHq_eventvars_Nov15/evVarFriend_{cname}.root \
 --Fs {P}/2_recleaner_v5_b1E2 \
 --mcc ttH-multilepton/lepchoice-ttH-FO.txt \
 -W 'puw2016_vtx_4fb(nVert)'
