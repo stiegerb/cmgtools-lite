@@ -9,13 +9,13 @@ tHq-multilepton/signal_extraction/mca-thq-3l-mcdata-frdata_limits.txt \
 tHq-multilepton/cuts-thq-3l.txt \
 thqMVA_ttv:thqMVA_tt 40,-1,1,40,-1,1 \
 tHq-multilepton/signal_extraction/systsEnv.txt \
--P 809_June9_ttH_skimOnlyMC_3ltight_relax_prescale/ \
+-P ra5trees/mixture_jecv6prompt_datafull_jul20/ \
 -P treedir/tHq_production_Sep2/ \
 --tree treeProducerSusyMultilepton \
 --s2v -j 8 -l 12.9 -f \
 --xp data --asimov \
--F sf/t tHq_eventvars_Nov10_skim/evVarFriend_{cname}.root \
---Fs {P}/2_recleaner_v4_b1E2 \
+-F sf/t treedir/tHq_eventvars_Nov15/evVarFriend_{cname}.root \
+--Fs {P}/2_recleaner_v5_b1E2 \
 --mcc ttH-multilepton/lepchoice-ttH-FO.txt \
 --neg \
 -o 3l \
