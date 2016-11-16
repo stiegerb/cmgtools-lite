@@ -4,7 +4,7 @@
 
 ```
 git remote add stiegerb https://github.com/stiegerb/cmgtools-lite.git -f -t 80X_tHq
-git checkout -b tHq_80X_base stiegerb/80X_tHq
+git checkout -b 80X_tHq stiegerb/80X_tHq
 git push -u origin 80X_tHq
 ```
 
