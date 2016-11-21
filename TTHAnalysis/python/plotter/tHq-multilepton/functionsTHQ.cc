@@ -1,9 +1,9 @@
 const float x_1 = -0.5;
-const float x_2 = 0.0;
-const float x_3 = 0.5;
+const float x_2 = 0.4;
+const float x_3 = 0.7;
 const float y_1 = -0.5;
-const float y_2 = 0.0;
-const float y_3 = 0.5;
+const float y_2 = 0.4;
+const float y_3 = 0.7;
 
 float tHq_MVAto1D_3l_16(float mva_tt, float mva_ttv){
 /*
@@ -122,4 +122,3 @@ New bins are:
 
     return 0;
 }
-
