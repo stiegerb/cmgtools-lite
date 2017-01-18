@@ -43,10 +43,10 @@ class tHqEventVariableFriend:
             self.branches.append(("dEtaBJet2BJet"+jecsyst, -99.9)) # delta eta: hardest bjet and second hardest bjet
 
         # Signal MVA
-        self.mvavars = [
+        self.mvavars = {}
+        self.mvavars['3l'] = [
             MVAVar(name="nJet25_Recl"),
             MVAVar(name="nJetEta1"),
-            # MVAVar(name="nBJetLoose25_Recl"),
             MVAVar(name="maxEtaJet25"),
             MVAVar(name="dEtaFwdJetBJet"),
             MVAVar(name="dEtaFwdJetClosestLep"),
@@ -56,6 +56,18 @@ class tHqEventVariableFriend:
             MVAVar(name="LepGood_charge[iF_Recl[0]]+LepGood_charge[iF_Recl[1]]+LepGood_charge[iF_Recl[2]]"),
             MVAVar(name="dEtaFwdJet2BJet"),
         ]
+        self.mvavars['2lss'] = [
+            MVAVar(name="nJet25_Recl"),
+            MVAVar(name="nJetEta1"),
+            MVAVar(name="maxEtaJet25"),
+            MVAVar(name="dEtaFwdJetBJet"),
+            MVAVar(name="dEtaFwdJetClosestLep"),
+            MVAVar(name="dPhiHighestPtSSPair"),
+            MVAVar(name="LepGood_conePt[iF_Recl[1]]"),
+            MVAVar(name="minDRll"),
+            MVAVar(name="LepGood_charge[iF_Recl[0]]+LepGood_charge[iF_Recl[1]]"),
+            MVAVar(name="dEtaFwdJet2BJet"),
+        ]
 
         self.mvaspectators = [
             MVAVar(name="iF_Recl[0]"),
@@ -63,19 +75,21 @@ class tHqEventVariableFriend:
             MVAVar(name="iF_Recl[2]"),
         ]
 
-        self.tmvaReader = ROOT.TMVA.Reader("Silent")
-        self.tmvaReader.SetVerbose(True)
-        for mvavar in self.mvavars:
-            self.tmvaReader.AddVariable(mvavar.name, mvavar.var)
-        for mvaspec in self.mvaspectators:
-            self.tmvaReader.AddSpectator(mvaspec.name, mvaspec.var)
+        self.tmvaReaders = {}
+        for channel in ['2lss', '3l']:
+            self.tmvaReaders[channel] = ROOT.TMVA.Reader("Silent")
+            self.tmvaReaders[channel].SetVerbose(True)
+            for mvavar in self.mvavars[channel]:
+                self.tmvaReaders[channel].AddVariable(mvavar.name, mvavar.var)
+            for mvaspec in self.mvaspectators:
+                self.tmvaReaders[channel].AddSpectator(mvaspec.name, mvaspec.var)
 
-        for backgr in ['tt', 'ttv']:
-            wfile = os.path.join(os.environ['CMSSW_BASE'],
-                                 "src/CMGTools/TTHAnalysis/data/kinMVA/thq/",
-                                 "thq_vs_%s_BDTG.weights.xml"%backgr)
-            self.tmvaReader.BookMVA("BDTG_"+backgr, wfile)
-            self.branches.append(("thqMVA_"+backgr, -99.9))
+            for backgr in ['tt', 'ttv']:
+                wfile = os.path.join(os.environ['CMSSW_BASE'],
+                                     "src/CMGTools/TTHAnalysis/data/kinMVA/thq/",
+                                     "thq_vs_%s_%s_BDTG.weights.xml"%(backgr,channel))
+                self.tmvaReaders[channel].BookMVA("BDTG_"+backgr, wfile)
+                self.branches.append(("thqMVA_%s_%s"%(backgr,channel), -99.9))
 
     def listBranches(self):
         """Return a list of branch names that are added"""
@@ -168,11 +182,12 @@ class tHqEventVariableFriend:
                     ret['dEtaBJet2BJet'] = -1.0
      
         # Signal MVA
-        for mvavar in self.mvavars:
-            mvavar.set(event, ret)
+        for channel in ['2lss', '3l']:
+            for mvavar in self.mvavars[channel]:
+                mvavar.set(event, ret)
 
-        for backgr in ['tt', 'ttv']:
-            ret["thqMVA_"+backgr] = self.tmvaReader.EvaluateMVA("BDTG_"+backgr)
+            for backgr in ['tt', 'ttv']:
+                ret["thqMVA_%s_%s"%(backgr,channel)] = self.tmvaReaders[channel].EvaluateMVA("BDTG_"+backgr)
 
         return ret
 
@@ -212,20 +227,22 @@ if __name__ == '__main__':
                       (ev.run, ev.lumi, ev.evt, ev.nJet25, ev.nJetFwd, ev.nLepGood, int(ev.isData)))
             ret = self.thqf(ev)
 
-            print 'maxEtaJet25:', ret['maxEtaJet25']
-            print 'nJet1:', ret['nJetEta1']
-            print 'dEtaFwdJetBJet',ret['dEtaFwdJetBJet']
-            print 'dEtaFwdJetClosestLep',ret['dEtaFwdJetClosestLep']
-            print 'dPhiHighestPtSSPair', ret['dPhiHighestPtSSPair']
-            print 'minDRll', ret['minDRll']
-            print 'thqMVA_ttv', ret['thqMVA_ttv']
-            print 'thqMVA_tt', ret['thqMVA_tt']
+            # print 'maxEtaJet25:', ret['maxEtaJet25']
+            # print 'nJet1:', ret['nJetEta1']
+            # print 'dEtaFwdJetBJet',ret['dEtaFwdJetBJet']
+            # print 'dEtaFwdJetClosestLep',ret['dEtaFwdJetClosestLep']
+            # print 'dPhiHighestPtSSPair', ret['dPhiHighestPtSSPair']
+            # print 'minDRll', ret['minDRll']
+            print 'thqMVA_ttv_2lss', ret['thqMVA_ttv_2lss']
+            print 'thqMVA_tt_2lss', ret['thqMVA_tt_2lss']
+            print 'thqMVA_ttv_3l', ret['thqMVA_ttv_3l']
+            print 'thqMVA_tt_3l', ret['thqMVA_tt_3l']
 
 
-            print 'maxEtaBJet:', ret['maxEtaBJet']
-            print 'maxEta2BJet:', ret['maxEta2BJet']
-            print 'dEtaFwdJet2BJet',ret['dEtaFwdJet2BJet']
-            print 'dEtaBJet2BJet',ret['dEtaBJet2BJet']
+            # print 'maxEtaBJet:', ret['maxEtaBJet']
+            # print 'maxEta2BJet:', ret['maxEta2BJet']
+            # print 'dEtaFwdJet2BJet',ret['dEtaFwdJet2BJet']
+            # print 'dEtaBJet2BJet',ret['dEtaBJet2BJet']
 
 
             # add additional printout here to make sure everything is consistent

@@ -75,7 +75,56 @@ def load_dataset(name, trainclass, addw=1):
 
     return tree, weight
 
-def train(allcuts, variables, dsets, options):
+# Define the selections:
+CUTS = {}
+CUTS['3l'] = ROOT.TCut('1')
+CUTS['3l'] += "nLepFO_Recl>=3"
+CUTS['3l'] += "abs(mZ1_Recl-91.2)>10"
+CUTS['3l'] += "LepGood_conePt[iF_Recl[0]]>20"
+CUTS['3l'] += "LepGood_conePt[iF_Recl[1]]>10"
+CUTS['3l'] += "LepGood_conePt[iF_Recl[2]]>10"
+CUTS['3l'] += "nJet25_Recl >= 2"
+CUTS['3l'] += "nBJetLoose25_Recl >= 1"
+CUTS['3l'] += "maxEtaJet25 >= 0"
+
+CUTS['2lss'] = ROOT.TCut('1')
+CUTS['2lss'] += "nLepFO_Recl>=2"
+CUTS['2lss'] += "nLepTight_Recl<=2"
+CUTS['2lss'] += "LepGood_charge[iF_Recl[0]]*LepGood_charge[iF_Recl[1]] > 0"
+CUTS['2lss'] += "LepGood_conePt[iF_Recl[0]]>20"
+CUTS['2lss'] += "LepGood_conePt[iF_Recl[1]]>10"
+CUTS['2lss'] += "nJet25_Recl >= 2"
+CUTS['2lss'] += "nBJetLoose25_Recl >= 1"
+CUTS['2lss'] += "maxEtaJet25 >= 0"
+
+# Define the variables to be used:
+VARIABLES = {}
+VARIABLES['3l'] = [
+    ("nJet25_Recl", "I"),
+    ("nJetEta1", "I"),
+    ("maxEtaJet25", "F"),
+    ("dEtaFwdJetBJet", "F"),
+    ("dEtaFwdJetClosestLep", "F"),
+    ("dPhiHighestPtSSPair", "F"),
+    ("Lep3Pt := LepGood_conePt[iF_Recl[2]]", "F"),
+    ("minDRll", "F"),
+    ("lepCharge := LepGood_charge[iF_Recl[0]]+LepGood_charge[iF_Recl[1]]+LepGood_charge[iF_Recl[2]]", "I"),
+    ("dEtaFwdJet2BJet","F"),
+]
+VARIABLES['2lss'] = [
+    ("nJet25_Recl", "I"),
+    ("nJetEta1", "I"),
+    ("maxEtaJet25", "F"),
+    ("dEtaFwdJetBJet", "F"),
+    ("dEtaFwdJetClosestLep", "F"),
+    ("dPhiHighestPtSSPair", "F"),
+    ("Lep2Pt := LepGood_conePt[iF_Recl[1]]", "F"),
+    ("minDRll", "F"),
+    ("lepCharge := LepGood_charge[iF_Recl[0]]+LepGood_charge[iF_Recl[1]]", "I"),
+    ("dEtaFwdJet2BJet","F"),
+]
+
+def train(cuts, variables, dsets, options):
     datasets = []
     for name, trainclass, addw in dsets:
         tree, weight = load_dataset(name, trainclass, addw)
@@ -92,7 +141,7 @@ def train(allcuts, variables, dsets, options):
 
 
     for cut in options.addcuts:
-        allcuts += cut
+        cuts += cut
 
     factory.AddSpectator("iF0 := iF_Recl[0]","F") # do not remove these
     factory.AddSpectator("iF1 := iF_Recl[1]","F")
@@ -112,7 +161,7 @@ def train(allcuts, variables, dsets, options):
 
     ## Start the training
     # Check http://tmva.sourceforge.net/docu/TMVAUsersGuide.pdf
-    factory.PrepareTrainingAndTestTree(allcuts, "!V") # check options
+    factory.PrepareTrainingAndTestTree(cuts, "!V") # check options
     factory.BookMethod(ROOT.TMVA.Types.kBDT, 'BDTG',
                                ':'.join([
                                '!H', # print help
@@ -136,57 +185,27 @@ def train(allcuts, variables, dsets, options):
 
     fOut.Close()
 
-
 def main(args, options):
     read_dset_config(options.treepath)
 
-    # Define the selection:
-    allcuts = ROOT.TCut('1')
-    allcuts += "nLepFO_Recl>=3"
-    allcuts += "abs(mZ1_Recl-91.2)>10"
-    allcuts += "LepGood_conePt[iF_Recl[0]]>20"
-    allcuts += "LepGood_conePt[iF_Recl[1]]>10"
-    allcuts += "LepGood_conePt[iF_Recl[2]]>10"
-    allcuts += "nJet25_Recl >= 2"
-    allcuts += "nBJetLoose25_Recl >= 1"
-    allcuts += "maxEtaJet25 >= 0"
-
-    # Define the variables to be used:
-    variables = [
-        ("nJet25_Recl", "I"),
-        ("nJetEta1", "I"),
-        # ("nBJetLoose25_Recl", "I"),
-        ("maxEtaJet25", "F"),
-        ("dEtaFwdJetBJet", "F"),
-        ("dEtaFwdJetClosestLep", "F"),
-        ("dPhiHighestPtSSPair", "F"),
-        ("Lep3Pt := LepGood_conePt[iF_Recl[2]]", "F"),
-        ("minDRll", "F"),
-        ("lepCharge := LepGood_charge[iF_Recl[0]]+LepGood_charge[iF_Recl[1]]+LepGood_charge[iF_Recl[2]]", "I"),
-        ("dEtaFwdJet2BJet","F"),
-    ]
-
     # Define the signal and background datasets
     dsets = []
-    dsets.append(('THQ',                                 'Signal', 3.))
-    if options.training.lower() == 'ttv':
-        # dsets.append(('TTWToLNu',                        'Background', 1))
-        # dsets.append(('TTZToLLNuNu',                     'Background', 1))
-        dsets.append(('TTW_LO',                          'Background', 1))
-        dsets.append(('TTZ_LO',                          'Background', 1))
-    elif options.training.lower() == 'tt':
-        dsets.append(('TTJets_DiLepton',                 'Background', 0.1))
-        dsets.append(('TTJets_DiLepton_ext_skim3l',      'Background', 0.9))
-        #dsets.append(('TTJets_SingleLeptonFromT',        'Background', 0.1))
-        #dsets.append(('TTJets_SingleLeptonFromTbar',     'Background', 0.1))
-        #dsets.append(('TTJets_SingleLeptonFromT_ext',    'Background', 0.9))
-        #dsets.append(('TTJets_SingleLeptonFromTbar_ext', 'Background', 0.9))
-    else:
-        print "Please choose either 'ttv' or 'tt' for -T option"
-        return 1
+    dsets.append(('THQ',    'Signal', 3.))
+    if options.training == 'ttv':
+        dsets.append(('TTW_LO', 'Background', 1))
+        dsets.append(('TTZ_LO', 'Background', 1))
+    elif options.training == 'tt':
+        dsets.append(('TTJets_DiLepton',            'Background', 0.1))
+        dsets.append(('TTJets_DiLepton_ext_skim3l', 'Background', 0.9))
+        if options.channel == '2lss':
+            dsets.append(('TTJets_SingleLeptonFromT',        'Background', 0.1))
+            dsets.append(('TTJets_SingleLeptonFromTbar',     'Background', 0.1))
+            dsets.append(('TTJets_SingleLeptonFromT_ext',    'Background', 0.9))
+            dsets.append(('TTJets_SingleLeptonFromTbar_ext', 'Background', 0.9))
 
-    train(allcuts=allcuts, variables=variables, dsets=dsets,
-          options=options)
+    train(cuts=CUTS[options.channel],
+          variables=VARIABLES[options.channel],
+          dsets=dsets, options=options)
 
     return 0
 
@@ -200,6 +219,9 @@ if __name__ == '__main__':
     parser.add_option("-T","--training", dest="training",
                       type="string", default="ttv",
                       help=('Select which training to run (ttv or tt)'))
+    parser.add_option("-C","--channel", dest="channel",
+                      type="string", default="3l",
+                      help=('Select which channel to run (3l or 2lss)'))
     parser.add_option("-P","--treepath", dest="treepath",
                       type="string", default='treepaths.txt',
                       help='File with minitree locations and friend trees')
@@ -211,8 +233,15 @@ if __name__ == '__main__':
                       type="string", default=[], action="append")
     (options, args) = parser.parse_args()
 
+    try:
+        assert(options.training in ['ttv', 'tt'])
+        assert(options.channel in ['3l', '2lss'])
+    except AssertionError:
+        print "Unknown training or channel, choose a combination of ('ttv', 'tt') and ('3l', '2lss')"
+        sys.exit(-1)
+
     if not options.output:
-        options.output = 'thq_training_%s.root' % options.training
+        options.output = 'thq_training_%s_%s.root' % (options.training, options.channel)
 
     if not options.treepath:
         parser.print_help()
