@@ -1,10 +1,9 @@
 # Format (use '#' to comment lines):
 # name of cut : formula using branch names as in tree
-
 alwaystrue    : 1
 
 # Leave out the triggers for now
-# trigger       : Triggers_3l
+# trigger       : $DATA{Triggers_3l} $MC{1}
 
 # three good leptons
 trilep        : nLepFO>=3
