@@ -134,6 +134,12 @@ class tHqEventVariableFriend:
             lep1,lep2 = sorted(sspairs, key=lambda x:x[1],reverse=True)[0] # highest pt pair
             ret['dPhiHighestPtSSPair'] = abs(deltaPhi(lep1.phi,lep2.phi))
 
+        else: # Fill this with the OS pair if there is no SS pair (for charge flip estimate)
+            ospairs = [(l1, l2) for l1, l2 in combinations(leptons, 2) if l1.pdgId*l2.pdgId < 0]
+            if len(ospairs):
+                lep1,lep2 = sorted(ospairs, key=lambda x:x[1],reverse=True)[0] # highest pt pair
+                ret['dPhiHighestPtSSPair'] = abs(deltaPhi(lep1.phi,lep2.phi))
+
         lepdrs = [deltaR(l1.eta, l1.phi, l2.eta, l2.phi) for l1, l2 in combinations(leptons, 2)]
         if len(lepdrs):
             ret['minDRll'] = min(lepdrs)
@@ -180,7 +186,13 @@ class tHqEventVariableFriend:
 
                     ret['maxEta2BJet'] = -1.0
                     ret['dEtaBJet2BJet'] = -1.0
-     
+
+        # Fix total charge for non-same sign events (for charge flips)
+        br_lepcharge = "LepGood_charge[iF_Recl[0]]+LepGood_charge[iF_Recl[1]]" 
+        if event.eval(br_lepcharge) == 0:
+            ret[br_lepcharge] = event.eval("LepGood_charge[iF_Recl[0]]")
+            # Now mvavar.set should read this instead
+
         # Signal MVA
         for channel in ['2lss', '3l']:
             for mvavar in self.mvavars[channel]:
