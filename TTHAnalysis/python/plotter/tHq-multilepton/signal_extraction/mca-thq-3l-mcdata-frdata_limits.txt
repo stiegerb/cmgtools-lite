@@ -5,9 +5,10 @@
 #
 # Some of the smaller samples are commented out for now to speed things up
 
-# Signal sample (with flipped yukawa sign!)
-THQ+     : THQ : 0.7927*0.324 : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ;  FillColor=ROOT.kOrange+10, Label='tHq'
-THW+     : THW : 0.1472       : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ;  FillColor=ROOT.kOrange+6, Label='tHW'
+# Signal samples (with flipped yukawa sign!)
+signals: + ; IncludeMca="tHq-multilepton/mca-thq-signal_reweightings.txt"
+# THQ+     : THQ : 0.7927*0.324 : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ;  FillColor=ROOT.kOrange+10, Label='tHq'
+# THW+     : THW : 0.1472       : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ;  FillColor=ROOT.kOrange+6, Label='tHW'
 
 # ttbar + bosons are the main backgrounds
 TTW     : TTWToLNu                        : 0.196        : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kGreen-5,   NormSystematic=0.1, Label='t\#bar{t}W'
@@ -19,7 +20,7 @@ TTH     : TTHnobb_mWCutfix_ext1           : 0.5071*0.418 : LepGood1_mcMatchId!=0
 # dibosons
 WZ      : WZTo3LNu           : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ;  FillColor=ROOT.kViolet-4
 WZ      : WJetsToLNu_LO      : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ;  FillColor=ROOT.kViolet-4
-Rares   : ZZTo4L             : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ;  FillColor=ROOT.kAzure-9
+ZZ      : ZZTo4L             : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ;  FillColor=ROOT.kAzure-9
 
 # Gstar   : DYJetsToLL_M10to50 : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kCyan+1
 # Gstar   : DYJetsToLL_M50     : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kCyan+1

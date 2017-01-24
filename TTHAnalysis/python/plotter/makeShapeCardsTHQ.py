@@ -78,8 +78,11 @@ class ShapeCardMaker:
         self.truebinname = self.options.outname or os.path.basename(self.cutsfile).replace(".txt","")
         self.binname = self.truebinname if self.truebinname[0] not in "234" else "ttH_"+self.truebinname
 
-        self.mca = MCAnalysis(mcafile, options)
-        self.cuts = CutsFile(cutsfile, options)
+        self.mca = MCAnalysis(mcafile, self.options)
+        self.cuts = CutsFile(cutsfile, self.options)
+
+        # allProcs=True: ignores SkipMe=True in mca
+        self.allprocesses = self.mca.listProcesses(allProcs=True)
 
         self.systs = {}
         self.systsEnv = {}
@@ -91,9 +94,10 @@ class ShapeCardMaker:
         if self.options.verbose: print ("...producing report")
         self.report = {}
         if self.options.infile != None:
+            if self.options.verbose > 0:
+                print "...reading from %s" % self.options.infile
             infile = ROOT.TFile(self.options.infile, "read")
-            for proc in self.mca.listProcesses(allProcs=True): # allProcs=True: ignores SkipMe=True in mca
-            # for proc in self.mca.listSignals(True) + self.mca.listBackgrounds(True) + ['data']:
+            for proc in self.allprocesses:
                 histo = infile.Get(proc)
                 try:
                     histo.SetDirectory(0) # will raise ReferenceError if histo doesn't exist
@@ -105,9 +109,16 @@ class ShapeCardMaker:
                 except ReferenceError:
                     raise RuntimeError("ERROR: Key %s not found in %s" % (proc, self.options.infile))
         else:
+            if self.options.verbose > 0:
+                print "...producing from trees for %d processes" % len(self.mca.listProcesses(allProcs=True))
+
             self.report = self.mca.getPlotsRaw("x", self.var, self.bins,
                                                self.cuts.allCuts(),
                                                nodata=self.options.asimov)
+
+        if not self.options.asimov:
+            self.report['data_obs'] = self.report['data'].Clone("x_data_obs")
+            self.report['data_obs'].SetDirectory(0)
 
         if self.options.savefile != None:
             savefile = ROOT.TFile(self.options.savefile, "recreate")
@@ -115,24 +126,29 @@ class ShapeCardMaker:
                 savefile.WriteTObject(h,n)
             savefile.Close()
 
-        if self.options.asimov:
-            tomerge = []
-            for p in self.mca.listSignals() + self.mca.listBackgrounds():
-                if p in self.report:
-                    tomerge.append(self.report[p])
-            if self.options.verbose > 1:
-                print "...merging %s for observed data" % repr([x.GetName() for x in tomerge])
-            self.report['data_obs'] = mergePlots("x_data_obs", tomerge)
-            self.report['data_obs'].SetDirectory(0)
-        else:
-            self.report['data_obs'] = self.report['data'].Clone("x_data_obs")
-            self.report['data_obs'].SetDirectory(0)
-
-    def fillYieldsAndProcesses(self):
         self.allyields = {p:h.Integral() for p,h in self.report.iteritems()}
+
+    def prepareAsimov(self, signals=None):
+        if not self.options.asimov:
+            print "WARNING: overwriting data_obs with asimov dataset without --asimov option"
+
+        signals = signals or self.mca.listSignals()
+        tomerge = []
+        for p in signals + self.mca.listBackgrounds():
+            if p in self.report:
+                tomerge.append(self.report[p])
+        self.report['data_obs'] = mergePlots("x_data_obs", tomerge)
+        self.report['data_obs'].SetDirectory(0)
+        self.allyields['data_obs'] = self.report['data_obs'].Integral()
+
+        if self.options.verbose > 1:
+            print "...merging %s for asimov dataset ('data_obs')" % repr([x.GetName() for x in tomerge])
+
+    def setProcesses(self, signals=None):
+        signals = signals or self.mca.listSignals()
         self.processes = []
         self.iproc = {}
-        for i,s in enumerate(self.mca.listSignals()):
+        for i,s in enumerate(signals):
             if self.allyields[s] == 0: continue
             self.processes.append(s)
             self.iproc[s] = i-len(self.mca.listSignals())+1
@@ -187,11 +203,25 @@ class ShapeCardMaker:
         self.systs.update(systs)
         self.systsEnv.update(systsEnv)
 
+    def parseSystematicsEffects(self):
+        self.parseNormalizationSysts()
+        systsEnv1 = self.parseShapeSysts1()
+
+        if options.binfunction:
+            self.doRebinning()
+            # self.setProcesses() # Do I need this?
+
+        systsEnv2 = self.parseShapeSysts2()
+
+        self.systsEnv = {}
+        self.systsEnv.update(systsEnv1)
+        self.systsEnv.update(systsEnv2)
+
     def parseNormalizationSysts(self):
         if self.options.verbose: print ("...parsing normalization systs")
         for name, systentries in self.systs.iteritems():
             effmap = {}
-            for proc in self.processes:
+            for proc in self.allprocesses:
                 effect = "-"
                 for (procmap, amount) in systentries:
                     if re.match(procmap, proc):
@@ -209,7 +239,7 @@ class ShapeCardMaker:
             self.systs[name] = effmap
 
     def parseShapeSysts1(self):
-        if self.options.verbose: print ("...parsing envelope and shapeonly systs")
+        if self.options.verbose: print ("...parsing envelope and shapeOnly systs")
         systsEnv1 = {}
 
         for name, systentries in self.systsEnv.iteritems():
@@ -221,7 +251,7 @@ class ShapeCardMaker:
             if not (any([re.match(x+'.*', modes[0]) for x in ["envelop","shapeOnly"]])): continue
             effmap0  = {}
             effmap12 = {}
-            for proc in self.processes:
+            for proc in self.allprocesses:
                 effect = "-"
                 effect0  = "-"
                 effect12 = "-"
@@ -332,18 +362,9 @@ class ShapeCardMaker:
     def doRebinning(self):
         if self.options.verbose: print ("...rebinning")
         newhistos = {}
-
-        # THIS:
-        # _to_be_rebinned = {h.GetName():h for h in self.report.values()}
-        # for n,h in self.report.iteritems():
-        #     _to_be_rebinned[h.GetName()] = h
-        # for h in _to_be_rebinned.values():
-        #     thisname = h.GetName()
-        #     newhistos[thisname] = rebin2Dto1D(h, self.options.binfunction)
-        # REPLACED BY: ?
         for histo in self.report.values():
             oldname = histo.GetName()
-            newhistos[oldname] = rebin2Dto1D(histo, self.options.binfunction)
+            newhistos[oldname   ] = rebin2Dto1D(histo, self.options.binfunction)
 
         for n,h in self.report.iteritems():
             self.report[n] = newhistos[h.GetName().replace('_oldbinning','')]
@@ -361,7 +382,7 @@ class ShapeCardMaker:
 
             effmap0  = {}
             effmap12 = {}
-            for proc in self.processes:
+            for proc in self.allprocesses:
                 effect = "-"
                 effect0  = "-"
                 effect12 = "-"
@@ -401,7 +422,7 @@ class ShapeCardMaker:
                                         break
 
                                     if (effect*nominal.GetBinError(binx) < 0.1*math.sqrt(nominal.GetBinContent(binx)+0.04)):
-                                        if self.options.verbose > 1:
+                                        if self.options.verbose > 2:
                                             print ('    Skipping stat_foreach_shape_bins %s %d '
                                                    'because it is irrelevant'%(proc,binx))
                                         break
@@ -413,8 +434,8 @@ class ShapeCardMaker:
                                     self.report[str(p0Up.GetName())[2:]] = p0Up
                                     self.report[str(p0Dn.GetName())[2:]] = p0Dn
 
-                                    effmap0  = {_p:"1" if _p==proc else "-" for _p in self.processes}
-                                    effmap12 = {_p:"1" if _p==proc else "-" for _p in self.processes}
+                                    effmap0  = {_p:"1" if _p==proc else "-" for _p in self.allprocesses}
+                                    effmap12 = {_p:"1" if _p==proc else "-" for _p in self.allprocesses}
                                     systsEnv2["%s_%s_%s_bin%d"%(name,self.truebinname,proc,binx)] = (effmap0, effmap12, "templates")
                                     break # otherwise you apply more than once to the same bin if more regexps match
 
@@ -444,8 +465,8 @@ class ShapeCardMaker:
                                     self.report[str(p0Up.GetName())[2:]] = p0Up
                                     self.report[str(p0Dn.GetName())[2:]] = p0Dn
 
-                                    effmap0  = {_p:"1" if _p==proc else "-" for _p in self.processes}
-                                    effmap12 = {_p:"1" if _p==proc else "-" for _p in self.processes}
+                                    effmap0  = {_p:"1" if _p==proc else "-" for _p in self.allprocesses}
+                                    effmap12 = {_p:"1" if _p==proc else "-" for _p in self.allprocesses}
                                     systsEnv2["%s_%s_%s_bin%d_%d"%(name,self.truebinname,proc,binx,biny)] = (effmap0, effmap12, "templates")
                                     break # otherwise you apply more than once to the same bin if more regexps match
 
@@ -518,15 +539,17 @@ class ShapeCardMaker:
 
         return systsEnv2
 
-    def writeDataCard(self):
+    def writeDataCard(self, ofilename=None):
         if self.options.verbose: print ("...writing datacard")
         myyields = {k:v for (k,v) in self.allyields.iteritems()} # doesn't this just copy the dict?
         if not os.path.exists(self.options.outdir):
             os.mkdir(self.options.outdir)
 
-        with open(os.path.join(self.options.outdir, self.binname+".card.txt"), 'w') as datacard:
+        ofilename = ofilename or self.binname+".card.txt"
+        with open(os.path.join(self.options.outdir, ofilename), 'w') as datacard:
             datacard.write("## Datacard for cut file %s\n" % self.cutsfile)
-            datacard.write("shapes *        * %s.input.root x_$PROCESS x_$PROCESS_$SYSTEMATIC\n" % self.binname)
+            datacard.write("shapes *        * %s x_$PROCESS x_$PROCESS_$SYSTEMATIC\n" % 
+                                          ofilename.replace('.card.txt','.input.root'))
             datacard.write('##----------------------------------\n')
             datacard.write('bin         %s\n' % self.binname)
             datacard.write('observation %s\n' % myyields['data_obs'])
@@ -569,18 +592,20 @@ class ShapeCardMaker:
                         datacard.write("\n")
             datacard.write("\n")
 
-    def writeInputRootFile(self):
-        if self.options.verbose: print ("...writing input root file")
+        self.writeInputRootFile(ofilename=ofilename.replace('.card.txt', '.input.root'))
+
+    def writeInputRootFile(self, ofilename=None):
+        ofilename = ofilename or self.binname+".input.root"
+        if self.options.verbose: print ("...writing input root file to %s" %
+                                          os.path.join(self.options.outdir, ofilename))
         workspace = ROOT.TFile.Open(os.path.join(self.options.outdir,
-                                                 self.binname+".input.root"),
+                                                 ofilename),
                                     "RECREATE")
         for n,h in self.report.iteritems():
-            if self.options.verbose:
+            if self.options.verbose>2:
                 print "      %-60s %8.3f events" % (h.GetName(),h.Integral())
             workspace.WriteTObject(h,h.GetName())
         workspace.Close()
-
-        print "Wrote to ", os.path.join(self.options.outdir,self.binname+".input.root")
 
 
 if __name__ == '__main__':
@@ -625,21 +650,19 @@ if __name__ == '__main__':
                                options=options)
 
     cardMaker.produceReport()
-    cardMaker.fillYieldsAndProcesses()
-    cardMaker.parseNormalizationSysts()
-    systsEnv1 = cardMaker.parseShapeSysts1()
+    cardMaker.parseSystematicsEffects()
 
-    if options.binfunction:
-        cardMaker.doRebinning()
-        cardMaker.fillYieldsAndProcesses()
+    # Split the signal processes into different points (using the first '_')
+    # and process all of them separately.
+    allsignals = cardMaker.mca.listSignals(allProcs=True)
+    points = sorted(list(set([p.split('_',1)[1] for p in allsignals])))
 
-    systsEnv2 = cardMaker.parseShapeSysts2()
-
-    cardMaker.systsEnv = {}
-    cardMaker.systsEnv.update(systsEnv1)
-    cardMaker.systsEnv.update(systsEnv2)
-
-    cardMaker.writeDataCard()
-    cardMaker.writeInputRootFile()
+    for point in points:
+        signals = ['THQ_%s'%point, 'THW_%s'%point]
+        if options.asimov:
+            cardMaker.prepareAsimov(signals=signals)
+        cardMaker.setProcesses(signals=signals)
+        ofilename = "%s_%s.card.txt" % (cardMaker.binname, point)
+        cardMaker.writeDataCard(ofilename=ofilename)
 
     sys.exit(0)
