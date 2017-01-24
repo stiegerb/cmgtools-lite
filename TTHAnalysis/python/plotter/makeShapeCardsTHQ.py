@@ -1,14 +1,22 @@
 #!/usr/bin/env python
 import ROOT
-from CMGTools.TTHAnalysis.plotter.mcAnalysis import addMCAnalysisOptions, MCAnalysis, CutsFile, mergePlots
+import re
+import sys
+import os
+import os.path
+import math
+from itertools import product
+
+from CMGTools.TTHAnalysis.plotter.mcAnalysis import MCAnalysis
+from CMGTools.TTHAnalysis.plotter.mcAnalysis import CutsFile
+from CMGTools.TTHAnalysis.plotter.mcAnalysis import addMCAnalysisOptions
 from CMGTools.TTHAnalysis.plotter.tree2yield import mergePlots
-import re, sys, os, os.path, math
 
 def mkOneSpline():
     x_vec,y_vec = ROOT.std.vector('double')(), ROOT.std.vector('double')()
     for x in range(10):
-        x_vec.push_back(100*x) 
-        y_vec.push_back(1) 
+        x_vec.push_back(100*x)
+        y_vec.push_back(1)
     spline = ROOT.ROOT.Math.Interpolator(x_vec,y_vec);
     spline._x = x_vec
     spline._y = y_vec
@@ -24,12 +32,12 @@ def getYieldScale(mass,process):
     if "ttH_" not in process: return 1.0
     scale = SPLINES['ttH'].Eval(mass)
     for dec in "hww","hzz","htt":
-        if dec in process: 
+        if dec in process:
             scale *= SPLINES[dec].Eval(mass)
             if 'efficiency_'+dec in SPLINES:
                 scale *= SPLINES['efficiency_'+dec].Eval(mass)
             break
-    return scale 
+    return scale
 
 def rebin2Dto1D(h, funcstring):
     nbins,fname = funcstring.split(':',1)
@@ -59,458 +67,521 @@ def rebin2Dto1D(h, funcstring):
 
 class ShapeCardMaker:
     """docstring for ShapeCardMaker"""
-    def __init__(self, mcafile, cutsfile, var, bins, systsfile, options):
+    def __init__(self, mcafile, cutsfile, var, bins, systsfiles, options):
         self.mcafile = mcafile
         self.cutsfile = cutsfile
         self.var = var
         self.bins = bins
-        self.systfile = systfile
+        self.systsfiles = systsfiles
         self.options = options
-    
+
+        self.truebinname = self.options.outname or os.path.basename(self.cutsfile).replace(".txt","")
+        self.binname = self.truebinname if self.truebinname[0] not in "234" else "ttH_"+self.truebinname
+
         self.mca = MCAnalysis(mcafile, options)
         self.cuts = CutsFile(cutsfile, options)
 
-        self.truebinname = options.outname or os.path.basename(cutsfile).replace(".txt","")
-        self.binname = truebinname if truebinname[0] not in "234" else "ttH_"+truebinname
+        self.systs = {}
+        self.systsEnv = {}
 
-def produceReport(mca, variable, bins, cuts, outfilename, options):
-    report = {}
-    if options.infile != None:
-        infile = ROOT.TFile(options.infile, "read")
-        for proc in mca.listSignals(True) + mca.listBackgrounds(True) + ['data']:
-            histo = infile.Get(proc)
-            if histo: report[proc] = histo
-    else:
-        report = mca.getPlotsRaw("x", variable, bins, cuts.allCuts(), nodata=options.asimov)
+        for sysfile in systsfiles:
+            self.parseSystsFile(sysfile)
 
-    if options.savefile != None:
-        savefile = ROOT.TFile(outfilename, "recreate")
-        for n,h in report.iteritems():
-            savefile.WriteTObject(h,n)
-        savefile.Close()
+    def produceReport(self):
+        if self.options.verbose: print ("...producing report")
+        self.report = {}
+        if self.options.infile != None:
+            infile = ROOT.TFile(self.options.infile, "read")
+            for proc in self.mca.listProcesses(allProcs=True): # allProcs=True: ignores SkipMe=True in mca
+            # for proc in self.mca.listSignals(True) + self.mca.listBackgrounds(True) + ['data']:
+                histo = infile.Get(proc)
+                try:
+                    histo.SetDirectory(0) # will raise ReferenceError if histo doesn't exist
+                    if self.options.verbose > 1:
+                        print "...read %s (%d entries) from %s" % (histo.GetName(),
+                                                                   histo.GetEntries(),
+                                                                   self.options.infile)
+                    self.report[proc] = histo
+                except ReferenceError:
+                    raise RuntimeError("ERROR: Key %s not found in %s" % (proc, self.options.infile))
+        else:
+            self.report = self.mca.getPlotsRaw("x", self.var, self.bins,
+                                               self.cuts.allCuts(),
+                                               nodata=self.options.asimov)
 
-    if options.asimov:
-        tomerge = []
-        for p in mca.listSignals() + mca.listBackgrounds():
-            if p in report: tomerge.append(report[p])
-        report['data_obs'] = mergePlots("x_data_obs", tomerge) 
-    else:
-        report['data_obs'] = report['data'].Clone("x_data_obs") 
+        if self.options.savefile != None:
+            savefile = ROOT.TFile(self.options.savefile, "recreate")
+            for n,h in self.report.iteritems():
+                savefile.WriteTObject(h,n)
+            savefile.Close()
 
-    return report
+        if self.options.asimov:
+            tomerge = []
+            for p in self.mca.listSignals() + self.mca.listBackgrounds():
+                if p in self.report:
+                    tomerge.append(self.report[p])
+            if self.options.verbose > 1:
+                print "...merging %s for observed data" % repr([x.GetName() for x in tomerge])
+            self.report['data_obs'] = mergePlots("x_data_obs", tomerge)
+            self.report['data_obs'].SetDirectory(0)
+        else:
+            self.report['data_obs'] = self.report['data'].Clone("x_data_obs")
+            self.report['data_obs'].SetDirectory(0)
 
-def produceYields(mca, report):
-    allyields = dict([(p,h.Integral()) for p,h in report.iteritems()])
-    processes = []
-    iproc = {}
-    for i,s in enumerate(mca.listSignals()):
-        if allyields[s] == 0: continue
-        processes.append(s)
-        iproc[s] = i-len(mca.listSignals())+1
+    def fillYieldsAndProcesses(self):
+        self.allyields = {p:h.Integral() for p,h in self.report.iteritems()}
+        self.processes = []
+        self.iproc = {}
+        for i,s in enumerate(self.mca.listSignals()):
+            if self.allyields[s] == 0: continue
+            self.processes.append(s)
+            self.iproc[s] = i-len(self.mca.listSignals())+1
 
-    for i,b in enumerate(mca.listBackgrounds()):
-        if allyields[b] == 0: continue
-        processes.append(b)
-        iproc[b] = i+1
-    
-    return allyields, processes, iproc
+        for i,b in enumerate(self.mca.listBackgrounds()):
+            if self.allyields[b] == 0: continue
+            self.processes.append(b)
+            self.iproc[b] = i+1
 
-def parseSystsFile(filename, options):
-    systs = {}
-    systsEnv = {}
-    with open(filename, 'r') as sysfile:
-        for line in sysfile:
-            if re.match("\s*#.*", line): continue
-            line = re.sub("#.*","",line).strip()
-            if len(line) == 0: continue
+    def parseSystsFile(self, filename):
+        if self.options.verbose: print ("...parsing systs file from %s" % filename)
+        systs = {}
+        systsEnv = {}
+        with open(filename, 'r') as sysfile:
+            for line in sysfile:
+                if re.match("\s*#.*", line): continue
+                line = re.sub("#.*","",line).strip()
+                if len(line) == 0: continue
 
-            field = [f.strip() for f in line.split(':')]
-            if len(field) < 4:
-                raise RuntimeError, "Malformed line %s in file %s"%(line.strip(),sysfile)
+                field = [f.strip() for f in line.split(':')]
+                if len(field) < 4:
+                    raise RuntimeError("Malformed line %s in file %s" % (line.strip(), sysfile))
 
-            # Pure normalization
-            elif len(field) == 4 or field[4] == "lnN":
-                (name, procmap, binmap, amount) = field[:4]
-                if re.match(binmap+"$",truebinname) == None: continue
-                if name not in systs: systs[name] = []
-                systs[name].append( (re.compile(procmap+"$"), amount) )
+                # Pure normalization
+                elif len(field) == 4 or field[4] == "lnN":
+                    (name, procmap, binmap, amount) = field[:4]
+                    if re.match(binmap+"$", self.truebinname) == None: continue
+                    if name not in systs: systs[name] = []
+                    systs[name].append( (re.compile(procmap+"$"), amount) )
 
-            # Shape systematics
-            elif field[4] in ["envelop","shapeOnly","templates",
-                              "alternateShape","alternateShapeOnly"] or '2D' in field[4]:
-                (name, procmap, binmap, amount) = field[:4]
-                if re.match(binmap+"$",truebinname) == None: continue
-                if name not in systs: systsEnv[name] = []
-                systsEnv[name].append( (re.compile(procmap+"$"), amount, field[4]) )
+                # Shape systematics
+                elif field[4] in ["envelop","shapeOnly","templates",
+                                  "alternateShape","alternateShapeOnly"] or '2D' in field[4]:
+                    (name, procmap, binmap, amount) = field[:4]
+                    if re.match(binmap+"$", self.truebinname) == None: continue
+                    if name not in systs: systsEnv[name] = []
+                    systsEnv[name].append( (re.compile(procmap+"$"), amount, field[4]) )
 
-            # Bin by bin statistics
-            elif field[4] in ["stat_foreach_shape_bins"]:
-                (name, procmap, binmap, amount) = field[:4]
-                if re.match(binmap+"$",truebinname) == None: continue
-                if name not in systsEnv: systsEnv[name] = []
-                systsEnv[name].append( (re.compile(procmap+"$"), amount, field[4], field[5].split(',')) )
+                # Bin by bin statistics
+                elif field[4] in ["stat_foreach_shape_bins"]:
+                    (name, procmap, binmap, amount) = field[:4]
+                    if re.match(binmap+"$", self.truebinname) == None: continue
+                    if name not in systsEnv: systsEnv[name] = []
+                    systsEnv[name].append( (re.compile(procmap+"$"), amount, field[4], field[5].split(',')) )
 
-            else:
-                raise RuntimeError, "Unknown systematic type %s" % field[4]
-
-        if options.verbose:
-            print "Loaded %d systematics" % len(systs)
-            print "Loaded %d envelope systematics" % len(systsEnv)
-    return systs, systsEnv
-
-def parseSystsFiles(syst_filenames, processes, options):
-    systs = {}
-    systsEnv = {}
-
-    # Parse files
-    for sysfile in syst_filenames:
-        parsed_systs, parsed_systsEnv = parseSystsFile(sysfile, options)
-        systs.update(parsed_systs)
-        systsEnv.update(parsed_systsEnv)
-
-    return systs, systsEnv
-
-def parseNormalizationSysts(systs, processes, mca):
-    for name in systs.keys():
-        effmap = {}
-        for proc in processes:
-            effect = "-"
-            for (procmap,amount) in systs[name]:
-                if re.match(procmap, proc):
-                    effect = amount
-
-            if mca._projection != None and effect not in ["-","0","1"]:
-                if "/" in effect:
-                    eff_up, eff_down = effect.split("/")
-                    effect = "%.3f/%.3f" % (mca._projection.scaleSyst(name, float(eff_up)),
-                                            mca._projection.scaleSyst(name, float(eff_down)))
                 else:
-                    effect = str(mca._projection.scaleSyst(name, float(effect)))
+                    raise RuntimeError("Unknown systematic type %s" % field[4])
 
-            effmap[proc] = effect
-        systs[name] = effmap
+            if self.options.verbose:
+                print "...loaded %d systematics from %s" % (len(systs), filename)
+                print "...loaded %d envelope systematics from %s" % (len(systsEnv), filename)
+        self.systs.update(systs)
+        self.systsEnv.update(systsEnv)
 
-    return systs
+    def parseNormalizationSysts(self):
+        if self.options.verbose: print ("...parsing normalization systs")
+        for name, systentries in self.systs.iteritems():
+            effmap = {}
+            for proc in self.processes:
+                effect = "-"
+                for (procmap, amount) in systentries:
+                    if re.match(procmap, proc):
+                        effect = amount
 
-def parseShapeSysts1(systsEnv, mca, report):
-    systsEnv1 = {}
+                if self.mca._projection != None and effect not in ["-","0","1"]:
+                    if "/" in effect:
+                        eff_up, eff_down = effect.split("/")
+                        effect = "%.3f/%.3f" % (self.mca._projection.scaleSyst(name, float(eff_up)),
+                                                self.mca._projection.scaleSyst(name, float(eff_down)))
+                    else:
+                        effect = str(self.mca._projection.scaleSyst(name, float(effect)))
 
-    for name in systsEnv.keys():
-        modes = [entry[2] for entry in systsEnv[name]]
-        for _m in modes:
-            if _m != modes[0]: raise RuntimeError, "Not supported"
+                effmap[proc] = effect
+            self.systs[name] = effmap
 
-        # do only this before rebinning
-        if not (any([re.match(x+'.*', modes[0]) for x in ["envelop","shapeOnly"]])): continue
-        effmap0  = {}
-        effmap12 = {}
-        for proc in processes:
-            effect = "-"
-            effect0  = "-"
-            effect12 = "-"
-            for entry in systsEnv[name]:
-                procmap,amount,mode = entry[:3]
-                if re.match(procmap, proc):
-                    effect = amount
-                    if mode not in ["templates", "alternateShape", "alternateShapeOnly"]:
-                        effect = float(amount)
+    def parseShapeSysts1(self):
+        if self.options.verbose: print ("...parsing envelope and shapeonly systs")
+        systsEnv1 = {}
 
-            if mca._projection != None and effect not in ["-","0","1",1.0,0.0] and type(effect) == type(1.0):
-                effect = mca._projection.scaleSyst(name, effect)
+        for name, systentries in self.systsEnv.iteritems():
+            modes = [entry[2] for entry in systentries]
+            for _m in modes:
+                if _m != modes[0]: raise RuntimeError, "Not supported"
 
-            if effect == "-" or effect == "0": 
-                effmap0[proc]  = "-" 
-                effmap12[proc] = "-" 
-                continue
+            # do only this before rebinning
+            if not (any([re.match(x+'.*', modes[0]) for x in ["envelop","shapeOnly"]])): continue
+            effmap0  = {}
+            effmap12 = {}
+            for proc in self.processes:
+                effect = "-"
+                effect0  = "-"
+                effect12 = "-"
+                for entry in systentries:
+                    procmap, amount, mode = entry[:3]
+                    if re.match(procmap, proc):
+                        effect = amount
+                        if mode not in ["templates", "alternateShape", "alternateShapeOnly"]:
+                            effect = float(amount)
 
-            if any([re.match(x+'.*',mode) for x in ["envelop","shapeOnly"]]):
-                nominal = report[proc]
-                p0up = nominal.Clone(nominal.GetName()+"_"+name+"0Up"  ); p0up.Scale(effect)
-                p0dn = nominal.Clone(nominal.GetName()+"_"+name+"0Down"); p0dn.Scale(1.0/effect)
-                p1up = nominal.Clone(nominal.GetName()+"_"+name+"1Up"  );
-                p1dn = nominal.Clone(nominal.GetName()+"_"+name+"1Down");
-                p2up = nominal.Clone(nominal.GetName()+"_"+name+"2Up"  );
-                p2dn = nominal.Clone(nominal.GetName()+"_"+name+"2Down");
-                nbinx = nominal.GetNbinsX()
-                xmin = nominal.GetXaxis().GetBinCenter(1)
-                xmax = nominal.GetXaxis().GetBinCenter(nbinx)
-                if '2D' in mode:
-                    if 'TH2' not in nominal.ClassName():
-                        raise RuntimeError, 'Trying to use 2D shape systs on a 1D histogram'
-                    nbiny = nominal.GetNbinsY()
-                    ymin = nominal.GetYaxis().GetBinCenter(1)
-                    ymax = nominal.GetYaxis().GetBinCenter(nbiny)
-                c1def = lambda x: 2*(x-0.5) # straight line from (0,-1) to (1,+1)
-                c2def = lambda x: 1 - 8*(x-0.5)**2 # parabola through (0,-1), (0.5,~1), (1,-1)
-                if '2D' not in mode:
-                    if 'TH1' not in nominal.ClassName():
-                        raise RuntimeError, 'Trying to use 1D shape systs on a 2D histogram'+nominal.ClassName()+" "+nominal.GetName()
-                    for b in xrange(1,nbinx+1):
-                        x = (nominal.GetBinCenter(bx)-xmin)/(xmax-xmin)
-                        c1 = c1def(x)
-                        c2 = c2def(x)
-                        p1up.SetBinContent(b, p1up.GetBinContent(b) * pow(effect,+c1))
-                        p1dn.SetBinContent(b, p1dn.GetBinContent(b) * pow(effect,-c1))
-                        p2up.SetBinContent(b, p2up.GetBinContent(b) * pow(effect,+c2))
-                        p2dn.SetBinContent(b, p2dn.GetBinContent(b) * pow(effect,-c2))
-                else:
-                    # e.g. shapeOnly2D_1.25X_0.83Y with effect == 1 will do an anti-correlated shape
-                    # distortion of the x and y axes by 25% and -20% respectively
-                    parsed = mode.split('_')
-                    if len(parsed)!=3 or parsed[0]!="shapeOnly2D" or effect!=1:
-                        raise RuntimeError, 'Incorrect option parsing for shapeOnly2D: %s %s'%(mode,effect)
-                    effectX = float(parsed[1].strip('X'))
-                    effectY = float(parsed[2].strip('Y'))
-                    for bx in xrange(1,nbinx+1):
-                        for by in xrange(1,nbiny+1):
-                            x = (nominal.GetXaxis().GetBinCenter(bx)-xmin)/(xmax-xmin)
-                            y = (nominal.GetYaxis().GetBinCenter(by)-ymin)/(ymax-ymin)
-                            c1X = c1def(x)
-                            c2X = c2def(x)
-                            c1Y = c1def(y)
-                            c2Y = c2def(y)
-                            p1up.SetBinContent(bx,by, p1up.GetBinContent(bx,by) * pow(effectX,+c1X) * pow(effectY,+c1Y))
-                            p1dn.SetBinContent(bx,by, p1dn.GetBinContent(bx,by) * pow(effectX,-c1X) * pow(effectY,-c1Y))
-                            p2up.SetBinContent(bx,by, nominal.GetBinContent(bx,by))
-                            p2dn.SetBinContent(bx,by, nominal.GetBinContent(bx,by))
-                p1up.Scale(nominal.Integral()/p1up.Integral())
-                p1dn.Scale(nominal.Integral()/p1dn.Integral())
-                p2up.Scale(nominal.Integral()/p2up.Integral())
-                p2dn.Scale(nominal.Integral()/p2dn.Integral())
-                if "shapeOnly" not in mode:
-                    report[proc+"_"+name+"0Up"]   = p0up
-                    report[proc+"_"+name+"0Down"] = p0dn
-                    effect0 = "1"
-                report[proc+"_"+name+"1Up"]   = p1up
-                report[proc+"_"+name+"1Down"] = p1dn
-                effect12 = "1"
-                # useful for plotting
-                for h in p0up, p0dn, p1up, p1dn, p2up, p2dn: 
-                    h.SetFillStyle(0); h.SetLineWidth(2)
-                for h in p1up, p1dn: h.SetLineColor(4)
-                for h in p2up, p2dn: h.SetLineColor(2)
-            effmap0[proc]  = effect0 
-            effmap12[proc] = effect12 
-        systsEnv1[name] = (effmap0,effmap12,mode)
+                if (self.mca._projection != None and
+                    effect not in ["-", "0", "1", 1.0, 0.0] and
+                    type(effect) == type(1.0)):
+                    effect = self.mca._projection.scaleSyst(name, effect)
 
-    return systsEnv1
+                if effect == "-" or effect == "0":
+                    effmap0[proc]  = "-"
+                    effmap12[proc] = "-"
+                    continue
 
-def doRebinning(binfunction, report, mca):
-    newhistos = {}
+                if any([re.match(x+'.*',mode) for x in ["envelop","shapeOnly"]]):
+                    nominal = self.report[proc]
+                    p0up = nominal.Clone(nominal.GetName()+"_"+name+"0Up"  )
+                    p0up.Scale(effect)
+                    p0dn = nominal.Clone(nominal.GetName()+"_"+name+"0Down")
+                    p0dn.Scale(1.0/effect)
+                    p1up = nominal.Clone(nominal.GetName()+"_"+name+"1Up"  )
+                    p1dn = nominal.Clone(nominal.GetName()+"_"+name+"1Down")
+                    p2up = nominal.Clone(nominal.GetName()+"_"+name+"2Up"  )
+                    p2dn = nominal.Clone(nominal.GetName()+"_"+name+"2Down")
+                    nbinx = nominal.GetNbinsX()
+                    xmin = nominal.GetXaxis().GetBinCenter(1)
+                    xmax = nominal.GetXaxis().GetBinCenter(nbinx)
 
-    # THIS:
-    _to_be_rebinned = {}
-    for n,h in report.iteritems():
-        _to_be_rebinned[h.GetName()] = h
-    for n,h in _to_be_rebinned.iteritems():
-        thisname = h.GetName()
-        newhistos[thisname] = rebin2Dto1D(h, options.binfunction)
-    # REPLACED BY: ?
-    # for histo in report.values():
-    #     newhistos[histo.GetName()] = rebin2Dto1D(histo, options.binfunction)
+                    if '2D' in mode:
+                        if 'TH2' not in nominal.ClassName():
+                            raise RuntimeError, 'Trying to use 2D shape systs on a 1D histogram'
 
-    for n,h in report.iteritems():
-        report[n] = newhistos[h.GetName().replace('_oldbinning','')]
+                        nbiny = nominal.GetNbinsY()
+                        ymin = nominal.GetYaxis().GetBinCenter(1)
+                        ymax = nominal.GetYaxis().GetBinCenter(nbiny)
 
-def parseShapeSysts2(systsEnv, mca, report, processes, options):
-    systsEnv2={}
-    for name in systsEnv.keys():
-        modes = [entry[2] for entry in systsEnv[name]]
-        for _m in modes:
-            if _m != modes[0]: raise RuntimeError, "Not supported"
+                    c1def = lambda x: 2*(x-0.5) # straight line from (0,-1) to (1,+1)
+                    c2def = lambda x: 1 - 8*(x-0.5)**2 # parabola through (0,-1), (0.5,~1), (1,-1)
 
-        # do only this before rebinning
-        if (any([re.match(x+'.*', modes[0]) for x in ["envelop","shapeOnly"]])): continue
+                    if '2D' not in mode:
+                        if 'TH1' not in nominal.ClassName():
+                            raise RuntimeError('Trying to use 1D shape systs on a 2D histogram %s %s'
+                                                % (nominal.ClassName(), nominal.GetName()))
 
-        effmap0  = {}
-        effmap12 = {}
-        for proc in processes:
-            effect = "-"
-            effect0  = "-"
-            effect12 = "-"
-            for entry in systsEnv[name]:
-                procmap,amount,mode = entry[:3]
-                if re.match(procmap, proc):
-                    effect = amount
-                    if mode not in ["templates","alternateShape", "alternateShapeOnly"]:
-                        effect = float(amount)
-                    morefields = entry[3:]
+                        for b in xrange(1,nbinx+1):
+                            x = (nominal.GetBinCenter(bx)-xmin)/(xmax-xmin)
+                            c1 = c1def(x)
+                            c2 = c2def(x)
+                            p1up.SetBinContent(b, p1up.GetBinContent(b) * pow(effect,+c1))
+                            p1dn.SetBinContent(b, p1dn.GetBinContent(b) * pow(effect,-c1))
+                            p2up.SetBinContent(b, p2up.GetBinContent(b) * pow(effect,+c2))
+                            p2dn.SetBinContent(b, p2dn.GetBinContent(b) * pow(effect,-c2))
 
-            if mca._projection != None and effect not in ["-","0","1",1.0,0.0] and type(effect) == type(1.0):
-                effect = mca._projection.scaleSyst(name, effect)
+                    else:
+                        # e.g. shapeOnly2D_1.25X_0.83Y with effect == 1 will do an anti-correlated shape
+                        # distortion of the x and y axes by 25% and -20% respectively
+                        parsed = mode.split('_')
+                        if len(parsed) != 3 or parsed[0] != "shapeOnly2D" or effect != 1:
+                            raise RuntimeError('Incorrect option parsing for shapeOnly2D: %s %s' % (mode, effect))
 
-            if effect == "-" or effect == "0": 
-                effmap0[proc]  = "-" 
-                effmap12[proc] = "-" 
-                continue
+                        effectX = float(parsed[1].strip('X'))
+                        effectY = float(parsed[2].strip('Y'))
+                        for bx in xrange(1,nbinx+1):
+                            for by in xrange(1,nbiny+1):
+                                x = (nominal.GetXaxis().GetBinCenter(bx)-xmin)/(xmax-xmin)
+                                y = (nominal.GetYaxis().GetBinCenter(by)-ymin)/(ymax-ymin)
+                                c1X = c1def(x)
+                                c2X = c2def(x)
+                                c1Y = c1def(y)
+                                c2Y = c2def(y)
+                                p1up.SetBinContent(bx,by, p1up.GetBinContent(bx,by) * pow(effectX,+c1X) * pow(effectY,+c1Y))
+                                p1dn.SetBinContent(bx,by, p1dn.GetBinContent(bx,by) * pow(effectX,-c1X) * pow(effectY,-c1Y))
+                                p2up.SetBinContent(bx,by, nominal.GetBinContent(bx,by))
+                                p2dn.SetBinContent(bx,by, nominal.GetBinContent(bx,by))
 
-            if mode in ["stat_foreach_shape_bins"]:
-                if mca._projection != None:
-                    raise RuntimeError,'mca._projection.scaleSystTemplate not implemented in the case of stat_foreach_shape_bins'
+                    p1up.Scale(nominal.Integral()/p1up.Integral())
+                    p1dn.Scale(nominal.Integral()/p1dn.Integral())
+                    p2up.Scale(nominal.Integral()/p2up.Integral())
+                    p2dn.Scale(nominal.Integral()/p2dn.Integral())
 
-                nominal = report[proc]
-                if 'TH1' in nominal.ClassName():
-                    for bin in xrange(1,nominal.GetNbinsX()+1):
-                        for binmatch in morefields[0]:
-                            if re.match(binmatch+"$",'%d'%bin):
-                                if nominal.GetBinContent(bin) == 0 or nominal.GetBinError(bin) == 0:
-                                    if nominal.Integral() != 0: 
-                                        print "WARNING: for process %s in truebinname %s, bin %d has zero yield or zero error." % (proc,truebinname,bin)
-                                    break
+                    if "shapeOnly" not in mode:
+                        self.report[proc+"_"+name+"0Up"]   = p0up
+                        self.report[proc+"_"+name+"0Down"] = p0dn
+                        effect0 = "1"
 
-                                if (effect*nominal.GetBinError(bin)<0.1*math.sqrt(nominal.GetBinContent(bin)+0.04)):
-                                    if options.verbose: print 'skipping stat_foreach_shape_bins %s %d because it is irrelevant'%(proc,bin)
-                                    break
+                    self.report[proc+"_"+name+"1Up"]   = p1up
+                    self.report[proc+"_"+name+"1Down"] = p1dn
+                    effect12 = "1"
 
-                                p0Up = nominal.Clone("%s_%s_%s_%s_bin%dUp"% (nominal.GetName(),name,truebinname,proc,bin))
-                                p0Dn = nominal.Clone("%s_%s_%s_%s_bin%dDown"% (nominal.GetName(),name,truebinname,proc,bin))
-                                p0Up.SetBinContent(bin,nominal.GetBinContent(bin)+effect*nominal.GetBinError(bin))
-                                p0Dn.SetBinContent(bin,nominal.GetBinContent(bin)**2/p0Up.GetBinContent(bin))
-                                report[str(p0Up.GetName())[2:]] = p0Up
-                                report[str(p0Dn.GetName())[2:]] = p0Dn
-                                systsEnv2["%s_%s_%s_bin%d"%(name,truebinname,proc,bin)] = (dict([(_p,"1" if _p==proc else "-") for _p in processes]),
-                                                                                           dict([(_p,"1" if _p==proc else "-") for _p in processes]),
-                                                                                           "templates")
-                                break # otherwise you apply more than once to the same bin if more regexps match
+                    # useful for plotting
+                    for h in [p0up, p0dn, p1up, p1dn, p2up, p2dn]:
+                        h.SetFillStyle(0); h.SetLineWidth(2)
+                    for h in p1up, p1dn: h.SetLineColor(4)
+                    for h in p2up, p2dn: h.SetLineColor(2)
 
-                elif 'TH2' in nominal.ClassName():
-                    for binx in xrange(1,nominal.GetNbinsX()+1):
-                        for biny in xrange(1,nominal.GetNbinsY()+1):
+                effmap0[proc]  = effect0
+                effmap12[proc] = effect12
+            systsEnv1[name] = (effmap0,effmap12,mode)
+
+        return systsEnv1
+
+    def doRebinning(self):
+        if self.options.verbose: print ("...rebinning")
+        newhistos = {}
+
+        # THIS:
+        # _to_be_rebinned = {h.GetName():h for h in self.report.values()}
+        # for n,h in self.report.iteritems():
+        #     _to_be_rebinned[h.GetName()] = h
+        # for h in _to_be_rebinned.values():
+        #     thisname = h.GetName()
+        #     newhistos[thisname] = rebin2Dto1D(h, self.options.binfunction)
+        # REPLACED BY: ?
+        for histo in self.report.values():
+            oldname = histo.GetName()
+            newhistos[oldname] = rebin2Dto1D(histo, self.options.binfunction)
+
+        for n,h in self.report.iteritems():
+            self.report[n] = newhistos[h.GetName().replace('_oldbinning','')]
+
+    def parseShapeSysts2(self):
+        if self.options.verbose: print ("...parsing remaining shape systs")
+        systsEnv2 = {}
+        for name, systentries in self.systsEnv.iteritems():
+            modes = [entry[2] for entry in systentries]
+            for _m in modes:
+                if _m != modes[0]: raise RuntimeError("Not supported")
+
+            # do only this before rebinning
+            if (any([re.match(x+'.*', modes[0]) for x in ["envelop","shapeOnly"]])): continue
+
+            effmap0  = {}
+            effmap12 = {}
+            for proc in self.processes:
+                effect = "-"
+                effect0  = "-"
+                effect12 = "-"
+                for entry in systentries:
+                    procmap,amount,mode = entry[:3]
+                    if re.match(procmap, proc):
+                        effect = amount
+                        if mode not in ["templates","alternateShape", "alternateShapeOnly"]:
+                            effect = float(amount)
+                        morefields = entry[3:]
+
+                if (self.mca._projection != None and
+                    effect not in ["-", "0", "1", 1.0, 0.0] and
+                    type(effect) == type(1.0)):
+                    effect = self.mca._projection.scaleSyst(name, effect)
+
+                if effect == "-" or effect == "0":
+                    effmap0[proc]  = "-"
+                    effmap12[proc] = "-"
+                    continue
+
+                if mode in ["stat_foreach_shape_bins"]:
+                    if self.mca._projection != None:
+                        raise RuntimeError('mca._projection.scaleSystTemplate not implemented in '
+                                           'the case of stat_foreach_shape_bins')
+
+                    nominal = self.report[proc]
+                    if 'TH1' in nominal.ClassName():
+                        for binx in xrange(1,nominal.GetNbinsX()+1):
                             for binmatch in morefields[0]:
-                                if re.match(binmatch+"$",'%d,%d'%(binx,biny)):
-                                    if nominal.GetBinContent(binx,biny) == 0 or nominal.GetBinError(binx,biny) == 0:
-                                        if nominal.Integral() != 0: 
-                                            print "WARNING: for process %s in truebinname %s, bin %d,%d has zero yield or zero error." % (proc,truebinname,binx,biny)
+                                if re.match(binmatch+"$",'%d'%binx):
+                                    if (nominal.GetBinContent(binx) == 0 or
+                                        nominal.GetBinError(binx) == 0):
+                                        if nominal.Integral() != 0:
+                                            print ("WARNING: for process %s in truebinname %s, "
+                                                   "bin %d has zero yield or zero error." % (proc,self.truebinname,binx))
                                         break
-                                    if (effect*nominal.GetBinError(binx,biny)<0.1*math.sqrt(nominal.GetBinContent(binx,biny)+0.04)):
-                                        if options.verbose: print 'skipping stat_foreach_shape_bins %s %d,%d because it is irrelevant'%(proc,binx,biny)
+
+                                    if (effect*nominal.GetBinError(binx) < 0.1*math.sqrt(nominal.GetBinContent(binx)+0.04)):
+                                        if self.options.verbose > 1:
+                                            print ('    Skipping stat_foreach_shape_bins %s %d '
+                                                   'because it is irrelevant'%(proc,binx))
                                         break
-                                    p0Up = nominal.Clone("%s_%s_%s_%s_bin%d_%dUp"% (nominal.GetName(),name,truebinname,proc,binx,biny))
-                                    p0Dn = nominal.Clone("%s_%s_%s_%s_bin%d_%dDown"% (nominal.GetName(),name,truebinname,proc,binx,biny))
-                                    p0Up.SetBinContent(binx,biny,nominal.GetBinContent(binx,biny)+effect*nominal.GetBinError(binx,biny))
-                                    p0Dn.SetBinContent(binx,biny,nominal.GetBinContent(binx,biny)**2/p0Up.GetBinContent(binx,biny))
-                                    report[str(p0Up.GetName())[2:]] = p0Up
-                                    report[str(p0Dn.GetName())[2:]] = p0Dn
-                                    systsEnv2["%s_%s_%s_bin%d_%d"%(name,truebinname,proc,binx,biny)] = (dict([(_p,"1" if _p==proc else "-") for _p in processes]),
-                                                                                                        dict([(_p,"1" if _p==proc else "-") for _p in processes]),
-                                                                                                        "templates")
+
+                                    p0Up = nominal.Clone("%s_%s_%s_%s_bin%dUp" % (nominal.GetName(),name,self.truebinname,proc,binx))
+                                    p0Dn = nominal.Clone("%s_%s_%s_%s_bin%dDown" % (nominal.GetName(),name,self.truebinname,proc,binx))
+                                    p0Up.SetBinContent(binx, nominal.GetBinContent(binx)+effect*nominal.GetBinError(binx))
+                                    p0Dn.SetBinContent(binx, nominal.GetBinContent(binx)**2/p0Up.GetBinContent(binx))
+                                    self.report[str(p0Up.GetName())[2:]] = p0Up
+                                    self.report[str(p0Dn.GetName())[2:]] = p0Dn
+
+                                    effmap0  = {_p:"1" if _p==proc else "-" for _p in self.processes}
+                                    effmap12 = {_p:"1" if _p==proc else "-" for _p in self.processes}
+                                    systsEnv2["%s_%s_%s_bin%d"%(name,self.truebinname,proc,binx)] = (effmap0, effmap12, "templates")
                                     break # otherwise you apply more than once to the same bin if more regexps match
 
-            elif mode in ["templates"]:
-                nominal = report[proc]
-                p0Up = report["%s_%s_Up" % (proc, effect)]
-                p0Dn = report["%s_%s_Dn" % (proc, effect)]
-                if not p0Up or not p0Dn: 
-                    raise RuntimeError, "Missing templates %s_%s_(Up,Dn) for %s" % (proc,effect,name)
-                p0Up.SetName("%s_%sUp"   % (nominal.GetName(),name))
-                p0Dn.SetName("%s_%sDown" % (nominal.GetName(),name))
-                if p0Up.Integral()<=0 or p0Dn.Integral()<=0:
-                    if p0Up.Integral()<=0 and p0Dn.Integral()<=0:
-                        raise RuntimeError('ERROR: both template variations have negative or zero integral: '
-                                           '%s, Nominal %f, Up %f, Down %f' % (proc, nominal.Integral(),
-                                                                               p0Up.Integral(), p0Dn.Integral()))
-                    print ('Warning: I am going to fix a template prediction that would have '
-                           'negative or zero integral: %s, Nominal %f, Up %f, Down %f' % (proc,nominal.Integral(),
-                                                                               p0Up.Integral(),p0Dn.Integral()))
+                    elif 'TH2' in nominal.ClassName():
+                        for binx, biny in product(xrange(1, nominal.GetNbinsX()+1),
+                                                  xrange(1, nominal.GetNbinsY()+1)):
+                            for binmatch in morefields[0]:
+                                if re.match(binmatch+"$", '%d,%d' % (binx, biny)):
+                                    if (nominal.GetBinContent(binx,biny) == 0 or
+                                        nominal.GetBinError(binx,biny) == 0):
+                                        if nominal.Integral() != 0:
+                                            print ("WARNING: for process %s in truebinname %s, "
+                                                   "bin %d,%d has zero yield or zero error." %
+                                                       (proc,self.truebinname,binx,biny))
+                                        break
+
+                                    if (effect*nominal.GetBinError(binx,biny) <
+                                        0.1*math.sqrt(nominal.GetBinContent(binx,biny)+0.04) ):
+                                        if self.options.verbose:
+                                            print ('skipping stat_foreach_shape_bins %s %d,%d '
+                                                   'because it is irrelevant' % (proc, binx, biny))
+                                        break
+                                    p0Up = nominal.Clone("%s_%s_%s_%s_bin%d_%dUp"% (nominal.GetName(),name,self.truebinname,proc,binx,biny))
+                                    p0Dn = nominal.Clone("%s_%s_%s_%s_bin%d_%dDown"% (nominal.GetName(),name,self.truebinname,proc,binx,biny))
+                                    p0Up.SetBinContent(binx,biny,nominal.GetBinContent(binx,biny)+effect*nominal.GetBinError(binx,biny))
+                                    p0Dn.SetBinContent(binx,biny,nominal.GetBinContent(binx,biny)**2/p0Up.GetBinContent(binx,biny))
+                                    self.report[str(p0Up.GetName())[2:]] = p0Up
+                                    self.report[str(p0Dn.GetName())[2:]] = p0Dn
+
+                                    effmap0  = {_p:"1" if _p==proc else "-" for _p in self.processes}
+                                    effmap12 = {_p:"1" if _p==proc else "-" for _p in self.processes}
+                                    systsEnv2["%s_%s_%s_bin%d_%d"%(name,self.truebinname,proc,binx,biny)] = (effmap0, effmap12, "templates")
+                                    break # otherwise you apply more than once to the same bin if more regexps match
+
+                elif mode in ["templates"]:
+                    nominal = self.report[proc]
+                    p0Up = self.report["%s_%s_Up" % (proc, effect)]
+                    p0Dn = self.report["%s_%s_Dn" % (proc, effect)]
+                    if not p0Up or not p0Dn:
+                        raise RuntimeError, "Missing templates %s_%s_(Up,Dn) for %s" % (proc,effect,name)
+                    p0Up.SetName("%s_%sUp"   % (nominal.GetName(),name))
+                    p0Dn.SetName("%s_%sDown" % (nominal.GetName(),name))
+                    if p0Up.Integral()<=0 or p0Dn.Integral()<=0:
+                        if p0Up.Integral()<=0 and p0Dn.Integral()<=0:
+                            raise RuntimeError('ERROR: both template variations have negative or zero integral: '
+                                               '%s, Nominal %f, Up %f, Down %f' % (proc, nominal.Integral(),
+                                                                                   p0Up.Integral(), p0Dn.Integral()))
+                        print ('Warning: I am going to fix a template prediction that would have '
+                               'negative or zero integral: %s, Nominal %f, Up %f, Down %f' % (proc,nominal.Integral(),
+                                                                                   p0Up.Integral(),p0Dn.Integral()))
+                        for b in xrange(1,nominal.GetNbinsX()+1):
+                            y0 = nominal.GetBinContent(b)
+                            yA = p0Up.GetBinContent(b) if p0Up.Integral()>0 else p0Dn.GetBinContent(b)
+                            yM = y0
+                            if (y0 > 0 and yA > 0):
+                                yM = y0*y0/yA
+                            elif yA == 0:
+                                yM = 2*y0
+                            if p0Up.Integral()>0: p0Dn.SetBinContent(b, yM)
+                            else: p0Up.SetBinContent(b, yM)
+                        print 'The integral is now: %s, Nominal %f, Up %f, Down %f'%(proc,nominal.Integral(),p0Up.Integral(),p0Dn.Integral())
+                    self.report[str(p0Up.GetName())[2:]] = p0Up
+                    self.report[str(p0Dn.GetName())[2:]] = p0Dn
+                    effect0  = "1"
+                    effect12 = "-"
+                    if self.mca._projection != None:
+                        self.mca._projection.scaleSystTemplate(name,nominal,p0Up)
+                        self.mca._projection.scaleSystTemplate(name,nominal,p0Dn)
+                elif mode in ["alternateShape", "alternateShapeOnly"]:
+                    nominal = self.report[proc]
+                    alternate = self.report[effect]
+                    if self.mca._projection != None:
+                        self.mca._projection.scaleSystTemplate(name,nominal,alternate)
+                    alternate.SetName("%s_%sUp" % (nominal.GetName(),name))
+                    if mode == "alternateShapeOnly":
+                        alternate.Scale(nominal.Integral()/alternate.Integral())
+                    mirror = nominal.Clone("%s_%sDown" % (nominal.GetName(),name))
                     for b in xrange(1,nominal.GetNbinsX()+1):
                         y0 = nominal.GetBinContent(b)
-                        yA = p0Up.GetBinContent(b) if p0Up.Integral()>0 else p0Dn.GetBinContent(b)
+                        yA = alternate.GetBinContent(b)
                         yM = y0
                         if (y0 > 0 and yA > 0):
                             yM = y0*y0/yA
                         elif yA == 0:
                             yM = 2*y0
-                        if p0Up.Integral()>0: p0Dn.SetBinContent(b, yM)
-                        else: p0Up.SetBinContent(b, yM)
-                    print 'The integral is now: %s, Nominal %f, Up %f, Down %f'%(proc,nominal.Integral(),p0Up.Integral(),p0Dn.Integral())
-                report[str(p0Up.GetName())[2:]] = p0Up
-                report[str(p0Dn.GetName())[2:]] = p0Dn
-                effect0  = "1"
-                effect12 = "-"
-                if mca._projection != None:
-                    mca._projection.scaleSystTemplate(name,nominal,p0Up)
-                    mca._projection.scaleSystTemplate(name,nominal,p0Dn)
-            elif mode in ["alternateShape", "alternateShapeOnly"]:
-                nominal = report[proc]
-                alternate = report[effect]
-                if mca._projection != None:
-                    mca._projection.scaleSystTemplate(name,nominal,alternate)
-                alternate.SetName("%s_%sUp" % (nominal.GetName(),name))
-                if mode == "alternateShapeOnly":
-                    alternate.Scale(nominal.Integral()/alternate.Integral())
-                mirror = nominal.Clone("%s_%sDown" % (nominal.GetName(),name))
-                for b in xrange(1,nominal.GetNbinsX()+1):
-                    y0 = nominal.GetBinContent(b)
-                    yA = alternate.GetBinContent(b)
-                    yM = y0
-                    if (y0 > 0 and yA > 0):
-                        yM = y0*y0/yA
-                    elif yA == 0:
-                        yM = 2*y0
-                    mirror.SetBinContent(b, yM)
-                if mode == "alternateShapeOnly":
-                    # keep same normalization
-                    mirror.Scale(nominal.Integral()/mirror.Integral())
-                else:
-                    # mirror normalization
-                    mnorm = (nominal.Integral()**2)/alternate.Integral()
-                    mirror.Scale(mnorm/alternate.Integral())
-                report[alternate.GetName()] = alternate
-                report[mirror.GetName()] = mirror
-                effect0  = "1"
-                effect12 = "-"
-            effmap0[proc]  = effect0 
-            effmap12[proc] = effect12 
-        if mode not in ["stat_foreach_shape_bins"]: systsEnv2[name] = (effmap0,effmap12,mode)
+                        mirror.SetBinContent(b, yM)
+                    if mode == "alternateShapeOnly":
+                        # keep same normalization
+                        mirror.Scale(nominal.Integral()/mirror.Integral())
+                    else:
+                        # mirror normalization
+                        mnorm = (nominal.Integral()**2)/alternate.Integral()
+                        mirror.Scale(mnorm/alternate.Integral())
+                    self.report[alternate.GetName()] = alternate
+                    self.report[mirror.GetName()] = mirror
+                    effect0  = "1"
+                    effect12 = "-"
+                effmap0[proc]  = effect0
+                effmap12[proc] = effect12
+            if mode not in ["stat_foreach_shape_bins"]: systsEnv2[name] = (effmap0,effmap12,mode)
 
-    return systsEnv2
+        return systsEnv2
 
-def writeDataCard(myout, allyields, systs, systsEnv, binname, cutsfile, processes):
-    myyields = dict([(k,v) for (k,v) in allyields.iteritems()]) # doesn't this just copy the dict?
-    if not os.path.exists(myout):
-        os.mkdir(myout)
+    def writeDataCard(self):
+        if self.options.verbose: print ("...writing datacard")
+        myyields = {k:v for (k,v) in self.allyields.iteritems()} # doesn't this just copy the dict?
+        if not os.path.exists(self.options.outdir):
+            os.mkdir(self.options.outdir)
 
-    with open(os.path.join(myout, binname+".card.txt"), 'w') as datacard:
-        datacard.write("## Datacard for cut file %s\n" % cutsfile)
-        datacard.write("shapes *        * %s.input.root x_$PROCESS x_$PROCESS_$SYSTEMATIC\n" % binname)
-        datacard.write('##----------------------------------\n')
-        datacard.write('bin         %s\n' % binname)
-        datacard.write('observation %s\n' % myyields['data_obs'])
-        datacard.write('##----------------------------------\n')
-        
-        klen = max([7, len(binname)]+[len(p) for p in processes])
-        kpatt = " %%%ds " % klen
-        fpatt = " %%%d.%df " % (klen,3)
-        datacard.write('##----------------------------------\n')
-        datacard.write('bin             '+(" ".join([kpatt % binname  for p in processes]))+"\n")
-        datacard.write('process         '+(" ".join([kpatt % p        for p in processes]))+"\n")
-        datacard.write('process         '+(" ".join([kpatt % iproc[p] for p in processes]))+"\n")
-        datacard.write('rate            '+(" ".join([fpatt % myyields[p] for p in processes]))+"\n")
-        datacard.write('##----------------------------------\n')
+        with open(os.path.join(self.options.outdir, self.binname+".card.txt"), 'w') as datacard:
+            datacard.write("## Datacard for cut file %s\n" % self.cutsfile)
+            datacard.write("shapes *        * %s.input.root x_$PROCESS x_$PROCESS_$SYSTEMATIC\n" % self.binname)
+            datacard.write('##----------------------------------\n')
+            datacard.write('bin         %s\n' % self.binname)
+            datacard.write('observation %s\n' % myyields['data_obs'])
+            datacard.write('##----------------------------------\n')
 
-        for name, effmap in systs.iteritems():
-            datacard.write(('%-12s lnN' % name) + " ".join([kpatt % effmap[p] for p in processes]) +"\n")
+            klen = max([7, len(self.binname)]+[len(p) for p in self.processes])
+            kpatt = " %%%ds " % klen
+            fpatt = " %%%d.%df " % (klen,3)
 
-        for name, (effmap0,effmap12,mode) in systsEnv.iteritems():
-            if mode == "templates":
-                datacard.write('%-10s shape' % name)
-                datacard.write(" ".join([kpatt % effmap0[p] for p in processes]))
-                datacard.write("\n")
+            hlen = max([7] + [len(n) for n in self.systs.keys()+self.systsEnv.keys()])
+            hpatt = "%%-%ds " % hlen
+            datacard.write('##----------------------------------\n')
+            datacard.write(hpatt%'bin'     +"     "+(" ".join([kpatt % self.binname  for p in self.processes]))+"\n")
+            datacard.write(hpatt%'process' +"     "+(" ".join([kpatt % p             for p in self.processes]))+"\n")
+            datacard.write(hpatt%'process' +"     "+(" ".join([kpatt % self.iproc[p] for p in self.processes]))+"\n")
+            datacard.write(hpatt%'rate'    +"     "+(" ".join([fpatt % myyields[p]   for p in self.processes]))+"\n")
+            datacard.write('##----------------------------------\n')
 
-            if re.match('envelop.*',mode):
-                datacard.write('%-10s shape' % (name+"0"))
-                datacard.write(" ".join([kpatt % effmap0[p] for p in processes]))
-                datacard.write("\n")
+            for name, effmap in self.systs.iteritems():
+                datacard.write((hpatt%name+'  lnN') + " ".join([kpatt % effmap[p] for p in self.processes]) +"\n")
 
-            if any([re.match(x+'.*',mode) for x in ["envelop", "shapeOnly"]]):
-                datacard.write('%-10s shape' % (name+"1"))
-                datacard.write(" ".join([kpatt % effmap12[p] for p in processes]))
-                datacard.write("\n")
-                if "shapeOnly2D" not in mode:
-                    datacard.write('%-10s shape' % (name+"2"))
-                    datacard.write(" ".join([kpatt % effmap12[p] for p in processes]))
+            for name, (effmap0,effmap12,mode) in self.systsEnv.iteritems():
+                if mode == "templates":
+                    datacard.write(hpatt%name+'shape')
+                    datacard.write(" ".join([kpatt % effmap0[p] for p in self.processes]))
                     datacard.write("\n")
-        datacard.write("\n")
+
+                if re.match('envelop.*',mode):
+                    datacard.write(hpatt%(name+'0')+'shape')
+                    datacard.write(" ".join([kpatt % effmap0[p] for p in self.processes]))
+                    datacard.write("\n")
+
+                if any([re.match(x+'.*',mode) for x in ["envelop", "shapeOnly"]]):
+                    datacard.write(hpatt%(name+'1')+'shape')
+                    datacard.write(" ".join([kpatt % effmap12[p] for p in self.processes]))
+                    datacard.write("\n")
+                    if "shapeOnly2D" not in mode:
+                        datacard.write(hpatt%(name+'2')+'shape')
+                        datacard.write(" ".join([kpatt % effmap12[p] for p in self.processes]))
+                        datacard.write("\n")
+            datacard.write("\n")
+
+    def writeInputRootFile(self):
+        if self.options.verbose: print ("...writing input root file")
+        workspace = ROOT.TFile.Open(os.path.join(self.options.outdir,
+                                                 self.binname+".input.root"),
+                                    "RECREATE")
+        for n,h in self.report.iteritems():
+            if self.options.verbose:
+                print "      %-60s %8.3f events" % (h.GetName(),h.Integral())
+            workspace.WriteTObject(h,h.GetName())
+        workspace.Close()
+
+        print "Wrote to ", os.path.join(self.options.outdir,self.binname+".input.root")
+
 
 if __name__ == '__main__':
     systs = {}
@@ -519,9 +590,9 @@ if __name__ == '__main__':
     parser = OptionParser(usage="%prog [options] mc.txt cuts.txt var bins systs.txt ")
     addMCAnalysisOptions(parser)
     parser.add_option("-o", "--out", dest="outname", type="string",
-                      default=None, help="output name") 
+                      default=None, help="output name")
     parser.add_option("--od", "--outdir", dest="outdir", type="string",
-                      default="shapecards/", help="output name") 
+                      default="shapecards/", help="output name")
     parser.add_option("-v", "--verbose", dest="verbose", type="int",
                       default=0, help="Verbosity level (0 = quiet, 1 = verbose, 2+ = more)")
     parser.add_option("--asimov", dest="asimov", action="store_true", help="Asimov")
@@ -542,46 +613,33 @@ if __name__ == '__main__':
     if not os.path.isdir(options.outdir):
         os.mkdir(options.outdir)
 
-    if "/functions_cc.so" not in ROOT.gSystem.GetLibraries(): 
-        ROOT.gROOT.ProcessLine(".L %s/src/CMGTools/TTHAnalysis/python/plotter/functions.cc+" % os.environ['CMSSW_BASE']);
+    if "/functions_cc.so" not in ROOT.gSystem.GetLibraries():
+        ROOT.gROOT.ProcessLine(".L %s/src/CMGTools/TTHAnalysis/python/plotter/functions.cc+"
+                                % os.environ['CMSSW_BASE']);
 
-    mca  = MCAnalysis(args[0],options)
-    cuts = CutsFile(args[1],options)
+    cardMaker = ShapeCardMaker(mcafile=args[0],
+                               cutsfile=args[1],
+                               var=args[2],
+                               bins=args[3],
+                               systsfiles=args[4:],
+                               options=options)
 
-    truebinname = os.path.basename(args[1]).replace(".txt","") if options.outname == None else options.outname
-    binname = truebinname if truebinname[0] not in "234" else "ttH_"+truebinname
-    print binname
-
-    myout = options.outdir
-    report = produceReport(mca, args[2], args[3], cuts,
-                           outfilename=os.path.join(myout, binname+".bare.root"),
-                           options=options)
-
-    allyields, processes, iproc = produceYields(mca, report)
-    systs, systsEnv = parseSystsFiles(args[4:], processes, options)
-    systs = parseNormalizationSysts(systs, processes, mca)
-    systsEnv1 = parseShapeSysts1(systsEnv, mca, report)
+    cardMaker.produceReport()
+    cardMaker.fillYieldsAndProcesses()
+    cardMaker.parseNormalizationSysts()
+    systsEnv1 = cardMaker.parseShapeSysts1()
 
     if options.binfunction:
-        doRebinning(options.binfunction, report, mca)
-        allyields, processes, iproc = produceYields(mca, report)
+        cardMaker.doRebinning()
+        cardMaker.fillYieldsAndProcesses()
 
-    systsEnv2 = parseShapeSysts2(systsEnv, mca, report, processes, options)
+    systsEnv2 = cardMaker.parseShapeSysts2()
 
-    systsEnv = {}
-    systsEnv.update(systsEnv1)
-    systsEnv.update(systsEnv2)
+    cardMaker.systsEnv = {}
+    cardMaker.systsEnv.update(systsEnv1)
+    cardMaker.systsEnv.update(systsEnv2)
 
-    writeDataCard(options.outdir, allyields, systs, systsEnv, binname, args[1], processes)
-
-    myout = options.outdir
-    workspace = ROOT.TFile.Open(os.path.join(myout,binname+".input.root"), "RECREATE")
-    for n,h in report.iteritems():
-        if options.verbose:
-            print "\t%s (%8.3f events)" % (h.GetName(),h.Integral())
-        workspace.WriteTObject(h,h.GetName())
-    workspace.Close()
-
-    print "Wrote to ", os.path.join(myout,binname+".input.root")
+    cardMaker.writeDataCard()
+    cardMaker.writeInputRootFile()
 
     sys.exit(0)
