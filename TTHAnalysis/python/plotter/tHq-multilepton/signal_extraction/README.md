@@ -3,33 +3,31 @@
 ### Produce datacards:
 
 ```
-python makeShapeCards.py \
---savefile activate \
+python makeShapeCardsTHQ.py \
+--savefile report_thq_3l.root \
 tHq-multilepton/signal_extraction/mca-thq-3l-mcdata-frdata_limits.txt \
 tHq-multilepton/cuts-thq-3l.txt \
-thqMVA_ttv:thqMVA_tt 40,-1,1,40,-1,1 \
+thqMVA_ttv_3l:thqMVA_tt_3l 40,-1,1,40,-1,1 \
 tHq-multilepton/signal_extraction/systsEnv.txt \
--P ra5trees/mixture_jecv6prompt_datafull_jul20/ \
--P treedir/tHq_production_Sep2/ \
+-P treedir/mixture_jecv6prompt_datafull_jul20/ \
+-P treedir/tHq_production_Jan11/ \
 --tree treeProducerSusyMultilepton \
 --s2v -j 8 -l 12.9 -f \
 --xp data --asimov \
--F sf/t treedir/tHq_eventvars_Nov15/evVarFriend_{cname}.root \
+-F sf/t treedir/tHq_eventvars_Jan18/evVarFriend_{cname}.root \
 --Fs {P}/2_recleaner_v5_b1E2 \
 --mcc ttH-multilepton/lepchoice-ttH-FO.txt \
 --neg \
 -o 3l \
 --od tHq-multilepton/signal_extraction/cards \
 -L tHq-multilepton/functionsTHQ.cc \
---2d-binning-function "10:tHq_MVAto1D_3l_10"
+--2d-binning-function "10:tHq_MVAto1D_3l_10" \
+-v 2
 ```
 
-- Change from `--savefile activate` to `--infile activate` to rerun quickly with a different binning.
+- Change from `--savefile report.root` to `--infile report.root` to rerun quickly with a different binning.
 - Binning function in `tHq-multilepton/functionsTHQ.cc`. This turns the 2d histogram of mva1 vs mva2 into a 1d histogram for shape fitting in combine.
 - Keep track of reporting of empty bins and adjust binning function accordingly.
-- Systematics are mostly copied from ttH so far. Needs to be checked.
-- Will want to script this in case of several categories/tests, or to combine with same-sign channel.
-- Need to fix pileup weight.
 
 This produces three files: `..input.root`, `..card.txt`, `..bare.root`
 
