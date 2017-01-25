@@ -210,7 +210,8 @@ from CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2 import *
 from CMGTools.RootTools.samples.samples_13TeV_DATA2016 import *
 from CMGTools.HToZZ4L.tools.configTools import printSummary, configureSplittingFromTime, cropToLumi, prescaleComponents, insertEventSelector
 
-selectedComponents = [TTLep_pow]
+# selectedComponents = [TTLep_pow]
+selectedComponents = [THQ, THW]
 
 
 sig_ttv = [TTHnobb_pow,TTWToLNu_ext,TTWToLNu_ext2,TTZToLLNuNu_ext,TTZToLLNuNu_m1to10] # signal + TTV
