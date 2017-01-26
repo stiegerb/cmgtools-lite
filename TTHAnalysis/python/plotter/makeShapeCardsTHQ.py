@@ -52,14 +52,14 @@ def rebin2Dto1D(h, funcstring):
     if 'TH2' not in h.ClassName(): raise RuntimeError, "Calling rebin2Dto1D on something that is not TH2"
     for i in xrange(x.GetNbins()):
         for j in xrange(y.GetNbins()):
-            bin = int(func(x.GetBinCenter(i+1),y.GetBinCenter(j+1)))
-            if bin not in allowed: raise RuntimeError, "Binning function gives not admissible result"
-            newh.SetBinContent(bin,newh.GetBinContent(bin)+h.GetBinContent(i+1,j+1))
-            newh.SetBinError(bin,math.hypot(newh.GetBinError(bin),h.GetBinError(i+1,j+1)))
-    for bin in range(1,nbins+1):
-        if newh.GetBinContent(bin)<0:
-            print 'Warning: cropping to zero bin %d in %s (was %f)'%(bin,newh.GetName(),newh.GetBinContent(bin))
-            newh.SetBinContent(bin,0)
+            ibin = int(func(x.GetBinCenter(i+1),y.GetBinCenter(j+1)))
+            if ibin not in allowed: raise RuntimeError, "Binning function gives not admissible result"
+            newh.SetBinContent(ibin,newh.GetBinContent(ibin)+h.GetBinContent(i+1,j+1))
+            newh.SetBinError(ibin,math.hypot(newh.GetBinError(ibin),h.GetBinError(i+1,j+1)))
+    for ibin in range(1,nbins+1):
+        if newh.GetBinContent(ibin)<0:
+            print 'Warning: cropping to zero bin %d in %s (was %f)'%(ibin,newh.GetName(),newh.GetBinContent(ibin))
+            newh.SetBinContent(ibin,0)
     newh.SetLineWidth(h.GetLineWidth())
     newh.SetLineStyle(h.GetLineStyle())
     newh.SetLineColor(h.GetLineColor())
@@ -126,6 +126,9 @@ class ShapeCardMaker:
                 savefile.WriteTObject(h,n)
             savefile.Close()
 
+        self.updateAllYields()
+
+    def updateAllYields(self):
         self.allyields = {p:h.Integral() for p,h in self.report.iteritems()}
 
     def prepareAsimov(self, signals=None):
@@ -368,6 +371,10 @@ class ShapeCardMaker:
 
         for n,h in self.report.iteritems():
             self.report[n] = newhistos[h.GetName().replace('_oldbinning','')]
+
+        # Yields might have changed when cropping bins with
+        # negative content to zero
+        self.updateAllYields()
 
     def parseShapeSysts2(self):
         if self.options.verbose: print ("...parsing remaining shape systs")
