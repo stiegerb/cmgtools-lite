@@ -1,16 +1,16 @@
 # kinMVA input and output plots (3l)
 
-nJet25               : nJet25_Recl          : [1.5,2.5,3.5,4.5,5.5,6.5,7.5] ; XTitle='N(jet\, p_{T} > 25\, |#eta|<2.4)'
-nJetEta1             : nJetEta1             : [0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5]; XTitle='N(jet\,|#eta|>1.0) non CSV medium'
-nBJetLoose25         : nBJetLoose25_Recl    : [0.5,1.5,2.5,3.5,4.5] ; XTitle='N(jet\, p_{T} > 25\, CSV loose)'
-maxEtaJet25          : maxEtaJet25          : 18,0,5.0; XTitle="max jet |#eta| (p_{T} > 25 GeV)"
-dEtaFwdJetBJet       : dEtaFwdJetBJet       : 18,0,6;   XTitle="#Delta#eta max fwd jet and leading bjet"
+# nJet25               : nJet25_Recl          : [1.5,2.5,3.5,4.5,5.5,6.5,7.5] ; XTitle='N(jet\, p_{T} > 25\, |#eta|<2.4)'
+# nJetEta1             : nJetEta1             : [0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5]; XTitle='N(jet\,|#eta|>1.0) non CSV medium'
+# nBJetLoose25         : nBJetLoose25_Recl    : [0.5,1.5,2.5,3.5,4.5] ; XTitle='N(jet\, p_{T} > 25\, CSV loose)'
+# maxEtaJet25          : maxEtaJet25          : 18,0,5.0; XTitle="max jet |#eta| (p_{T} > 25 GeV)"
+# dEtaFwdJetBJet       : dEtaFwdJetBJet       : 18,0,6;   XTitle="#Delta#eta max fwd jet and leading bjet"
 dEtaFwdJet2BJet      : dEtaFwdJet2BJet      : 18,0,6;   XTitle="#Delta#eta max fwd jet and sub-leading bjet"
-dEtaFwdJetClosestLep : dEtaFwdJetClosestLep : 18,0,6 ;  XTitle="#Delta#eta max fwd jet and closest lepton"
-dPhiHighestPtSSPair  : dPhiHighestPtSSPair  : 18,0,3.2; XTitle="#Delta#phi highest pt same-sign lepton pair", Legend='TL'
-Lep3Pt               : LepGood3_conePt      : 18,0,80;  XTitle="Third lepton p_{T} [GeV]"
-minDRll              : minDRll              : 18,0,4;   XTitle="Minimum #DeltaR between any two leptons"
-totCharge            : LepGood1_charge+LepGood2_charge+LepGood3_charge : [-1.5,-0.5,0.5,1.5]; XTitle="Total lepton charge", Legend='TL'
+# dEtaFwdJetClosestLep : dEtaFwdJetClosestLep : 18,0,6 ;  XTitle="#Delta#eta max fwd jet and closest lepton"
+# dPhiHighestPtSSPair  : dPhiHighestPtSSPair  : 18,0,3.2; XTitle="#Delta#phi highest pt same-sign lepton pair", Legend='TL'
+# Lep3Pt               : LepGood3_conePt      : 18,0,80;  XTitle="Third lepton p_{T} [GeV]"
+# minDRll              : minDRll              : 18,0,4;   XTitle="Minimum #DeltaR between any two leptons"
+# totCharge            : LepGood1_charge+LepGood2_charge+LepGood3_charge : [-1.5,-0.5,0.5,1.5]; XTitle="Total lepton charge", Legend='TL'
 
-thqMVA_tt_3l     : thqMVA_tt_3l    : 16,-1.,1.0; XTitle="kinMVA (tHq vs t#bar{t})", Legend='TL'
-thqMVA_ttv_3l    : thqMVA_ttv_3l   : 16,-1.,1.0; XTitle="kinMVA (tHq vs t#bar{t}V)", Legend='TL'
+# thqMVA_tt_3l     : thqMVA_tt_3l    : 16,-1.,1.0; XTitle="kinMVA (tHq vs t#bar{t})", Legend='TR'
+# thqMVA_ttv_3l    : thqMVA_ttv_3l   : 16,-1.,1.0; XTitle="kinMVA (tHq vs t#bar{t}V)", Legend='BL'

@@ -34,11 +34,11 @@ tZq     : tZq_ll             : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchI
 # tZW     : tZW_ll             : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kMagenta-9, Label='tZW'
 
 # Blind the data for now
-# data : DoubleEG_Run2016B_PromptReco_v2+DoubleEG_Run2016C_PromptReco_v2+DoubleEG_Run2016D_PromptReco_v2_runs_276315_276384+DoubleEG_Run2016D_PromptReco_v2_runs_276385_276811
-# data : DoubleMuon_Run2016B_PromptReco_v2+DoubleMuon_Run2016C_PromptReco_v2+DoubleMuon_Run2016D_PromptReco_v2_runs_276315_276384+DoubleMuon_Run2016D_PromptReco_v2_runs_276385_276811
-# data : MuonEG_Run2016B_PromptReco_v2+MuonEG_Run2016C_PromptReco_v2+MuonEG_Run2016D_PromptReco_v2_runs_276315_276384+MuonEG_Run2016D_PromptReco_v2_runs_276385_276811
-# data : SingleElectron_Run2016B_PromptReco_v2+SingleElectron_Run2016C_PromptReco_v2+SingleElectron_Run2016D_PromptReco_v2_runs_276315_276384+SingleElectron_Run2016D_PromptReco_v2_runs_276385_276811
-# data : SingleMuon_Run2016B_PromptReco_v2+SingleMuon_Run2016C_PromptReco_v2+SingleMuon_Run2016D_PromptReco_v2_runs_276315_276384+SingleMuon_Run2016D_PromptReco_v2_runs_276385_276811
+data : DoubleEG_Run2016B_PromptReco_v2+DoubleEG_Run2016C_PromptReco_v2+DoubleEG_Run2016D_PromptReco_v2_runs_276315_276384+DoubleEG_Run2016D_PromptReco_v2_runs_276385_276811
+data : DoubleMuon_Run2016B_PromptReco_v2+DoubleMuon_Run2016C_PromptReco_v2+DoubleMuon_Run2016D_PromptReco_v2_runs_276315_276384+DoubleMuon_Run2016D_PromptReco_v2_runs_276385_276811
+data : MuonEG_Run2016B_PromptReco_v2+MuonEG_Run2016C_PromptReco_v2+MuonEG_Run2016D_PromptReco_v2_runs_276315_276384+MuonEG_Run2016D_PromptReco_v2_runs_276385_276811
+data : SingleElectron_Run2016B_PromptReco_v2+SingleElectron_Run2016C_PromptReco_v2+SingleElectron_Run2016D_PromptReco_v2_runs_276315_276384+SingleElectron_Run2016D_PromptReco_v2_runs_276385_276811
+data : SingleMuon_Run2016B_PromptReco_v2+SingleMuon_Run2016C_PromptReco_v2+SingleMuon_Run2016D_PromptReco_v2_runs_276315_276384+SingleMuon_Run2016D_PromptReco_v2_runs_276385_276811
 
 # Fake (non-prompt) leptons are taken from the data with a given event weight
 # The text file specified with FakeRate='file.txt' gives the location of the

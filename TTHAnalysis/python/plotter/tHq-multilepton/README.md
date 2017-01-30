@@ -102,20 +102,20 @@ A full example for making plots with all corrections is the following:
 python mcPlots.py \
 tHq-multilepton/mca-thq-3l-mcdata-frdata.txt \
 tHq-multilepton/cuts-thq-3l.txt \
-tHq-multilepton/plots-thq.txt \
+tHq-multilepton/plots-thq-3l-kinMVA.txt \
 --s2v \
 --tree treeProducerSusyMultilepton \
 --showRatio --poisson \
 -j 8 \
 -f \
--P mixture_jecv6prompt_datafull_jul20/ \
--P treedir/tHq_production_Sep2/ \
+-P treedir/mixture_jecv6prompt_datafull_jul20/ \
 -l 12.9 \
 --pdir tHq-multilepton/plots_Sep9/ \
--F sf/t tHq_eventvars_Nov15/evVarFriend_{cname}.root \
+-F sf/t treedir/tHq_eventvars_Jan18/evVarFriend_{cname}.root \
 --Fs {P}/2_recleaner_v5_b1E2 \
 --mcc ttH-multilepton/lepchoice-ttH-FO.txt \
--W 'puw2016_vtx_4fb(nVert)'
+--mcc ttH-multilepton/ttH_2lss3l_triggerdefs.txt \
+-W 'puw2016_nTrueInt_13fb(nVert)'
 ```
 
 Note that this uses some symbolic links to the corresponding tree directories.
