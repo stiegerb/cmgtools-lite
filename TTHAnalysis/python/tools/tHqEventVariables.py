@@ -45,34 +45,34 @@ class tHqEventVariableFriend:
         # Signal MVA
         self.mvavars = {}
         self.mvavars['3l'] = [
-            MVAVar(name="nJet25_Recl"),
+            MVAVar(name="nJetSel_Recl"),
             MVAVar(name="nJetEta1"),
             MVAVar(name="maxEtaJet25"),
             MVAVar(name="dEtaFwdJetBJet"),
             MVAVar(name="dEtaFwdJetClosestLep"),
             MVAVar(name="dPhiHighestPtSSPair"),
-            MVAVar(name="LepGood_conePt[iF_Recl[2]]"),
+            MVAVar(name="LepGood_conePt[iLepFO_Recl[2]]"),
             MVAVar(name="minDRll"),
-            MVAVar(name="LepGood_charge[iF_Recl[0]]+LepGood_charge[iF_Recl[1]]+LepGood_charge[iF_Recl[2]]"),
+            MVAVar(name="LepGood_charge[iLepFO_Recl[0]]+LepGood_charge[iLepFO_Recl[1]]+LepGood_charge[iLepFO_Recl[2]]"),
             MVAVar(name="dEtaFwdJet2BJet"),
         ]
         self.mvavars['2lss'] = [
-            MVAVar(name="nJet25_Recl"),
+            MVAVar(name="nJetSel_Recl"),
             MVAVar(name="nJetEta1"),
             MVAVar(name="maxEtaJet25"),
             MVAVar(name="dEtaFwdJetBJet"),
             MVAVar(name="dEtaFwdJetClosestLep"),
             MVAVar(name="dPhiHighestPtSSPair"),
-            MVAVar(name="LepGood_conePt[iF_Recl[1]]"),
+            MVAVar(name="LepGood_conePt[iLepFO_Recl[1]]"),
             MVAVar(name="minDRll"),
-            MVAVar(name="LepGood_charge[iF_Recl[0]]+LepGood_charge[iF_Recl[1]]"),
+            MVAVar(name="LepGood_charge[iLepFO_Recl[0]]+LepGood_charge[iLepFO_Recl[1]]"),
             MVAVar(name="dEtaFwdJet2BJet"),
         ]
 
         self.mvaspectators = [
-            MVAVar(name="iF_Recl[0]"),
-            MVAVar(name="iF_Recl[1]"),
-            MVAVar(name="iF_Recl[2]"),
+            MVAVar(name="iLepFO_Recl[0]"),
+            MVAVar(name="iLepFO_Recl[1]"),
+            MVAVar(name="iLepFO_Recl[2]"),
         ]
 
         self.tmvaReaders = {}
@@ -97,24 +97,16 @@ class tHqEventVariableFriend:
 
     def getJetCollection(self, event, jec_syst=""):
         """Get a jet collection, either default or systematic variations"""
-        if not hasattr(event, "nJet"+jec_syst): jec_syst = ""
-        jets      = [j for j in Collection(event, "Jet"    +jec_syst, "nJet"    +jec_syst)]
-        jets_disc = [j for j in Collection(event, "DiscJet"+jec_syst, "nDiscJet"+jec_syst)]
-
-        try:
-            _ijets_list = getattr(event, "iJSel_%s%s" % ("Recl", jec_syst))
-            return [(jets[ij] if ij>=0 else jets_disc[-ij-1]) for ij in _ijets_list]
-
-        except AttributeError:
-            raise
-            return jets
+        if not hasattr(event, "nJetSel_Recl"+jec_syst): jec_syst = ""
+        jets = [j for j in Collection(event, "JetSel_Recl"+jec_syst, "nJetSel_Recl"+jec_syst)]
+        return jets
 
     def getLeptonCollection(self, event, label='LepGood', lenlabel='nLepFO_Recl'):
         """Get a lepton collection, either default or recleaned"""
         leptons = [l for l in Collection(event, label, 'n'+label)]
 
         try:
-            _ileps_list = list(getattr(event, "iF_Recl"))
+            _ileps_list = list(getattr(event, "iLepFO_Recl"))
             maxlen = int(getattr(event, lenlabel))
             _ileps_list = _ileps_list[:maxlen]
             return [leptons[il] for il in _ileps_list]
@@ -188,9 +180,9 @@ class tHqEventVariableFriend:
                     ret['dEtaBJet2BJet'] = -1.0
 
         # Fix total charge for non-same sign events (for charge flips)
-        br_lepcharge = "LepGood_charge[iF_Recl[0]]+LepGood_charge[iF_Recl[1]]" 
+        br_lepcharge = "LepGood_charge[iLepFO_Recl[0]]+LepGood_charge[iLepFO_Recl[1]]" 
         if event.eval(br_lepcharge) == 0:
-            ret[br_lepcharge] = event.eval("LepGood_charge[iF_Recl[0]]")
+            ret[br_lepcharge] = event.eval("LepGood_charge[iLepFO_Recl[0]]")
             # Now mvavar.set should read this instead
 
         # Signal MVA
@@ -200,6 +192,9 @@ class tHqEventVariableFriend:
 
             for backgr in ['tt', 'ttv']:
                 ret["thqMVA_%s_%s"%(backgr,channel)] = self.tmvaReaders[channel].EvaluateMVA("BDTG_"+backgr)
+
+            # Need to remove br_lepcharge from ret again?
+            ret.pop(br_lepcharge, None)
 
         return ret
 
