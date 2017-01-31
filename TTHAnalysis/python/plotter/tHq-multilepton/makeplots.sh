@@ -20,6 +20,9 @@ PLOTTAG=$1; shift;
 LUMI=36.5
 echo "Normalizing to ${LUMI}/fb";
 
+# Note: tthtrees is a symlink to /afs/cern.ch/work/p/peruzzi/tthtrees/
+#       thqtrees is a symlink to /afs/cern.ch/work/s/stiegerb/TTHTrees/13TeV/
+
 BASEOPTIONS="-P tthtrees/TREES_TTH_250117_Summer16_JECV3_noClean_qgV2_skimOnlyMC_v1"\
 " -P thqtrees/tHq_production_Jan25"\
 " --Fs {P}/1_recleaner_250117_v1"\
@@ -32,8 +35,13 @@ BASEOPTIONS="-P tthtrees/TREES_TTH_250117_Summer16_JECV3_noClean_qgV2_skimOnlyMC
 " --lspam '#bf{CMS} #it{Preliminary}' --legendWidth 0.20 --legendFontSize 0.035"\
 " --showRatio --maxRatioRange 0 2 --fixRatioRange --showMCError"\
 
-OPT2L="-W puw2016_nTrueInt_13fb(nTrueInt)*leptonSF_ttH(LepGood_pdgId[iLepFO_Recl[0]],LepGood_pt[iLepFO_Recl[0]],LepGood_eta[iLepFO_Recl[0]],2)*leptonSF_ttH(LepGood_pdgId[iLepFO_Recl[1]],LepGood_pt[iLepFO_Recl[1]],LepGood_eta[iLepFO_Recl[1]],2)"
-OPT3L="-W puw2016_nTrueInt_13fb(nTrueInt)*leptonSF_ttH(LepGood_pdgId[iLepFO_Recl[0]],LepGood_pt[iLepFO_Recl[0]],LepGood_eta[iLepFO_Recl[0]],3)*leptonSF_ttH(LepGood_pdgId[iLepFO_Recl[1]],LepGood_pt[iLepFO_Recl[1]],LepGood_eta[iLepFO_Recl[1]],3)*leptonSF_ttH(LepGood_pdgId[iLepFO_Recl[2]],LepGood_pt[iLepFO_Recl[2]],LepGood_eta[iLepFO_Recl[2]],3)"
+OPT2L="-W puw2016_nTrueInt_13fb(nTrueInt)*"\
+"leptonSF_ttH(LepGood_pdgId[iLepFO_Recl[0]],LepGood_pt[iLepFO_Recl[0]],LepGood_eta[iLepFO_Recl[0]],2)*"\
+"leptonSF_ttH(LepGood_pdgId[iLepFO_Recl[1]],LepGood_pt[iLepFO_Recl[1]],LepGood_eta[iLepFO_Recl[1]],2)"
+OPT3L="-W puw2016_nTrueInt_13fb(nTrueInt)*"\
+"leptonSF_ttH(LepGood_pdgId[iLepFO_Recl[0]],LepGood_pt[iLepFO_Recl[0]],LepGood_eta[iLepFO_Recl[0]],3)*"\
+"leptonSF_ttH(LepGood_pdgId[iLepFO_Recl[1]],LepGood_pt[iLepFO_Recl[1]],LepGood_eta[iLepFO_Recl[1]],3)*"\
+"leptonSF_ttH(LepGood_pdgId[iLepFO_Recl[2]],LepGood_pt[iLepFO_Recl[2]],LepGood_eta[iLepFO_Recl[2]],3)"
 
 OPTIONS="--pdir ${OUTNAME}/${PLOTTAG}"
 MCA=""
@@ -50,7 +58,7 @@ case "$PLOTTAG" in
         OPTIONS="${OPTIONS} ${OPT3L}"
         MCA="tHq-multilepton/mca-thq-3l-mcdata-frdata.txt"
         CUTS="tHq-multilepton/cuts-thq-3l-Zcontrol.txt"
-        PLOTS="tHq-multilepton/plots-thq-3l-kinMVA.txt"
+        PLOTS="tHq-multilepton/plots-thq-3l-zcontrol.txt"
         ;;
     "3l-ttcontrol" )
         OPTIONS="${OPTIONS} ${OPT3L}"
@@ -115,8 +123,8 @@ if [[ "X$1" != "X" ]]; then
     echo "Running a single plot: ${SELECTPLOT}";
     python mcPlots.py ${ARGUMENTS} ${OPTIONS} --select-plot ${SELECTPLOT}
 else
-    python mcPlots.py ${ARGUMENTS} ${OPTIONS} --exclude-plot dEtaFwdJet2BJet
     python mcPlots.py ${ARGUMENTS} ${OPTIONS} --enable-cut 2bl --select-plot dEtaFwdJet2BJet
+    python mcPlots.py ${ARGUMENTS} ${OPTIONS} --exclude-plot dEtaFwdJet2BJet
 fi
 
 echo -e "\e[92mDONE\e[0m"

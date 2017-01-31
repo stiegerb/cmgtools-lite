@@ -67,7 +67,7 @@ def rebin2Dto1D(h, funcstring):
 
 class ShapeCardMaker:
     """docstring for ShapeCardMaker"""
-    def __init__(self, mcafile, cutsfile, var, bins, systsfiles, options):
+    def __init__(self, mcafile, cutsfile, var, bins, systsfiles, options, ananame="tHq"):
         self.mcafile = mcafile
         self.cutsfile = cutsfile
         self.var = var
@@ -75,8 +75,10 @@ class ShapeCardMaker:
         self.systsfiles = systsfiles
         self.options = options
 
+        self.ananame = ananame
+
         self.truebinname = self.options.outname or os.path.basename(self.cutsfile).replace(".txt","")
-        self.binname = self.truebinname if self.truebinname[0] not in "234" else "ttH_"+self.truebinname
+        self.binname = self.truebinname if self.truebinname[0] not in "234" else "%s_%s"%(self.ananame, self.truebinname)
 
         self.mca = MCAnalysis(mcafile, self.options)
         self.cuts = CutsFile(cutsfile, self.options)
