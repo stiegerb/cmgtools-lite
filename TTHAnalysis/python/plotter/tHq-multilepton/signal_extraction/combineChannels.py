@@ -80,7 +80,6 @@ def main(args, options):
         oname = os.path.join(options.outdir, 'tHq_%s.card.txt' % tags[0])
         print "to %s" % oname
         combineCards(cards, chans, oname)
-        break
 
 
 if __name__ == '__main__':

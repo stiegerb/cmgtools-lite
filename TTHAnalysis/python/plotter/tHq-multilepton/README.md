@@ -133,6 +133,8 @@ The important options are:
 
 If everything goes according to plan, this will produce an output directory with the plots in `.pdf` and `.png` format, a text file with the event yields, as well as a copy of the mca, cut, and plot files, the command string used, and a root file with the raw histograms.
 
+Note that the main plots are now hardcoded in `makeplots.sh`. Run that by calling `./makeplots.sh outputdir selectplots` where `selectplots` is one of the tags specified in the script, e.g. `3l`, `2lss-mm-ttcontrol`, etc.
+
 ----------------
 
 ### Some tips
