@@ -10,6 +10,10 @@ Where plottag is one of:
 
 And the plots will be stored in outdir/plottag/
 "
+function DONE {
+    echo -e "\e[92mDONE\e[0m"
+    exit 0
+}
 
 if [[ "X$1" == "X" ]]; then echo "Please provide output directory name: [makeplots.sh outdir plottag]"; exit; fi
 OUTNAME=$1; shift;
@@ -22,16 +26,15 @@ echo "Normalizing to ${LUMI}/fb";
 # Note: tthtrees is a symlink to /afs/cern.ch/work/p/peruzzi/tthtrees/
 #       thqtrees is a symlink to /afs/cern.ch/work/s/stiegerb/TTHTrees/13TeV/
 
-BASEOPTIONS="-P tthtrees/TREES_TTH_250117_Summer16_JECV3_noClean_qgV2_skimOnlyMC_v1"\
-" -P thqtrees/tHq_production_Jan25"\
-" --Fs {P}/1_recleaner_250117_v1"\
-" --Fs {P}/5_triggerDecision_250117_v1"\
-" -F sf/t thqtrees/tHq_eventvars_Jan30/evVarFriend_{cname}.root"\
-" -f -j 8 -l ${LUMI} --s2v"\
+BASEOPTIONS=" -f -j 8 -l ${LUMI} --s2v"\
 " -L ttH-multilepton/functionsTTH.cc"\
 " --tree treeProducerSusyMultilepton"\
 " --mcc ttH-multilepton/lepchoice-ttH-FO.txt"
-
+TREEINPUTS="-P tthtrees/TREES_TTH_250117_Summer16_JECV3_noClean_qgV2_skimOnlyMC_v1"\
+" -P thqtrees/tHq_production_Jan25"
+FRIENDTREES=" --Fs {P}/1_recleaner_250117_v1"\
+" --Fs {P}/5_triggerDecision_250117_v1"\
+" -F sf/t thqtrees/tHq_eventvars_Jan30/evVarFriend_{cname}.root"
 DRAWOPTIONS="--lspam '#bf{CMS} #it{Preliminary}' --legendWidth 0.20 --legendFontSize 0.035"\
 " --showRatio --maxRatioRange 0 2 --fixRatioRange --showMCError"\
 
@@ -118,6 +121,17 @@ case "$PLOTTAG" in
         CUTS="tHq-multilepton/cuts-thq-2lss-ttbarcontrol.txt"
         PLOTS="tHq-multilepton/plots-thq-2lss-kinMVA.txt"
         ;;
+    "2los-em-ttcontrol" )
+        TREEINPUTS="-P tthtrees/TREES_TTH_250117_Summer16_JECV3_noClean_qgV2"
+        FRIENDTREES=" --Fs {P}/1_recleaner_250117_v1 --Fs {P}/5_triggerDecision_250117_v1 -F sf/t thqtrees/tHq_eventvars_Feb2/evVarFriend_{cname}.root"
+        OPTIONS="${TREEINPUTS} ${FRIENDTREES} ${BASEOPTIONS} ${OPTIONS} ${DRAWOPTIONS} ${OPT2L}"
+        MCA="tHq-multilepton/mca-2los-mcdata.txt"
+        CUTS="tHq-multilepton/cuts-thq-ttbar-fwdjet.txt"
+        PLOTS="tHq-multilepton/plots-thq-ttbar-fwdjet.txt"
+        python mcPlots.py ${MCA} ${CUTS} ${PLOTS} ${OPTIONS} --enable-cut 2bl --select-plot dEtaFwdJet2BJet
+        python mcPlots.py ${MCA} ${CUTS} ${PLOTS} ${OPTIONS} --exclude-plot dEtaFwdJet2BJet
+        DONE
+        ;;
     *)
         echo "${USAGE}"
         echo -e "\e[31mUnknown plottag\e[0m"
@@ -127,7 +141,7 @@ esac
 echo "Storing output in ${OUTNAME}/${PLOTTAG}/";
 
 ARGUMENTS="${MCA} ${CUTS} ${PLOTS}"
-OPTIONS="${BASEOPTIONS} ${OPTIONS}"
+OPTIONS="${TREEINPUTS} ${FRIENDTREES} ${BASEOPTIONS} ${OPTIONS}"
 
 echo "mca  : ${MCA}"
 echo "cuts : ${CUTS}"
@@ -144,4 +158,4 @@ else
     python mcPlots.py ${ARGUMENTS} ${OPTIONS} --exclude-plot dEtaFwdJet2BJet
 fi
 
-echo -e "\e[92mDONE\e[0m"
+DONE

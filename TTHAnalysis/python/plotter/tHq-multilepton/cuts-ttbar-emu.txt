@@ -1,0 +1,25 @@
+# Format (use '#' to comment lines):
+# name of cut : formula using branch names as in tree
+alwaystrue    : 1
+
+trigger       : Trigger_2l
+
+# two good same-sign leptons
+dilep         : nLepFO>=2 && nLepTight<=2
+cleanup       : minMllAFAS > 12
+pt2510        : LepGood1_conePt>25 && LepGood2_conePt>10 && (abs(LepGood2_pdgId)!=11 || LepGood2_conePt>15)
+TT            : LepGood1_isLepTight && LepGood2_isLepTight
+oppositesign  : LepGood1_charge*LepGood2_charge < 0
+
+em_chan       : abs(LepGood1_pdgId*LepGood2_pdgId) == 143
+
+eleID         : (abs(LepGood1_pdgId)!=11 || (LepGood1_convVeto && LepGood1_lostHits==0 && LepGood1_tightCharge>=2)) && (abs(LepGood2_pdgId)!=11 || (LepGood2_convVeto && LepGood2_lostHits==0 && LepGood2_tightCharge>=2))
+muTightCharge : (abs(LepGood1_pdgId)!=13 || LepGood1_tightCharge>=1) && (abs(LepGood2_pdgId)!=13 || LepGood2_tightCharge>=1)
+
+2j            : nJet25>=2
+fwdjet        : maxEtaJet25 >= 0 
+1bm           : nBJetMedium25 >= 1
+2bl           : nBJetLoose25 >= 2 ; Disable=True
+
+fwdjetpt30  : JetFwd_pt[0]>30 ; Disable=True
+fwdjetpt50  : JetFwd_pt[0]>50 ; Disable=True
