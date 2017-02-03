@@ -8,7 +8,7 @@ Where plottag is one of:
  2lss-em, 2lss-em-ttcontrol
  2lss-ee, 2lss-ee-ttcontrol
 
-And the plots will be stored in outdir/plottag/
+And the plots will be stored in outdir/
 "
 function DONE {
     echo -e "\e[92mDONE\e[0m"
@@ -16,7 +16,7 @@ function DONE {
 }
 
 if [[ "X$1" == "X" ]]; then echo "Please provide output directory name: [makeplots.sh outdir plottag]"; exit; fi
-OUTNAME=$1; shift;
+OUTDIR=$1; shift;
 if [[ "X$1" == "X" ]]; then echo "Please Provide plottag (e.g. 2lss-mm): [makeplots.sh outdir plottag]"; exit; fi
 PLOTTAG=$1; shift;
 
@@ -46,7 +46,7 @@ OPT3L="-W puw2016_nTrueInt_13fb(nTrueInt)*"\
 "leptonSF_ttH(LepGood_pdgId[iLepFO_Recl[1]],LepGood_pt[iLepFO_Recl[1]],LepGood_eta[iLepFO_Recl[1]],3)*"\
 "leptonSF_ttH(LepGood_pdgId[iLepFO_Recl[2]],LepGood_pt[iLepFO_Recl[2]],LepGood_eta[iLepFO_Recl[2]],3)"
 
-OPTIONS="--pdir ${OUTNAME}/${PLOTTAG}"
+OPTIONS="--pdir ${OUTDIR}"
 MCA=""
 CUTS=""
 PLOTS=""
@@ -138,7 +138,7 @@ case "$PLOTTAG" in
         exit 1
 esac
 
-echo "Storing output in ${OUTNAME}/${PLOTTAG}/";
+echo "Storing output in ${OUTDIR}/";
 
 ARGUMENTS="${MCA} ${CUTS} ${PLOTS}"
 OPTIONS="${TREEINPUTS} ${FRIENDTREES} ${BASEOPTIONS} ${OPTIONS}"
