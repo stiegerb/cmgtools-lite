@@ -23,10 +23,21 @@ public:
   typedef TTreeReaderArray<float> rfloats;
   typedef TTreeReaderArray<int> rints;
   
-  fastCombinedObjectRecleanerHelper(CollectionSkimmer &clean_taus, CollectionSkimmer &clean_jets, bool cleanJetsWithFOTaus, float bTagL, float bTagM) : clean_taus_(clean_taus), clean_jets_(clean_jets), deltaR2cut(0.16), cleanJetsWithFOTaus_(cleanJetsWithFOTaus), bTagL_(bTagL), bTagM_(bTagM) {
+  fastCombinedObjectRecleanerHelper(CollectionSkimmer &clean_taus,
+                                    CollectionSkimmer &clean_jets,
+                                    CollectionSkimmer &clean_fwdjets,
+                                    bool cleanJetsWithFOTaus,
+                                    float bTagL, float bTagM) :
+                                      clean_taus_(clean_taus),
+                                      clean_jets_(clean_jets),
+                                      clean_fwdjets_(clean_fwdjets),
+                                      deltaR2cut(0.16),
+                                      cleanJetsWithFOTaus_(cleanJetsWithFOTaus),
+                                      bTagL_(bTagL),
+                                      bTagM_(bTagM) {
     _ct.reset(new std::vector<int>);
     _cj.reset(new std::vector<int>);
-}
+  }
   
   void setLeptons(rint *nLep, rfloats* lepPt, rfloats *lepEta, rfloats *lepPhi) {
     nLep_ = nLep; Lep_pt_ = lepPt; Lep_eta_ = lepEta; Lep_phi_ = lepPhi;
@@ -36,6 +47,9 @@ public:
   }
   void setJets(rint *nJet, rfloats *jetPt, rfloats *jetEta, rfloats *jetPhi, rfloats *jetbtagCSV, rfloats *jetcorr, rfloats *jetcorr_JECUp, rfloats *jetcorr_JECDown) {
     nJet_ = nJet; Jet_pt_ = jetPt; Jet_eta_ = jetEta; Jet_phi_ = jetPhi; Jet_btagCSV_ = jetbtagCSV; Jet_corr_ = jetcorr; Jet_corr_JECUp_ = jetcorr_JECUp; Jet_corr_JECDown_ = jetcorr_JECDown;
+  }
+  void setFwdJets(rint *nJet, rfloats *jetPt, rfloats *jetEta, rfloats *jetPhi, rfloats *jetbtagCSV, rfloats *jetcorr, rfloats *jetcorr_JECUp, rfloats *jetcorr_JECDown) {
+    nFwdJet_ = nJet; FwdJet_pt_ = jetPt; FwdJet_eta_ = jetEta; FwdJet_phi_ = jetPhi; FwdJet_btagCSV_ = jetbtagCSV; FwdJet_corr_ = jetcorr; FwdJet_corr_JECUp_ = jetcorr_JECUp; FwdJet_corr_JECDown_ = jetcorr_JECDown;
   }
 
   void addJetPt(int pt){
@@ -58,8 +72,8 @@ public:
     }
     if (cleanJetsWithFOTaus_) {
       for (auto i : *_ct){
-	crvec tau(ptvec((*Tau_pt_)[i],0,(*Tau_phi_)[i],0));
-	_mht = _mht - tau;
+        crvec tau(ptvec((*Tau_pt_)[i],0,(*Tau_phi_)[i],0));
+        _mht = _mht - tau;
       }
     }
     
@@ -73,18 +87,18 @@ public:
       sums.nJet = 0;
       
       for (auto j : *_cj){
-	float pt = (*Jet_pt_)[j];
-	if (variation==1) pt *= (*Jet_corr_JECUp_)[j] / (*Jet_corr_)[j];
-	if (variation==-1) pt *= (*Jet_corr_JECDown_)[j] / (*Jet_corr_)[j];
-	if (pt<=thr) continue;
-	float phi = (*Jet_phi_)[j];
-	float csv = (*Jet_btagCSV_)[j];
-	sums.htJetj += pt;
-	crvec jp4(ptvec(pt,0,phi,0));
-	mht = mht - jp4;
-	if (csv>bTagL_) sums.nBJetLoose += 1;
-	if (csv>bTagM_) sums.nBJetMedium += 1;
-	sums.nJet += 1;
+        float pt = (*Jet_pt_)[j];
+        if (variation==1) pt *= (*Jet_corr_JECUp_)[j] / (*Jet_corr_)[j];
+        if (variation==-1) pt *= (*Jet_corr_JECDown_)[j] / (*Jet_corr_)[j];
+        if (pt<=thr) continue;
+        float phi = (*Jet_phi_)[j];
+        float csv = (*Jet_btagCSV_)[j];
+        sums.htJetj += pt;
+        crvec jp4(ptvec(pt,0,phi,0));
+        mht = mht - jp4;
+        if (csv>bTagL_) sums.nBJetLoose += 1;
+        if (csv>bTagM_) sums.nBJetMedium += 1;
+        sums.nJet += 1;
       }
 
       sums.mhtJet = mht.Pt();
@@ -122,6 +136,7 @@ public:
 
     clean_taus_.clear();
     clean_jets_.clear();
+    clean_fwdjets_.clear();
 
     _ct->clear();
     _cj->clear();
@@ -130,17 +145,17 @@ public:
       if (!sel_taus[iT]) continue;
       bool ok = true;
       for (int iL = 0, nL = **nLep_; iL < nL; ++iL) {
-	if (!(sel_leps.get()[iL] || sel_leps_extrafortau.get()[iL])) continue;
-	if (deltaR2((*Lep_eta_)[iL], (*Lep_phi_)[iL], (*Tau_eta_)[iT], (*Tau_phi_)[iT]) < deltaR2cut) {
-	  ok = false;
-	  break;
-	}
+        if (!(sel_leps.get()[iL] || sel_leps_extrafortau.get()[iL])) continue;
+        if (deltaR2((*Lep_eta_)[iL], (*Lep_phi_)[iL], (*Tau_eta_)[iT], (*Tau_phi_)[iT]) < deltaR2cut) {
+          ok = false;
+          break;
+        }
       }
       if (ok) {
-	clean_taus_.push_back(iT);
-	_ct->push_back(iT);
+        clean_taus_.push_back(iT);
+        _ct->push_back(iT);
       } else {
-	sel_taus.get()[iT]=false; // do not use unclean taus for cleaning jets, use lepton instead
+        sel_taus.get()[iT]=false; // do not use unclean taus for cleaning jets, use lepton instead
       }
     }
 
@@ -153,20 +168,39 @@ public:
       good.reset(new bool[**nJet_]);
       std::fill_n(good.get(),**nJet_,true);
       for (uint iV=0; iV<vetos_eta.size(); iV++) {
-	float mindr2 = -1; int best = -1;
-	for (int iJ = 0, nJ = **nJet_; iJ < nJ; ++iJ) {
-	  float dr2 = deltaR2(vetos_eta[iV],vetos_phi[iV],(*Jet_eta_)[iJ], (*Jet_phi_)[iJ]);
-	  if (mindr2<0 || dr2<mindr2) {mindr2=dr2; best=iJ;}
-	}
-	if (best>-1 && mindr2<deltaR2cut) {
-	  good[best] = false;
-	}
+        float mindr2 = -1; int best = -1;
+        for (int iJ = 0, nJ = **nJet_; iJ < nJ; ++iJ) {
+          float dr2 = deltaR2(vetos_eta[iV],vetos_phi[iV],(*Jet_eta_)[iJ], (*Jet_phi_)[iJ]);
+          if (mindr2<0 || dr2<mindr2) {mindr2=dr2; best=iJ;}
+        }
+        if (best>-1 && mindr2<deltaR2cut) {
+          good[best] = false;
+        }
       }
       for (int iJ = 0, nJ = **nJet_; iJ < nJ; ++iJ) {
-	if (good[iJ] && sel_jets[iJ]) {
-	  clean_jets_.push_back(iJ);
-	  _cj->push_back(iJ);
-	}
+        if (good[iJ] && sel_jets[iJ]) {
+          clean_jets_.push_back(iJ);
+          _cj->push_back(iJ);
+        }
+      }
+
+      // and for forward jets now
+      good.reset(new bool[**nFwdJet_]);
+      std::fill_n(good.get(),**nFwdJet_,true);
+      for (uint iV=0; iV<vetos_eta.size(); iV++) {
+        float mindr2 = -1; int best = -1;
+        for (int iJ = 0, nJ = **nFwdJet_; iJ < nJ; ++iJ) {
+          float dr2 = deltaR2(vetos_eta[iV],vetos_phi[iV],(*FwdJet_eta_)[iJ], (*FwdJet_phi_)[iJ]);
+          if (mindr2<0 || dr2<mindr2) {mindr2=dr2; best=iJ;}
+        }
+        if (best>-1 && mindr2<deltaR2cut) {
+          good[best] = false;
+        }
+      }
+      for (int iJ = 0, nJ = **nFwdJet_; iJ < nJ; ++iJ) {
+        if (good[iJ] && sel_jets[iJ]) {
+          clean_fwdjets_.push_back(iJ);
+        }
       }
     }
 
@@ -175,11 +209,12 @@ public:
 
 private:
   std::unique_ptr<bool[]> sel_leps, sel_leps_extrafortau, sel_taus, sel_jets;
-  CollectionSkimmer &clean_taus_, &clean_jets_;
-  rint *nLep_, *nTau_, *nJet_;
+  CollectionSkimmer &clean_taus_, &clean_jets_, &clean_fwdjets_;
+  rint *nLep_, *nTau_, *nJet_, *nFwdJet_;
   rfloats *Lep_pt_, *Lep_eta_, *Lep_phi_;
   rfloats *Tau_pt_, *Tau_eta_, *Tau_phi_;
   rfloats *Jet_pt_, *Jet_phi_, *Jet_eta_, *Jet_btagCSV_, *Jet_corr_, *Jet_corr_JECUp_, *Jet_corr_JECDown_;
+  rfloats *FwdJet_pt_, *FwdJet_phi_, *FwdJet_eta_, *FwdJet_btagCSV_, *FwdJet_corr_, *FwdJet_corr_JECUp_, *FwdJet_corr_JECDown_;
   float deltaR2cut;
   std::set<int> _jetptcuts;
   std::unique_ptr<std::vector<int> > _ct;

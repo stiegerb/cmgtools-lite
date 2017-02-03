@@ -26,17 +26,26 @@ class MVAVar:
         else:
             self.var[0] = event.eval(self.name)
 
+def getCorrectedJetPt(jet, jec_syst=""):
+    return {
+        ""         : jet.pt,
+        "_jecUp"   : jet.pt * jet.corr_JECUp/jet.corr,
+        "_jecDown" : jet.pt * jet.corr_JECDown/jet.corr,
+    }[jec_syst]
+
+
 class tHqEventVariableFriend:
     def __init__(self):
-        self.jecsysts = [""] #, "_jecUp", "_jecDown"] # Not sure we actually need these (only eta dependence)
+        self.jecsysts = ["", "_jecUp", "_jecDown"] # Not sure we actually need these (only eta dependence)
         self.branches = [] # (branchname, default value)
         self.branches.append(("dPhiHighestPtSSPair", -99.9)) # delta phi highest pt same sign lepton pair
         self.branches.append(("minDRll", -99.9)) # minimum deltaR between all leptons
         for jecsyst in self.jecsysts:
             self.branches.append(("maxEtaJet25"+jecsyst, -99.9)) # max eta of any non-tagged jet
+            self.branches.append(("fwdJetPt25"+jecsyst, -99.9)) # pt of the non-tagged jet with max eta
             self.branches.append(("nJetEta1"+jecsyst, -99.9)) # number of jets with |eta|>1.0
             self.branches.append(("dEtaFwdJetBJet"+jecsyst, -99.9)) # delta eta: max fwd jet and hardest bjet
-            self.branches.append(("dEtaFwdJetClosestLep",-99.9)) # delta eta: max fwd jet and closest lepton
+            self.branches.append(("dEtaFwdJetClosestLep"+jecsyst,-99.9)) # delta eta: max fwd jet and closest lepton
             self.branches.append(("maxEtaBJet"+jecsyst, -99.9)) # max eta of the hardest Bjet
             self.branches.append(("maxEta2BJet"+jecsyst, -99.9)) # max Eta of the second hardest Bjet
             self.branches.append(("dEtaFwdJet2BJet"+jecsyst, -99.9)) # delta eta: max fwd jet and second hardest bjet
@@ -95,11 +104,14 @@ class tHqEventVariableFriend:
         """Return a list of branch names that are added"""
         return [bn for bn,_ in self.branches]
 
-    def getJetCollection(self, event, jec_syst=""):
+    def getJetCollection(self, event, jec_syst="", coll="JetSel", ptcut=25.):
         """Get a jet collection, either default or systematic variations"""
-        if not hasattr(event, "nJetSel_Recl"+jec_syst): jec_syst = ""
-        jets = [j for j in Collection(event, "JetSel_Recl"+jec_syst, "nJetSel_Recl"+jec_syst)]
-        return jets
+        if not hasattr(event, "n%s_Recl"%(coll)):
+            raise RuntimeError("n%s_Recl not found" % (coll))
+        jets = [j for j in Collection(event, "%s_Recl" % (coll), "n%s_Recl"%(coll))]
+
+        # Apply JEC and re-apply the pt cut
+        return filter(lambda j: getCorrectedJetPt(j, jec_syst) > ptcut, jets)
 
     def getLeptonCollection(self, event, label='LepGood', lenlabel='nLepFO_Recl'):
         """Get a lepton collection, either default or recleaned"""
@@ -139,45 +151,47 @@ class tHqEventVariableFriend:
         for jecsyst in self.jecsysts:
             # Get jet collections
             jets = self.getJetCollection(event, jec_syst=jecsyst)
-            fjets = Collection(event, "JetFwd", "nJetFwd")
+            fjets = self.getJetCollection(event, jec_syst=jecsyst, coll="JetFwdSel")
             bjets = [j for j in jets if j.btagCSV > BTAGWP]
             bjets.sort(key=lambda x:x.pt, reverse=True)
 
-            # All non-btagged jets with pt > 25 GeV
-            light_jets =  [j for j in jets  if (j.pt > 25. and j.btagCSV < BTAGWP)]
-            light_jets += [j for j in fjets if (j.pt > 25. and j.btagCSV < BTAGWP)]
+            # All non-btagged jets
+            light_jets =  [j for j in jets  if j.btagCSV < BTAGWP]
+            light_jets += [j for j in fjets if j.btagCSV < BTAGWP]
+            # Note that some fwd jets have btag values > 0 up to eta 3.05 or so
             light_jets.sort(key=lambda x:x.pt, reverse=True)
 
             # Get the most forward of these save its value
             if len(light_jets):
                 maxjet = sorted(light_jets, key=lambda x:abs(x.eta), reverse=True)[0]
-                ret['maxEtaJet25'] = abs(maxjet.eta)
+                ret['maxEtaJet25'+jecsyst] = abs(maxjet.eta)
+                ret['fwdJetPt25'+jecsyst] = maxjet.pt
                 if len(bjets):
-                    ret['dEtaFwdJetBJet'] = abs(maxjet.eta - bjets[0].eta)
+                    ret['dEtaFwdJetBJet'+jecsyst] = abs(maxjet.eta - bjets[0].eta)
 
                 if len(bjets)>1:
-                    ret['dEtaFwdJet2BJet'] = abs(maxjet.eta - bjets[1].eta)
+                    ret['dEtaFwdJet2BJet'+jecsyst] = abs(maxjet.eta - bjets[1].eta)
                     
                 else: 
-                    ret['dEtaFwdJet2BJet'] = -1.0
+                    ret['dEtaFwdJet2BJet'+jecsyst] = -1.0
 
                 if len(leptons):
                     detas = [abs(lep.eta - maxjet.eta) for lep in leptons]
-                    ret['dEtaFwdJetClosestLep'] = sorted(detas)[0]
+                    ret['dEtaFwdJetClosestLep'+jecsyst] = sorted(detas)[0]
 
-            ret['nJetEta1'] = len([j for j in light_jets if abs(j.eta) > 1.0])
+            ret['nJetEta1'+jecsyst] = len([j for j in light_jets if abs(j.eta) > 1.0])
 
             if(bjets):
-                ret['maxEtaBJet'] = abs(bjets[0].eta)
+                ret['maxEtaBJet'+jecsyst] = abs(bjets[0].eta)
                             
                 if len(bjets)>1:
-                    ret['maxEta2BJet'] = abs(bjets[1].eta)
-                    ret['dEtaBJet2BJet'] = abs(bjets[0].eta - bjets[1].eta)
+                    ret['maxEta2BJet'+jecsyst] = abs(bjets[1].eta)
+                    ret['dEtaBJet2BJet'+jecsyst] = abs(bjets[0].eta - bjets[1].eta)
 
                 else:
 
-                    ret['maxEta2BJet'] = -1.0
-                    ret['dEtaBJet2BJet'] = -1.0
+                    ret['maxEta2BJet'+jecsyst] = -1.0
+                    ret['dEtaBJet2BJet'+jecsyst] = -1.0
 
         # Fix total charge for non-same sign events (for charge flips)
         br_lepcharge = "LepGood_charge[iLepFO_Recl[0]]+LepGood_charge[iLepFO_Recl[1]]" 
@@ -234,7 +248,8 @@ if __name__ == '__main__':
                       (ev.run, ev.lumi, ev.evt, ev.nJet25, ev.nJetFwd, ev.nLepGood, int(ev.isData)))
             ret = self.thqf(ev)
 
-            # print 'maxEtaJet25:', ret['maxEtaJet25']
+            print 'maxEtaJet25:', ret['maxEtaJet25']
+            print 'fwdJetPt25:', ret['fwdJetPt25']
             # print 'nJet1:', ret['nJetEta1']
             # print 'dEtaFwdJetBJet',ret['dEtaFwdJetBJet']
             # print 'dEtaFwdJetClosestLep',ret['dEtaFwdJetClosestLep']
