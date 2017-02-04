@@ -32,9 +32,9 @@ BASEOPTIONS=" -f -j 8 -l ${LUMI} --s2v"\
 " --mcc ttH-multilepton/lepchoice-ttH-FO.txt"
 TREEINPUTS="-P tthtrees/TREES_TTH_250117_Summer16_JECV3_noClean_qgV2_skimOnlyMC_v1"\
 " -P thqtrees/tHq_production_Jan25"
-FRIENDTREES=" --Fs {P}/1_recleaner_250117_v1"\
+FRIENDTREES=" -F sf/t thqtrees/tHq_production_Jan25/1_thq_recleaner_030217/evVarFriend_{cname}.root"\
 " --Fs {P}/5_triggerDecision_250117_v1"\
-" -F sf/t thqtrees/tHq_eventvars_Jan30/evVarFriend_{cname}.root"
+" -F sf/t thqtrees/tHq_production_Jan25/2_thq_friends_Feb3/evVarFriend_{cname}.root"
 DRAWOPTIONS="--lspam '#bf{CMS} #it{Preliminary}' --legendWidth 0.20 --legendFontSize 0.035"\
 " --showRatio --maxRatioRange 0 2 --fixRatioRange --showMCError"\
 
