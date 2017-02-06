@@ -30,11 +30,10 @@ BASEOPTIONS=" -f -j 8 -l ${LUMI} --s2v"\
 " -L ttH-multilepton/functionsTTH.cc"\
 " --tree treeProducerSusyMultilepton"\
 " --mcc ttH-multilepton/lepchoice-ttH-FO.txt"
-TREEINPUTS="-P tthtrees/TREES_TTH_250117_Summer16_JECV3_noClean_qgV2_skimOnlyMC_v1"\
-" -P thqtrees/tHq_production_Jan25"
+TREEINPUTS="-P thqtrees/TREES_TTH_250117_Summer16_JECV3_noClean_qgV2_tHqsoup/"
 FRIENDTREES=" -F sf/t thqtrees/tHq_production_Jan25/1_thq_recleaner_030217/evVarFriend_{cname}.root"\
-" --Fs {P}/5_triggerDecision_250117_v1"\
-" -F sf/t thqtrees/tHq_production_Jan25/2_thq_friends_Feb3/evVarFriend_{cname}.root"
+" -F sf/t thqtrees/tHq_production_Jan25/2_thq_friends_Feb3/evVarFriend_{cname}.root"\
+" -F sf/t thqtrees/tHq_production_Jan25/5_triggerDecision_250117_v1/evVarFriend_{cname}.root"
 DRAWOPTIONS="--lspam '#bf{CMS} #it{Preliminary}' --legendWidth 0.20 --legendFontSize 0.035"\
 " --showRatio --maxRatioRange 0 2 --fixRatioRange --showMCError"\
 
@@ -116,7 +115,7 @@ case "$PLOTTAG" in
         PLOTS="tHq-multilepton/plots-thq-2lss-kinMVA.txt"
         ;;
     "2lss-ee-ttcontrol" )
-        OPTIONS="${OPTIONS} ${DRAWOPTIONS} ${OPT2L} -E ee_chan"
+        OPTIONS="${OPTIONS} ${DRAWOPTIONS} ${OPT2L} --xp data -E ee_chan"
         MCA="tHq-multilepton/mca-thq-2lss-mcdata-frdata.txt"
         CUTS="tHq-multilepton/cuts-thq-2lss-ttbarcontrol.txt"
         PLOTS="tHq-multilepton/plots-thq-2lss-kinMVA.txt"
