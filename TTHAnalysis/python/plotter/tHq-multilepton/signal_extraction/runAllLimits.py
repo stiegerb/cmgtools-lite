@@ -16,7 +16,7 @@ def getLimits(card):
     tag = tag.groups()[0]
     tag = tag.replace('p', '.').replace('m','-')
     cv,ct = tuple(map(float, tag.split('_')))
-    print "%-30s CV=%5.2f, Ct=%5.2f : " % (card, cv, ct),
+    print "%-40s CV=%5.2f, Ct=%5.2f : " % (card, cv, ct),
 
     combinecmd = "combine -M Asymptotic --run blind --rAbsAcc 0.0005 --rRelAcc 0.0005"
     try:
@@ -31,7 +31,7 @@ def getLimits(card):
         if not line.startswith('Expected'): continue
         liminfo.append(float(line.rsplit('<', 1)[1].strip()))
 
-    print "%.2f, %.2f, \033[92m%.2f\033[0m, %.2f, %.2f" % (tuple(liminfo))
+    print "%5.2f, %5.2f, \033[92m%5.2f\033[0m, %5.2f, %5.2f" % (tuple(liminfo))
     return cv, ct, tuple(liminfo)
 
 def main(args, options):
@@ -52,9 +52,9 @@ def main(args, options):
 
     fnames = []
     for cv_ in [0.5, 1.0, 1.5]:
-        csvfname = 'limits%s_cv_%s.dat' % (tag, str(cv_).replace('.','p'))
+        csvfname = 'limits%s_cv_%s.csv' % (tag, str(cv_).replace('.','p'))
         with open(csvfname, 'w') as csvfile:
-            csvfile.write('cf,twosigdown,onesigdown,exp,onesigup,twosigup\n')
+            csvfile.write('cf,cv,twosigdown,onesigdown,exp,onesigup,twosigup\n')
             for cv,ct in sorted(limdata.keys()):
                 if not cv == cv_: continue
                 csvfile.write(','.join(map(str, (cv,ct)+limdata[(cv,ct)])) + '\n')
@@ -77,8 +77,8 @@ if __name__ == '__main__':
     cd /afs/cern.ch/user/s/stiegerb/combine/ ; cmsenv ; cd -
     """
     parser = OptionParser(usage=usage)
-    parser.add_option("-o","--outdir", dest="outdir",
-                      type="string", default="combined/")
+    # parser.add_option("-o","--outdir", dest="outdir",
+    #                   type="string", default="combined/")
     parser.add_option("-t","--tag", dest="tag",
                       type="string", default=None)
     (options, args) = parser.parse_args()

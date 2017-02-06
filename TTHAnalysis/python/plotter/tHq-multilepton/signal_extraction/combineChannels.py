@@ -4,11 +4,11 @@ from subprocess import Popen, PIPE
 
 def combineCards(cards, chans, oname):
     try:
-        assert( all(['2lss' in c for c in cards[:-1]]) )
-        assert( '2lss-mm' in cards[0] )
-        assert( '2lss-em' in cards[:-1][1] )
-        assert( '2lss-ee' in cards[:-1][2] )
-        assert( '3l' in cards[-1] )
+	assert( all(['2lss' in c for c in cards[:-1]]) )	
+	assert( '2lss-mm' in cards[0] )
+	assert( '2lss-em' in cards[:-1][1] )
+	assert( '2lss-ee' in cards[:-1][2] )
+	assert( '3l' in cards[-1] )
     except AssertionError:
         print "Warning, cards out of order? Assuming mm, em, ee, 3l"
     except IndexError: pass
@@ -50,10 +50,10 @@ def main(args, options):
     dn2cards = {} # dirname -> cards
     dn2files = {} # dirname -> files
     for dname in inputdirs:
-        dn2cards[dname] = sorted([os.path.join(dname,c) for c in
-                                     os.listdir(dname) if c.endswith('card.txt')])
-        dn2files[dname] = sorted([os.path.join(dname,c) for c in
-                                     os.listdir(dname) if c.endswith('input.root')])
+        dn2cards[dname] = [os.path.join(dname,c) for c in
+                                     os.listdir(dname) if c.endswith('card.txt')]
+        dn2files[dname] = [os.path.join(dname,c) for c in
+                                     os.listdir(dname) if c.endswith('input.root')]
 
     ncards = len(dn2cards.values()[0])
     nfiles = len(dn2files.values()[0])
@@ -71,7 +71,7 @@ def main(args, options):
     }[len(inputdirs)]
 
 
-    for cards in zip(*tuple(dn2cards.values())):
+    for cards in zip(*tuple([dn2cards[d] for d in inputdirs])):
         print "combining %s" % ' '.join([os.path.basename(c) for c in cards]),
         tagpat = re.compile(r'.*\_([\dpm]+\_[\dpm]+)\.card\.txt')
         tags = list(set([re.match(tagpat, c).groups()[0] for c in cards]))

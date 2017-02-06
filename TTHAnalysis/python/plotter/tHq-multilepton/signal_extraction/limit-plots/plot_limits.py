@@ -9,28 +9,30 @@ import matplotlib as mpl
 
 import seaborn as sns
 
-def reset():
-    sns.set(style="ticks")
-    sns.set_context("poster")
+# def reset():
+sns.set(style="ticks")
+sns.set_context("poster")
 
-    mpl.rcParams['text.latex.preamble'] = [
-           r'\usepackage{siunitx}',   # i need upright \micro symbols, but you need...
-           r'\sisetup{detect-all}',   # ...this to force siunitx to actually use your fonts
-           r'\usepackage{helvet}',    # set the normal font here
-           r'\usepackage{upgreek}',   # upright greek letters
-           r'\usepackage{sansmath}',  # load up the sansmath so that math -> helvet
-           r'\sansmath'               # <- tricky! -- gotta actually tell tex to use!
-    ]
+mpl.rcParams['text.latex.preamble'] = [
+       r'\usepackage{siunitx}',   # i need upright \micro symbols, but you need...
+       r'\sisetup{detect-all}',   # ...this to force siunitx to actually use your fonts
+       r'\usepackage{helvet}',    # set the normal font here
+       r'\usepackage{upgreek}',   # upright greek letters
+       r'\usepackage{sansmath}',  # load up the sansmath so that math -> helvet
+       r'\sansmath'               # <- tricky! -- gotta actually tell tex to use!
+]
 
-    mpl.rc('text', usetex=True)
-    mpl.rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
+mpl.rc('text', usetex=True)
+mpl.rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
 
-def makePlot(inputfile='limits_1.dat'):
-    reset()
+plt.rcParams["figure.figsize"] = [10.0, 9.0]
+
+def makePlot(inputfile='limits_1.dat', outdir='plots/'):
+    # reset()
     print "...reading limits from %s" % inputfile
 
     try:
-        cvval = float(re.match(r'limits_cv_([01p5]{1,3})', inputfile).group(1).replace('p','.'))
+        cvval = float(re.match(r'limits_.*_cv_([01p5]{1,3})', os.path.basename(inputfile)).group(1).replace('p','.'))
     except ValueError:
         cvval = 1.0
     print "...determined cV for this input file to be %3.1f" % cvval
@@ -103,7 +105,7 @@ def makePlot(inputfile='limits_1.dat'):
         plt.text(x, y, text, fontsize=fontsize, transform=ax.transAxes)
 
     print_text(0.06, 1.02, "$\mathbf{CMS}$ {\\huge{\\textit{Preliminary}}", 28)
-    print_text(0.67, 1.02, "%.1f\,$\mathrm{fb}^{-1}$ (13\,TeV)"% (12.9))
+    print_text(0.67, 1.02, "%.1f\,$\mathrm{fb}^{-1}$ (13\,TeV)"% (36.5))
     print_text(0.06, 0.92, "$\mathrm{pp}\\to\mathrm{tH}$")
     print_text(0.06, 0.86, ("$\mathrm{H}\\to\mathrm{W}\mathrm{W}/\mathrm{Z}\mathrm{Z}"
                             "/\mathrm{\\tau}\mathrm{\\tau}$, "
@@ -128,28 +130,32 @@ def makePlot(inputfile='limits_1.dat'):
     plt.legend(handles=[expline,onesigpatch,twosigpatch,xsline], fontsize=18)
 
     # Set Figure parameter
-    fig_size = plt.rcParams["figure.figsize"]
-    fig_size[0] = 10
-    fig_size[1] = 9
-    plt.rcParams["figure.figsize"] = fig_size
+    # fig_size = plt.rcParams["figure.figsize"]
+    # fig_size[0] = 10
+    # fig_size[1] = 9
 
-    outfile = inputfile.replace('.dat','')
+    outfile = os.path.join(outdir, os.path.splitext(os.path.basename(inputfile))[0])
     plt.savefig("%s.pdf"%outfile, bbox_inches='tight')
     plt.savefig("%s.png"%outfile, bbox_inches='tight', dpi=300)
     print "...saved plots in %s.pdf/.png" % outfile
 
     return 0
 
-
 if __name__ == '__main__':
     from optparse import OptionParser
     usage = """%prog limits.dat"""
     parser = OptionParser(usage=usage)
+    parser.add_option("-o","--outdir", dest="outdir",
+                      type="string", default="plots/")
     (options, args) = parser.parse_args()
+
+    try:
+        os.system('mkdir -p %s' % options.outdir)
+    except ValueError:
+        pass
 
     for ifile in args:
         if not os.path.exists(ifile): continue
-        print '...processing %s' % ifile
-        makePlot(ifile)
+        makePlot(ifile, outdir=options.outdir)
 
     sys.exit(0)
