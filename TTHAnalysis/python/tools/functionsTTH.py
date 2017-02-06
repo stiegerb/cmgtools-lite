@@ -101,8 +101,8 @@ MODULES.append( ('BDTv8_Hj', lambda : BDTv8_eventReco(os.environ["CMSSW_BASE"]+'
                                                       os.environ["CMSSW_BASE"]+'/src/CMGTools/TTHAnalysis/data/kinMVA/tth/Hj_csv_BDTG.weights.xml',
                                                       os.environ["CMSSW_BASE"]+'/src/CMGTools/TTHAnalysis/data/kinMVA/tth/Hjj_csv_BDTG.weights.xml',
                                                       selection = [
-                lambda leps,jets,event : event.nLepFO_Recl>=2 and event.nJetSel_Recl >= 4 and (event.nBJetLoose25_Recl >= 2 or event.nBJetMedium25_Recl >= 1),
-                lambda leps,jets,event : leps[0].conePt>20 and leps[1].conePt>10 and leps[0].charge*leps[1].charge>0,
+                lambda leps,jets,event : len(leps)>=2 and len(jets)>=4,
+                lambda leps,jets,event : leps[0].conePt>20 and leps[1].conePt>10,
                 ]
                                                       )) )
 
@@ -136,3 +136,7 @@ MODULES.append( ('Trigger_3l', lambda : EvtTagger("Trigger_3l",[
                     ev.HLT_DoubleElMu or \
                     ev.Trigger_2l \
                     ] )))
+
+
+from CMGTools.TTHAnalysis.tools.bTagEventWeightsCSVFullShape import BTagEventWeightFriend
+MODULES.append( ('eventBTagWeight', lambda : BTagEventWeightFriend(csvfile=os.environ["CMSSW_BASE"]+"/src/CMGTools/TTHAnalysis/data/btag/CSVv2_Moriond17_B_H.csv")))
