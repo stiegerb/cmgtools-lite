@@ -1,5 +1,4 @@
 #!/bin/bash
-
 USAGE="
 makecards.sh outdir channel
 
@@ -20,12 +19,14 @@ echo "Normalizing to ${LUMI}/fb";
 # Note: tthtrees is a symlink to /afs/cern.ch/work/p/peruzzi/tthtrees/
 #       thqtrees is a symlink to /afs/cern.ch/work/s/stiegerb/TTHTrees/13TeV/
 
-BASEOPTIONS="-P tthtrees/TREES_TTH_250117_Summer16_JECV3_noClean_qgV2_skimOnlyMC_v1"\
-" -P thqtrees/tHq_production_Jan25"\
-" --Fs {P}/1_recleaner_250117_v1"\
-" --Fs {P}/5_triggerDecision_250117_v1"\
-" -F sf/t thqtrees/tHq_eventvars_Jan30/evVarFriend_{cname}.root"\
-" -f -j 8 -l ${LUMI} --s2v -v 2"\
+
+TREEINPUTS="-P thqtrees/TREES_TTH_250117_Summer16_JECV3_noClean_qgV2_tHqsoup/"
+FRIENDTREES=" -F sf/t thqtrees/tHq_production_Jan25/1_thq_recleaner_030217/evVarFriend_{cname}.root"\
+" -F sf/t thqtrees/tHq_production_Jan25/2_thq_friends_Feb3/evVarFriend_{cname}.root"\
+" -F sf/t thqtrees/tHq_production_Jan25/5_triggerDecision_250117_v1/evVarFriend_{cname}.root"\
+" -F sf/t thqtrees/tHq_production_Jan25/6_bTagSF_v2/evVarFriend_{cname}.root"
+
+BASEOPTIONS="-f -j 8 -l ${LUMI} --s2v -v 2"\
 " -L ttH-multilepton/functionsTTH.cc"\
 " -L tHq-multilepton/functionsTHQ.cc"\
 " --tree treeProducerSusyMultilepton"\
@@ -34,12 +35,13 @@ BASEOPTIONS="-P tthtrees/TREES_TTH_250117_Summer16_JECV3_noClean_qgV2_skimOnlyMC
 " --neg"\
 " --2d-binning-function 10:tHq_MVAto1D_3l_10"
 
-
-
-OPT2L="-W puw2016_nTrueInt_13fb(nTrueInt)*"\
+# Pileup weight, btag SFs, trigger SFs, lepton Eff SFs:
+OPT2L="-W puw2016_nTrueInt_36fb(nTrueInt)*eventBTagSF*"\
+"triggerSF_ttH(LepGood_pdgId[iLepFO_Recl[0]],LepGood_pdgId[iLepFO_Recl[1]],2)*"\
 "leptonSF_ttH(LepGood_pdgId[iLepFO_Recl[0]],LepGood_pt[iLepFO_Recl[0]],LepGood_eta[iLepFO_Recl[0]],2)*"\
 "leptonSF_ttH(LepGood_pdgId[iLepFO_Recl[1]],LepGood_pt[iLepFO_Recl[1]],LepGood_eta[iLepFO_Recl[1]],2)"
-OPT3L="-W puw2016_nTrueInt_13fb(nTrueInt)*"\
+OPT3L="-W puw2016_nTrueInt_36fb(nTrueInt)*eventBTagSF*"\
+"triggerSF_ttH(LepGood_pdgId[iLepFO_Recl[0]],LepGood_pdgId[iLepFO_Recl[1]],3)*"\
 "leptonSF_ttH(LepGood_pdgId[iLepFO_Recl[0]],LepGood_pt[iLepFO_Recl[0]],LepGood_eta[iLepFO_Recl[0]],3)*"\
 "leptonSF_ttH(LepGood_pdgId[iLepFO_Recl[1]],LepGood_pt[iLepFO_Recl[1]],LepGood_eta[iLepFO_Recl[1]],3)*"\
 "leptonSF_ttH(LepGood_pdgId[iLepFO_Recl[2]],LepGood_pt[iLepFO_Recl[2]],LepGood_eta[iLepFO_Recl[2]],3)"
@@ -82,7 +84,7 @@ test -d $OUTNAME/$CHANNEL || mkdir -p $OUTNAME/$CHANNEL
 echo "Storing output in ${OUTNAME}/${CHANNEL}/";
 
 ARGUMENTS="${MCA} ${CUTS} ${BINNING} ${SYSTFILE}"
-OPTIONS="${BASEOPTIONS} ${OPTIONS}"
+OPTIONS="${TREEINPUTS} ${FRIENDTREES} ${BASEOPTIONS} ${OPTIONS}"
 
 echo "mca      : ${MCA}"
 echo "cuts     : ${CUTS}"

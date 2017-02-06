@@ -33,14 +33,18 @@ BASEOPTIONS=" -f -j 8 -l ${LUMI} --s2v"\
 TREEINPUTS="-P thqtrees/TREES_TTH_250117_Summer16_JECV3_noClean_qgV2_tHqsoup/"
 FRIENDTREES=" -F sf/t thqtrees/tHq_production_Jan25/1_thq_recleaner_030217/evVarFriend_{cname}.root"\
 " -F sf/t thqtrees/tHq_production_Jan25/2_thq_friends_Feb3/evVarFriend_{cname}.root"\
-" -F sf/t thqtrees/tHq_production_Jan25/5_triggerDecision_250117_v1/evVarFriend_{cname}.root"
+" -F sf/t thqtrees/tHq_production_Jan25/5_triggerDecision_250117_v1/evVarFriend_{cname}.root"\
+" -F sf/t thqtrees/tHq_production_Jan25/6_bTagSF_v2/evVarFriend_{cname}.root"
 DRAWOPTIONS="--lspam '#bf{CMS} #it{Preliminary}' --legendWidth 0.20 --legendFontSize 0.035"\
 " --showRatio --maxRatioRange 0 2 --fixRatioRange --showMCError"\
 
-OPT2L="-W puw2016_nTrueInt_13fb(nTrueInt)*"\
+# Pileup weight, btag SFs, trigger SFs, lepton Eff SFs:
+OPT2L="-W puw2016_nTrueInt_36fb(nTrueInt)*eventBTagSF*"\
+"triggerSF_ttH(LepGood_pdgId[iLepFO_Recl[0]],LepGood_pdgId[iLepFO_Recl[1]],2)*"\
 "leptonSF_ttH(LepGood_pdgId[iLepFO_Recl[0]],LepGood_pt[iLepFO_Recl[0]],LepGood_eta[iLepFO_Recl[0]],2)*"\
 "leptonSF_ttH(LepGood_pdgId[iLepFO_Recl[1]],LepGood_pt[iLepFO_Recl[1]],LepGood_eta[iLepFO_Recl[1]],2)"
-OPT3L="-W puw2016_nTrueInt_13fb(nTrueInt)*"\
+OPT3L="-W puw2016_nTrueInt_36fb(nTrueInt)*eventBTagSF*"\
+"triggerSF_ttH(LepGood_pdgId[iLepFO_Recl[0]],LepGood_pdgId[iLepFO_Recl[1]],3)*"\
 "leptonSF_ttH(LepGood_pdgId[iLepFO_Recl[0]],LepGood_pt[iLepFO_Recl[0]],LepGood_eta[iLepFO_Recl[0]],3)*"\
 "leptonSF_ttH(LepGood_pdgId[iLepFO_Recl[1]],LepGood_pt[iLepFO_Recl[1]],LepGood_eta[iLepFO_Recl[1]],3)*"\
 "leptonSF_ttH(LepGood_pdgId[iLepFO_Recl[2]],LepGood_pt[iLepFO_Recl[2]],LepGood_eta[iLepFO_Recl[2]],3)"

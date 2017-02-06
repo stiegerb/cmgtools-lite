@@ -29,12 +29,13 @@ Gstar   : DYJetsToLL_M50_LO_ext_part3 : xsec : LepGood1_isMatchRightCharge && Le
 
 WWss  : WpWpJJ     : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kMagenta-10, Label='W^{\#pm}W^{\#pm}qq'
 WWDPS : WWDouble   : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kMagenta-11, Label='W^{\#pm}W^{\#pm} (DPS)'
+VVV   : WWW        : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kMagenta-6, Label='VVV'
 VVV   : WWZ        : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kMagenta-6, Label='VVV'
 VVV   : WZZ        : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kMagenta-6, Label='VVV'
 VVV   : ZZZ        : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kMagenta-6, Label='VVV'
 tttt  : TTTT       : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kMagenta-7, Label='t\#bar{t}t\#bar{t}'
 tZq   : tZq_ll_ext : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kMagenta-8, Label='tZq'
-# tZW   : tZW_ll     : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kMagenta-9, Label='tZW'
+tZW   : tWll       : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kMagenta-9, Label='tZW'
 
 incl_data : + ; IncludeMca="ttH-multilepton/mca-includes/mca-data.txt"
 
