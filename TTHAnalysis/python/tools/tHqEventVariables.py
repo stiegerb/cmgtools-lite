@@ -10,7 +10,8 @@ from itertools import combinations
 from PhysicsTools.HeppyCore.utils.deltar import deltaPhi, deltaR
 
 
-BTAGWP = 0.460 # 0.8 is for medium tags, might want to try others
+BTAGWP = 0.5426 # 0.8484 is for medium tags
+# BTAGWP = 0.460 # 0.80 is for medium tags
 
 class MVAVar:
     def __init__(self,name, form=None):
