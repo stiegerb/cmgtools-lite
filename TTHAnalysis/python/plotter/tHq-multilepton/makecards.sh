@@ -3,7 +3,7 @@ USAGE="
 makecards.sh outdir channel
 
 Where channel is one of:
- 3l, 2lss-mm, 2lss-em, 2lss-ee
+ 3l, 2lss_mm, 2lss_em, 2lss_ee
 
 And the cards will be stored in outdir/channel
 "
@@ -59,17 +59,17 @@ case "$CHANNEL" in
         MCA="tHq-multilepton/signal_extraction/mca-thq-3l-mcdata-frdata_limits.txt"
         CUTS="tHq-multilepton/cuts-thq-3l.txt"
         ;;
-    "2lss-mm" )
+    "2lss_mm" )
         OPTIONS="${OPTIONS} ${OPT2L} -E mm_chan"
         MCA="tHq-multilepton/signal_extraction/mca-thq-2lss-mcdata-frdata_limits.txt"
         CUTS="tHq-multilepton/cuts-thq-2lss.txt"
         ;;
-    "2lss-em" )
+    "2lss_em" )
         OPTIONS="${OPTIONS} ${OPT2L} -E em_chan"
         MCA="tHq-multilepton/signal_extraction/mca-thq-2lss-mcdata-frdata_limits.txt"
         CUTS="tHq-multilepton/cuts-thq-2lss.txt"
         ;;
-    "2lss-ee" )
+    "2lss_ee" )
         OPTIONS="${OPTIONS} ${OPT2L} -E ee_chan"
         MCA="tHq-multilepton/signal_extraction/mca-thq-2lss-mcdata-frdata_limits.txt"
         CUTS="tHq-multilepton/cuts-thq-2lss.txt"

@@ -5,9 +5,9 @@ from subprocess import Popen, PIPE
 def combineCards(cards, chans, oname):
     try:
 	assert( all(['2lss' in c for c in cards[:-1]]) )	
-	assert( '2lss-mm' in cards[0] )
-	assert( '2lss-em' in cards[:-1][1] )
-	assert( '2lss-ee' in cards[:-1][2] )
+	assert( '2lss_mm' in cards[0] )
+	assert( '2lss_em' in cards[:-1][1] )
+	assert( '2lss_ee' in cards[:-1][2] )
 	assert( '3l' in cards[-1] )
     except AssertionError:
         print "Warning, cards out of order? Assuming mm, em, ee, 3l"
@@ -65,9 +65,9 @@ def main(args, options):
            "from %d directories" % (ncards, len(inputdirs)))
 
     chans = {
-        2 : ['mm','lll'],
-        3 : ['mm','em','lll'],
-        4 : ['mm','em','ee','lll'],
+        2 : ['tHq_2lss_mm','tHq_3l'],
+        3 : ['tHq_2lss_mm','tHq_2lss_em','tHq_3l'],
+        4 : ['tHq_2lss_mm','tHq_2lss_em','tHq_2lss_ee','tHq_3l'],
     }[len(inputdirs)]
 
 
