@@ -54,7 +54,7 @@ def main(args, options):
     for cv_ in [0.5, 1.0, 1.5]:
         csvfname = 'limits%s_cv_%s.csv' % (tag, str(cv_).replace('.','p'))
         with open(csvfname, 'w') as csvfile:
-            csvfile.write('cf,cv,twosigdown,onesigdown,exp,onesigup,twosigup\n')
+            csvfile.write('cv,cf,twosigdown,onesigdown,exp,onesigup,twosigup\n')
             for cv,ct in sorted(limdata.keys()):
                 if not cv == cv_: continue
                 csvfile.write(','.join(map(str, (cv,ct)+limdata[(cv,ct)])) + '\n')
