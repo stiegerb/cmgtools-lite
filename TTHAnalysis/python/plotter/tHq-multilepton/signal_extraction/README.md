@@ -33,6 +33,12 @@ This produces two files for each point: `..input.root` and `..card.txt`.
 
 Note that the standard selection is hardcoded in `tHq-multilepton/makecards.sh`.
 
+Check some of the datacards using `HiggsAnalysis/CombinedLimit/test/systematicsAnalyzer.py`:
+
+```
+systematicsAnalyzer.py data.card.txt --all -f html > www/systanalysis.html
+```
+
 ### Run the limit calculation:
 
 You'll need to set your environment to a release area with `combine` available, e.g. like so:
@@ -60,9 +66,56 @@ Use `runAllLimits.py` to run on all the cards in one directory and produce a .cs
 Use `combineChannels.py` to combine the corresponding cards for each point in a list of input directories. Typically you'd run something like this:
 
 ```
-python combineAllCards.py cards_Jan31/2lss-mm/ cards_Jan31/2lss-em/ cards_Jan31/2lss-ee/ cards_Jan31/3l/ -o comb_4chan
+python combineAllCards.py cards_Jan31/2lss-mm/ cards_Jan31/2lss-em/ cards_Jan31/2lss-ee/ cards_Jan31/3l/ -o comb4
 ```
 
 This will produce combined cards in a new directory (specified with the `-o` option) and also copy the root files and original cards into it.
 
-You can then use `runAllLimits.py` to produce the combined limits.
+You can then use `runAllLimits.py` to produce the combined limits, e.g.:
+
+```
+python runAllLimits.py -t 2lss_mm 2lss_mm/
+```
+
+### Making impact and pull plots
+
+Note that you'll need the `combineTool.py` for this. See [here](https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideHiggsAnalysisCombinedLimit) for instructions.
+
+Generate the workspace:
+
+```
+text2workspace.py -o tHq_cards.root comb3/tHq_1_m1.card.txt
+```
+
+```
+python combineTool.py -M Impacts [-t 1 --expectSignal 1] -d tHq_cards.root -m 125 --robustFit 1 --rMin -5 --rMax 10 --doInitialFit
+
+python combineTool.py -M Impacts [-t 1 --expectSignal 1] -d tHq_cards.root -m 125 --robustFit 1 --rMin -5 --rMax 10 --doFits --parallel 12
+
+python combineTool.py -M Impacts -d tHq_cards.root -m 125 -o impacts.json
+
+plotImpacts.py -i impacts.json -o impacts --per-page 20
+```
+
+Note that this may require the renaming of root files:
+```
+for f in *123456.root; do mv $f ${f%.123456.root}.root; done
+```
+
+### Closure checks
+
+See also [here](https://twiki.cern.ch/twiki/bin/view/CMS/HiggsWG/HiggsPAGPreapprovalChecks).
+
+```
+combine -M MaxLikelihoodFit -t -1 --expectSignal 0 tHq_1_m1.card.txt
+python diffNuisances.py -a mlfit.root -g plots.root
+```
+
+Check that the fit result is `r=0` and that pulls for the background only fit are all 0.00.
+
+```
+combine -M MaxLikelihoodFit -t -1 --expectSignal 1 tHq_1_m1.card.txt
+python diffNuisances.py -a mlfit.root -g plots.root
+```
+
+Check that the fit result is `r=1` and that pulls for the signal+background fit are all 0.00.
