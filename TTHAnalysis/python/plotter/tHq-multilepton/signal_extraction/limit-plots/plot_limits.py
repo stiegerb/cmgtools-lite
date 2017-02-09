@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import sys, os, re
+import sys, os, re, glob
 import numpy as np
 
 from scipy.interpolate import splev, splrep
@@ -41,15 +41,16 @@ def makePlot(inputfile='limits_1.dat', outdir='plots/'):
     # Fill dataframes
     import pandas as pd
     df       = pd.DataFrame.from_csv(inputfile,       sep=",", index_col=None)
-    xsec_thq = pd.DataFrame.from_csv("xsecs.dat",     sep=",", index_col=None)
-    xsec_thw = pd.DataFrame.from_csv("xsecs_tWH.dat", sep=",", index_col=None)
+    xsec_thq = pd.DataFrame.from_csv("xsecs.csv",     sep=",", index_col=None)
+    xsec_thw = pd.DataFrame.from_csv("xsecs_tWH.csv", sep=",", index_col=None)
 
-    x = df.cf.values.tolist()
+    x = sorted(list(set(df.cf.values.tolist())))
 
     # Evaluate spline at more points
     x2 = np.linspace(-3,3,100)
 
-    spline_xsec = splrep(x, xsec_thw.xsec + xsec_thq.xsec, s=11)
+    spline_xsec = splrep(x, (xsec_thw.loc[xsec_thw.cv == cvval].xsec +
+                             xsec_thq.loc[xsec_thq.cv == cvval].xsec), s=11)
 
     y2_xsec = splev(x2, spline_xsec)
 
