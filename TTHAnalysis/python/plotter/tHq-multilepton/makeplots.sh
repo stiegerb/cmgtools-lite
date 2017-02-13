@@ -28,6 +28,7 @@ echo "Normalizing to ${LUMI}/fb";
 
 BASEOPTIONS=" -f -j 8 -l ${LUMI} --s2v"\
 " -L ttH-multilepton/functionsTTH.cc"\
+" -L tHq-multilepton/functionsTHQ.cc"\
 " --tree treeProducerSusyMultilepton"\
 " --mcc ttH-multilepton/lepchoice-ttH-FO.txt"
 TREEINPUTS="-P thqtrees/TREES_TTH_250117_Summer16_JECV3_noClean_qgV2_tHqsoup/"
@@ -102,6 +103,12 @@ case "$PLOTTAG" in
         ;;
     "2lss-em" )
         OPTIONS="${OPTIONS} ${DRAWOPTIONS} ${OPT2L} --xp data -E em_chan"
+        MCA="tHq-multilepton/mca-thq-2lss-mcdata-frdata.txt"
+        CUTS="tHq-multilepton/cuts-thq-2lss.txt"
+        PLOTS="tHq-multilepton/plots-thq-2lss-kinMVA.txt"
+        ;;
+    "2lss-me" )
+        OPTIONS="${OPTIONS} ${DRAWOPTIONS} ${OPT2L} --xp data -E me_chan"
         MCA="tHq-multilepton/mca-thq-2lss-mcdata-frdata.txt"
         CUTS="tHq-multilepton/cuts-thq-2lss.txt"
         PLOTS="tHq-multilepton/plots-thq-2lss-kinMVA.txt"

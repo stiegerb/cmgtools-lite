@@ -15,3 +15,5 @@ totCharge            : LepGood1_charge+LepGood2_charge : [-1.5,-0.5,0.5,1.5]; XT
 
 thqMVA_tt_2lss   : thqMVA_tt_2lss  : 16,-1.,1.0; XTitle="kinMVA (tHq vs t#bar{t})", Legend='TL'
 thqMVA_ttv_2lss  : thqMVA_ttv_2lss : 16,-1.,1.0; XTitle="kinMVA (tHq vs t#bar{t}V)", Legend='TL'
+
+finalBins        : tHq_MVAto1D_3l_10(thqMVA_tt_2lss, thqMVA_ttv_2lss) : [1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,10.5]; XTitle='Bin No.',Logy=True,LegendCutoff=0.01
