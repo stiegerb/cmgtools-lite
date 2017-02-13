@@ -5,6 +5,13 @@ const float y_1 = -0.5;
 const float y_2 = 0.4;
 const float y_3 = 0.7;
 
+const float a_1 = -0.5;
+const float a_2 = 0.1;
+const float a_3 = 0.6;
+const float b_1 = -0.4;
+const float b_2 = 0.1;
+const float b_3 = 0.8;
+
 float tHq_MVAto1D_3l_16(float mva_tt, float mva_ttv){
 /*
 These are sorted roughly in increasing signal yield.
@@ -120,5 +127,86 @@ New bins are:
     if( mva_tt  > x_1  && mva_ttv >= -1.0 ) return 3;
     if( mva_tt >= -1.0 && mva_ttv >= -1.0 ) return 1;
 
+    return 0;
+}
+
+float tHq_MVAto1D_2lss_10(float mva_tt, float mva_ttv){
+/*
+Same as above but with merged bins:
+   3 + 4
+   6 + 5
+New bins are:
+ 1 ---------------------
+   |    |    |  7 | 10 |
+   |    |  6 |----|----|
+   |  2 |    |  9 |  8 |
+ 0 |    |----|----|----|
+   |    |  5 |    4    | 
+   |----|----|----|----|
+   |  1 |      3       |
+-1 |----|----|----|----|
+  -1         0         1
+*/
+    if( mva_tt  > a_3  && mva_ttv  >  b_3 ) return 10;
+    if( mva_tt  > a_2  && mva_ttv  >  b_3 ) return 7;
+    if( mva_tt  > a_1  && mva_ttv  >  b_3 ) return 6;
+    if( mva_tt >= -1.0 && mva_ttv  >  b_3 ) return 2;
+
+    if( mva_tt  > a_3  && mva_ttv  >  b_2 ) return 8;
+    if( mva_tt  > a_2  && mva_ttv  >  b_2 ) return 9;
+    if( mva_tt  > a_1  && mva_ttv  >  b_2 ) return 6;
+    if( mva_tt >= -1.0 && mva_ttv  >  b_2 ) return 2;
+
+    if( mva_tt  > a_3  && mva_ttv  >  b_1 ) return 4;
+    if( mva_tt  > a_2  && mva_ttv  >  b_1 ) return 4;
+    if( mva_tt  > a_1  && mva_ttv  >  b_1 ) return 5;
+    if( mva_tt >= -1.0 && mva_ttv  >  b_1 ) return 2;
+
+    if( mva_tt  > a_3  && mva_ttv >= -1.0 ) return 3;
+    if( mva_tt  > a_2  && mva_ttv >= -1.0 ) return 3;
+    if( mva_tt  > a_1  && mva_ttv >= -1.0 ) return 3;
+    if( mva_tt >= -1.0 && mva_ttv >= -1.0 ) return 1;
+
+    return 0;
+}
+
+float tHq_MVAto1D_2lss_12(float mva_tt, float mva_ttv){
+/*
+Same as above but with merged bins:
+   6 + 8
+   2 + 4
+   3 + 5
+   7 + 9
+New bins are:
+ 1 ---------------------
+   |   10    | 11 | 12 |
+   |----|----|----|----|
+   |    |  7 |  9 |  8 |
+ 0 |  2 |----|----|----|
+   |    |  6 |  5 |    | 
+   |----|----|----|  4 |
+   |  1 |    3    |    |
+-1 |----|----|----|----|
+  -1         0         1
+*/
+    if( mva_tt  > a_3  && mva_ttv  >  b_3 ) return 12;
+    if( mva_tt  > a_2  && mva_ttv  >  b_3 ) return 11;
+    if( mva_tt  > a_1  && mva_ttv  >  b_3 ) return 10;
+    if( mva_tt >= -1.0 && mva_ttv  >  b_3 ) return 10;
+
+    if( mva_tt  > a_3  && mva_ttv  >  b_2 ) return 9;
+    if( mva_tt  > a_2  && mva_ttv  >  b_2 ) return 8;
+    if( mva_tt  > a_1  && mva_ttv  >  b_2 ) return 7;
+    if( mva_tt >= -1.0 && mva_ttv  >  b_2 ) return 2;
+
+    if( mva_tt  > a_3  && mva_ttv  >  b_1 ) return 4;
+    if( mva_tt  > a_2  && mva_ttv  >  b_1 ) return 5;
+    if( mva_tt  > a_1  && mva_ttv  >  b_1 ) return 6;
+    if( mva_tt >= -1.0 && mva_ttv  >  b_1 ) return 2;
+
+    if( mva_tt  > a_3  && mva_ttv >= -1.0 ) return 4;
+    if( mva_tt  > a_2  && mva_ttv >= -1.0 ) return 3;
+    if( mva_tt  > a_1  && mva_ttv >= -1.0 ) return 3;
+    if( mva_tt >= -1.0 && mva_ttv >= -1.0 ) return 1;
     return 0;
 }

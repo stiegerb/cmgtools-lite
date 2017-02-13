@@ -33,7 +33,8 @@ BASEOPTIONS="-f -j 8 -l ${LUMI} --s2v -v 2"\
 " --mcc ttH-multilepton/lepchoice-ttH-FO.txt"\
 " --xp data --asimov"\
 " --neg"\
-" --2d-binning-function 10:tHq_MVAto1D_3l_10"
+" --2d-binning-function 12:tHq_MVAto1D_2lss_12"
+#" --2d-binning-function 10:tHq_MVAto1D_3l_10"
 
 # Pileup weight, btag SFs, trigger SFs, lepton Eff SFs:
 OPT2L="-W puw2016_nTrueInt_36fb(nTrueInt)*eventBTagSF*"\
@@ -50,7 +51,8 @@ OPTIONS="--od ${OUTNAME}/${CHANNEL} -o ${CHANNEL}"
 
 MCA=""
 CUTS=""
-BINNING="thqMVA_ttv_3l:thqMVA_tt_3l 40,-1,1,40,-1,1"
+#BINNING="thqMVA_ttv_3l:thqMVA_tt_3l 40,-1,1,40,-1,1"
+BINNING="thqMVA_ttv_2lss:thqMVA_tt_2lss 40,-1,1,40,-1,1"
 SYSTFILE="tHq-multilepton/signal_extraction/systsEnv.txt"
 
 case "$CHANNEL" in
