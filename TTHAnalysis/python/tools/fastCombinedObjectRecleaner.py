@@ -4,7 +4,8 @@ import ROOT, os
 
 class fastCombinedObjectRecleaner:
 
-    def __init__(self,label,inlabel,cleanTausWithLooseLeptons,cleanJetsWithFOTaus,doVetoZ,doVetoLMf,doVetoLMt,jetPts,btagL_thr,btagM_thr,jetCollection='Jet'):
+    def __init__(self,label,inlabel,cleanTausWithLooseLeptons,cleanJetsWithFOTaus,
+                 doVetoZ,doVetoLMf,doVetoLMt,jetPts,btagL_thr,btagM_thr,doFwdJets=False):
 
         self.label = "" if (label in ["",None]) else ("_"+label)
         self.inlabel = inlabel
@@ -15,7 +16,7 @@ class fastCombinedObjectRecleaner:
         self.vars_jets = ["btagCSV","qgl","corr","corr_JECUp","corr_JECDown"]
         self.vars_jets_int = ["hadronFlavour"]
         self.vars_jets_nooutput = []
-        self.jc = jetCollection
+        self.doFwdJets = doFwdJets
 
         self.cleanTausWithLooseLeptons = cleanTausWithLooseLeptons
         self.cleanJetsWithFOTaus = cleanJetsWithFOTaus
@@ -24,9 +25,16 @@ class fastCombinedObjectRecleaner:
         self.systsJEC = {0:"", 1:"_jecUp", -1:"_jecDown"}
 
         self.outmasses=['mZ1','minMllAFAS','minMllAFOS','minMllAFSS','minMllSFOS']
-        self._outjetvars = [x%self.jc for x in ['ht%s%%dj','mht%s%%d','nB%sLoose%%d','nB%sMedium%%d','n%s%%d']]
+        self._outjetvars = ['htJet%dj','mhtJet%d','nBJetLoose%d','nBJetMedium%d','nJet%d']
         self.outjetvars=[]
-        for jetPt in self.jetPts: self.outjetvars.extend([(x%jetPt+y,'I' if ('nB%s'%self.jc in x or 'n%s'%self.jc in x) else 'F') for x in self._outjetvars for y in self.systsJEC.values()])
+        for jetPt in self.jetPts:
+            self.outjetvars.extend([(x%jetPt+y,'I' if ('nBJet' in x or 'nJet' in x) else 'F') for x in self._outjetvars for y in self.systsJEC.values()])
+
+        if self.doFwdJets:
+            self.outfwdjetvars = []
+            for jetPt in self.jetPts:
+                self.outfwdjetvars.extend([("nJetFwd%d"%jetPt+y, 'I') for y in self.systsJEC.values()])
+
         self.branches = [var+self.label for var in self.outmasses]
         self.branches.extend([(var+self.label,_type) for var,_type in self.outjetvars])
         self.branches += [("LepGood_conePt","F",20,"nLepGood")]
@@ -34,14 +42,22 @@ class fastCombinedObjectRecleaner:
         self._helper_lepsF = CollectionSkimmer("LepFO"+self.label, "LepGood", floats=[], maxSize=20, saveSelectedIndices=True,padSelectedIndicesWith=0)
         self._helper_lepsT = CollectionSkimmer("LepTight"+self.label, "LepGood", floats=[], maxSize=20, saveTagForAll=True)
         self._helper_taus = CollectionSkimmer("TauSel"+self.label, "TauGood", floats=self.vars, ints=self.vars_taus, maxSize=20)
-        self._helper_jets = CollectionSkimmer("%sSel"%self.jc+self.label, self.jc, floats=self.vars+self.vars_jets, ints=self.vars_jets_int, maxSize=20)
+        self._helper_jets = CollectionSkimmer("JetSel"+self.label, "Jet", floats=self.vars+self.vars_jets, ints=self.vars_jets_int, maxSize=20)
         self._helpers = [self._helper_lepsF,self._helper_lepsT,self._helper_taus,self._helper_jets]
+
+        if self.doFwdJets:
+            self._helper_fwdjets = CollectionSkimmer("JetFwdSel"+self.label, "JetFwd", floats=self.vars+self.vars_jets, ints=self.vars_jets_int, maxSize=20)
+            self._helpers.append(self._helper_fwdjets)
 
         if "/fastCombinedObjectRecleanerHelper_cxx.so" not in ROOT.gSystem.GetLibraries():
             print "Load C++ recleaner worker module"
             ROOT.gROOT.ProcessLine(".L %s/src/CMGTools/TTHAnalysis/python/tools/fastCombinedObjectRecleanerHelper.cxx+O" % os.environ['CMSSW_BASE'])
         self._worker = ROOT.fastCombinedObjectRecleanerHelper(self._helper_taus.cppImpl(),self._helper_jets.cppImpl(),self.cleanJetsWithFOTaus,btagL_thr,btagM_thr)
         for x in self.jetPts: self._worker.addJetPt(x)
+
+        if self.doFwdJets:
+            self._fwdjet_worker = ROOT.fastCombinedObjectRecleanerHelper(self._helper_taus.cppImpl(),self._helper_fwdjets.cppImpl(),self.cleanJetsWithFOTaus,btagL_thr,btagM_thr)
+            for x in self.jetPts: self._fwdjet_worker.addJetPt(x)
 
         if "/fastCombinedObjectRecleanerMassVetoCalculator_cxx.so" not in ROOT.gSystem.GetLibraries():
             print "Load C++ recleaner mass and veto calculator module"
@@ -59,20 +75,26 @@ class fastCombinedObjectRecleaner:
         for x in self._helpers: x.initOutputTree(pytree);
 
     def initReaders(self,tree):
-        for coll in ["LepGood","TauGood",self.jc]:
+        collections = ["LepGood","TauGood","Jet"]
+        if self.doFwdJets: collections.append("JetFwd")
+        for coll in collections:
             setattr(self,'n'+coll,tree.valueReader('n'+coll))
             _vars = self.vars[:]
             if coll=='LepGood': _vars.extend(self.vars_leptons)
             if coll=='TauGood': _vars.extend(self.vars_taus)
-            if coll==self.jc: _vars.extend(self.vars_jets+self.vars_jets_int+self.vars_jets_nooutput)
+            if coll=='Jet':    _vars.extend(self.vars_jets+self.vars_jets_int+self.vars_jets_nooutput)
+            if coll=='JetFwd': _vars.extend(self.vars_jets+self.vars_jets_int+self.vars_jets_nooutput)
             for B in _vars:
                 setattr(self,"%s_%s"%(coll,B), tree.arrayReader("%s_%s"%(coll,B)))
 
     def initWorkers(self):
         self._worker.setLeptons(self.nLepGood, self.LepGood_pt, self.LepGood_eta, self.LepGood_phi)
         self._worker.setTaus(self.nTauGood, self.TauGood_pt, self.TauGood_eta, self.TauGood_phi)
-        self._worker.setJets(getattr(self,'n%s'%self.jc),getattr(self,'%s_pt'%self.jc),getattr(self,'%s_eta'%self.jc),getattr(self,'%s_phi'%self.jc),
-                             getattr(self,'%s_btagCSV'%self.jc),getattr(self,'%s_corr'%self.jc),getattr(self,'%s_corr_JECUp'%self.jc),getattr(self,'%s_corr_JECDown'%self.jc))
+        self._worker.setJets(self.nJet,self.Jet_pt,self.Jet_eta,self.Jet_phi,self.Jet_btagCSV,self.Jet_corr,self.Jet_corr_JECUp,self.Jet_corr_JECDown)
+        if self.doFwdJets:
+            self._fwdjet_worker.setLeptons(self.nLepGood, self.LepGood_pt, self.LepGood_eta, self.LepGood_phi)
+            self._fwdjet_worker.setTaus(self.nTauGood, self.TauGood_pt, self.TauGood_eta, self.TauGood_phi)
+            self._fwdjet_worker.setJets(self.nJetFwd,self.JetFwd_pt,self.JetFwd_eta,self.JetFwd_phi,self.JetFwd_btagCSV,self.JetFwd_corr,self.JetFwd_corr_JECUp,self.JetFwd_corr_JECDown)    
         self._workerMV.setLeptons(self.nLepGood, self.LepGood_pt, self.LepGood_eta, self.LepGood_phi, self.LepGood_mass, self.LepGood_pdgId)
 
     def listBranches(self):
@@ -92,9 +114,15 @@ class fastCombinedObjectRecleaner:
         self._worker.loadTags(tags,self.cleanTausWithLooseLeptons)
         self._worker.run()
 
+        if self.doFwdJets:
+            self._fwdjet_worker.clear()
+            self._fwdjet_worker.loadTags(tags,self.cleanTausWithLooseLeptons)
+            self._fwdjet_worker.run()
+
+
         for delta,varname in self.systsJEC.iteritems():
             for x in self._worker.GetJetSums(delta):
-                for var in self._outjetvars: ret[var%x.thr+varname+self.label]=getattr(x,var.replace('%d','').replace(self.jc,'Jet'))
+                for var in self._outjetvars: ret[var%x.thr+varname+self.label]=getattr(x,var.replace('%d',''))
 
         self._workerMV.clear()
         self._workerMV.loadTags(tags)
