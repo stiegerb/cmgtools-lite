@@ -5,12 +5,12 @@ const float y_1 = -0.5;
 const float y_2 = 0.4;
 const float y_3 = 0.7;
 
-const float a_1 = -0.5;
-const float a_2 = 0.1;
-const float a_3 = 0.6;
-const float b_1 = -0.4;
-const float b_2 = 0.1;
-const float b_3 = 0.8;
+const float a_1 = -0.3;
+const float a_2 = 0.3; 
+const float a_3 = 0.7; 
+const float b_1 = -0.3;
+const float b_2 = 0.2; 
+const float b_3 = 0.7; 
 
 float tHq_MVAto1D_3l_16(float mva_tt, float mva_ttv){
 /*
