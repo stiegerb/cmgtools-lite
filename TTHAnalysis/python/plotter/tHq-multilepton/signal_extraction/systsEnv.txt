@@ -1,40 +1,40 @@
 # Luminosity
-lumi_13TeV  : TH[QW].*|TT[HWZ]|WZ|Rares|Gstar|WWss|Convs : .* : 1.06
+lumi_13TeV  : tH[qW].*|tt[HWZ]|WZ|Rares|Gstar|WWss|Convs : .* : 1.06
 
 # Lepton efficiencies
-CMS_ttHl_lepEff_muloose : TH[QW].*|TT[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss_mm.* : 1.04
-CMS_ttHl_lepEff_muloose : TH[QW].*|TT[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss_em.* : 1.02
-CMS_ttHl_lepEff_muloose : TH[QW].*|TT[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*3l.* : 1.03
+CMS_ttHl_lepEff_muloose : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss_mm.* : 1.04
+CMS_ttHl_lepEff_muloose : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss_em.*|*2lss_me.* : 1.02
+CMS_ttHl_lepEff_muloose : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*3l.* : 1.03
 
 # To be replaced by below FIXME
-CMS_ttHl_lepEff_elloose : TH[QW].*|TT[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss_ee.* : 1.04
-CMS_ttHl_lepEff_elloose : TH[QW].*|TT[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss_em.* : 1.02
-CMS_ttHl_lepEff_elloose : TH[QW].*|TT[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*3l.* : 1.04
-# CMS_ttHl_lepEff_gsfel   : ttH.*|TT[WZ]|Rares|Gstar|WWss|Convs : .* : elLooseFlatUnc : templates
-# CMS_ttHl_lepEff_elloose : ttH.*|TT[WZ]|Rares|Gstar|WWss|Convs : .* : elLoosePtDepUnc : templates
+CMS_ttHl_lepEff_elloose : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss_ee.* : 1.04
+CMS_ttHl_lepEff_elloose : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss_em.*|*2lss_me.* : 1.02
+CMS_ttHl_lepEff_elloose : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*3l.* : 1.04
+# CMS_ttHl_lepEff_gsfel   : ttH.*|tt[WZ]|Rares|Gstar|WWss|Convs : .* : elLooseFlatUnc : templates
+# CMS_ttHl_lepEff_elloose : ttH.*|tt[WZ]|Rares|Gstar|WWss|Convs : .* : elLoosePtDepUnc : templates
 
-CMS_ttHl_lepEff_tight   : TH[QW].*|TT[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss.* : 1.06
-CMS_ttHl_lepEff_tight   : TH[QW].*|TT[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*3l.* : 1.09
+CMS_ttHl_lepEff_tight   : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss.* : 1.06
+CMS_ttHl_lepEff_tight   : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*3l.* : 1.09
 
 # Trigger efficiencies
-CMS_ttHl_trigger_ee     : TH[QW].*|TT[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss_ee.* : 1.03
-CMS_ttHl_trigger_em     : TH[QW].*|TT[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss_em.* : 1.02
-CMS_ttHl_trigger_mm     : TH[QW].*|TT[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss_mm.* : 1.01
-CMS_ttHl_trigger_3l     : TH[QW].*|TT[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*3l.* : 1.09
+CMS_ttHl_trigger_ee     : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss_ee.* : 1.03
+CMS_ttHl_trigger_em     : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss_em.*|*2lss_me.* : 1.02
+CMS_ttHl_trigger_mm     : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss_mm.* : 1.01
+CMS_ttHl_trigger_3l     : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*3l.* : 1.09
 
 # JES FIXME
-# CMS_ttHl_JES  : TH[QW].*|TT[HWZ]|Rares|WZ|Gstar|WWss|Convs : .* : jec : templates
+# CMS_ttHl_JES  : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .* : jec : templates
 # FIXME: Need to add a shape variation for the forward jet modeling
 
 # btag FIXME
-# CMS_ttHl_btag_LF       : TH[QW].*|TT[HWZ]|Rares|WZ|Gstar|WWss|Convs : .* : bTag_LF       : templates
-# CMS_ttHl_btag_HF       : TH[QW].*|TT[HWZ]|Rares|WZ|Gstar|WWss|Convs : .* : bTag_HF       : templates
-# CMS_ttHl_btag_HFStats1 : TH[QW].*|TT[HWZ]|Rares|WZ|Gstar|WWss|Convs : .* : bTag_HFStats1 : templates
-# CMS_ttHl_btag_HFStats2 : TH[QW].*|TT[HWZ]|Rares|WZ|Gstar|WWss|Convs : .* : bTag_HFStats2 : templates 
-# CMS_ttHl_btag_LFStats1 : TH[QW].*|TT[HWZ]|Rares|WZ|Gstar|WWss|Convs : .* : bTag_LFStats1 : templates
-# CMS_ttHl_btag_LFStats2 : TH[QW].*|TT[HWZ]|Rares|WZ|Gstar|WWss|Convs : .* : bTag_LFStats2 : templates
-# CMS_ttHl_btag_cErr1    : TH[QW].*|TT[HWZ]|Rares|WZ|Gstar|WWss|Convs : .* : bTag_cErr1    : templates
-# CMS_ttHl_btag_cErr2    : TH[QW].*|TT[HWZ]|Rares|WZ|Gstar|WWss|Convs : .* : bTag_cErr2    : templates
+# CMS_ttHl_btag_LF       : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .* : bTag_LF       : templates
+# CMS_ttHl_btag_HF       : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .* : bTag_HF       : templates
+# CMS_ttHl_btag_HFStats1 : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .* : bTag_HFStats1 : templates
+# CMS_ttHl_btag_HFStats2 : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .* : bTag_HFStats2 : templates 
+# CMS_ttHl_btag_LFStats1 : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .* : bTag_LFStats1 : templates
+# CMS_ttHl_btag_LFStats2 : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .* : bTag_LFStats2 : templates
+# CMS_ttHl_btag_cErr1    : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .* : bTag_cErr1    : templates
+# CMS_ttHl_btag_cErr2    : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .* : bTag_cErr2    : templates
 
 # Statistical fluctuations of all templates
 CMS_ttHl_templstat : .* : .* : 1.0 : stat_foreach_shape_bins : .*
@@ -55,71 +55,71 @@ CMS_ttHl_Convs  : Convs : .* : 1.3 # unused at the moment (convs from FR)
 # Note: pdf_gg is entered as 1/kappa since it has to be anti-correlated with Hgg
 # Note2: tHq/tHW uncertainties from SingleTopHiggsGeneration13TeV TWiki, for Ct=-1
 #        FIXME: should be taken from LHE weights to be correct for all coupling points
-QCDscale_tHq   : THQ.*  : .* : 0.961/1.027
-QCDscale_tHW   : THW.*  : .* : 0.982/1.020
-QCDscale_ttH   : TTH.*  : .* : 0.915/1.058
-QCDscale_ttW   : TTW    : .* : 1.12
-QCDscale_ttZ   : TTZ    : .* : 1.11
-pdf_Higgs_ttH  : TTH.*  : .* : 1.036
-pdf_gg         : TTZ    : .* : 0.966
-pdf_qqbar      : TTW    : .* : 1.04
-pdf_qg         : THQ.*  : .* : 1.037 # from 13 TeV Hbb
-pdf_qg         : THW.*  : .* : 1.040 # from 13 TeV Hbb
+QCDscale_tHq   : tHq.*  : .* : 0.961/1.027
+QCDscale_tHW   : tHW.*  : .* : 0.982/1.020
+QCDscale_ttH   : ttH.*  : .* : 0.915/1.058
+QCDscale_ttW   : ttW    : .* : 1.12
+QCDscale_ttZ   : ttZ    : .* : 1.11
+pdf_Higgs_ttH  : ttH.*  : .* : 1.036
+pdf_gg         : ttZ    : .* : 0.966
+pdf_qqbar      : ttW    : .* : 1.04
+pdf_Higgs_qg   : tHq.*  : .* : 1.037 # from 13 TeV Hbb
+pdf_Higgs_qg   : tHW.*  : .* : 1.040 # from 13 TeV Hbb
 
 # Flavor scheme uncertainty introduced for 8 TeV result, nothing quoted in 13 TeV Hbb, though
-# CMS_tHql_FlavourScheme : TH[QW].* : .* : 1.10 # from 8 TeV
+# CMS_tHql_FlavourScheme : tH[qW].* : .* : 1.10 # from 8 TeV
 
 # Higgs branching fractions (from 8 TeV)
-param_alphaS           : TH[QW].*    : .* : 1.012
-param_mB               : TH[QW].*    : .* : 0.981
-HiggsDecayWidthTHU_hqq : TH[QW].*    : .* : 0.988
-HiggsDecayWidthTHU_hvv : TH[QW].*_WW : .* : 1.004 # Need to fix this?
-HiggsDecayWidthTHU_hll : TH[QW].*_tt : .* : 1.019 # Need to fix this?
+param_alphaS           : tH[qW].*    : .* : 1.012
+param_mB               : tH[qW].*    : .* : 0.981
+HiggsDecayWidthTHU_hqq : tH[qW].*    : .* : 0.988
+HiggsDecayWidthTHU_hvv : tH[qW].*_WW : .* : 1.004 # Need to fix this?
+HiggsDecayWidthTHU_hll : tH[qW].*_tt : .* : 1.019 # Need to fix this?
 
 # shape theoretical uncertainties (private to this channel, FIXME need to be updated for tHq)
-CMS_ttHl_thu_shape_tHq_x : THQ.* : .* : 1.0 : shapeOnly2D_1.03X_1Y
-CMS_ttHl_thu_shape_tHq_y : THQ.* : .* : 1.0 : shapeOnly2D_1X_1.02Y
-CMS_ttHl_thu_shape_ttH_x : TTH.* : .* : 1.0 : shapeOnly2D_1.03X_1Y
-CMS_ttHl_thu_shape_ttH_y : TTH.* : .* : 1.0 : shapeOnly2D_1X_1.02Y
-CMS_ttHl_thu_shape_ttW_x : TTW   : .* : 1.0 : shapeOnly2D_1.04X_1Y
-CMS_ttHl_thu_shape_ttW_y : TTW   : .* : 1.0 : shapeOnly2D_1X_1.01Y
-CMS_ttHl_thu_shape_ttZ_x : TTZ   : .* : 1.0 : shapeOnly2D_1.02X_1Y
-CMS_ttHl_thu_shape_ttZ_y : TTZ   : .* : 1.0 : shapeOnly2D_1X_1.02Y
+CMS_ttHl_thu_shape_tHq_x : tHQ.* : .* : 1.0 : shapeOnly2D_1.03X_1Y
+CMS_ttHl_thu_shape_tHq_y : tHQ.* : .* : 1.0 : shapeOnly2D_1X_1.02Y
+CMS_ttHl_thu_shape_ttH_x : ttH.* : .* : 1.0 : shapeOnly2D_1.03X_1Y
+CMS_ttHl_thu_shape_ttH_y : ttH.* : .* : 1.0 : shapeOnly2D_1X_1.02Y
+CMS_ttHl_thu_shape_ttW_x : ttW   : .* : 1.0 : shapeOnly2D_1.04X_1Y
+CMS_ttHl_thu_shape_ttW_y : ttW   : .* : 1.0 : shapeOnly2D_1X_1.01Y
+CMS_ttHl_thu_shape_ttZ_x : ttZ   : .* : 1.0 : shapeOnly2D_1.02X_1Y
+CMS_ttHl_thu_shape_ttZ_y : ttZ   : .* : 1.0 : shapeOnly2D_1X_1.02Y
 
 # Fake rate uncertainties
 # 1) Measurement of the fake rate, normalization
-CMS_ttHl_FRe_norm                : data_fakes : .*2lss_ee.* : 1.35
-CMS_ttHl_FRe_norm                : data_fakes : .*2lss_em.* : 1.17
-CMS_ttHl_FRe_norm                : data_fakes : .*3l.*      : 1.4
-CMS_ttHl_FRm_norm                : data_fakes : .*2lss_mm.* : 1.35
-CMS_ttHl_FRm_norm                : data_fakes : .*2lss_em.* : 1.17
-CMS_ttHl_FRm_norm                : data_fakes : .*3l.*      : 1.4
+CMS_ttHl_FRe_norm                : data_fakes : .*2lss_ee.*            : 1.35
+CMS_ttHl_FRe_norm                : data_fakes : .*2lss_em.*|*2lss_me.* : 1.17
+CMS_ttHl_FRe_norm                : data_fakes : .*3l.*                 : 1.4
+CMS_ttHl_FRm_norm                : data_fakes : .*2lss_mm.*            : 1.35
+CMS_ttHl_FRm_norm                : data_fakes : .*2lss_em.*|*2lss_me.* : 1.17
+CMS_ttHl_FRm_norm                : data_fakes : .*3l.*                 : 1.4
 # 2) Measurement of the fake rate, shape (FIXME these need to be updated for tHq)
-CMS_ttHl_FRe_shape_2lss_corr     : data_fakes : .*2lss_ee.* : 1.0  : shapeOnly2D_1.20X_1.40Y
-CMS_ttHl_FRe_shape_2lss_corr     : data_fakes : .*2lss_em.* : 1.0  : shapeOnly2D_1.10X_1.20Y
-CMS_ttHl_FRm_shape_2lss_corr     : data_fakes : .*2lss_mm.* : 1.0  : shapeOnly2D_1.20X_1.40Y
-CMS_ttHl_FRm_shape_2lss_corr     : data_fakes : .*2lss_em.* : 1.0  : shapeOnly2D_1.10X_1.20Y
-CMS_ttHl_FRe_shape_2lss_anticorr : data_fakes : .*2lss_ee.* : 1.0  : shapeOnly2D_1.20X_0.71Y
-CMS_ttHl_FRe_shape_2lss_anticorr : data_fakes : .*2lss_em.* : 1.0  : shapeOnly2D_1.10X_0.83Y
-CMS_ttHl_FRm_shape_2lss_anticorr : data_fakes : .*2lss_mm.* : 1.0  : shapeOnly2D_1.20X_0.71Y
-CMS_ttHl_FRm_shape_2lss_anticorr : data_fakes : .*2lss_em.* : 1.0  : shapeOnly2D_1.10X_0.83Y
-CMS_ttHl_FRe_shape_3l            : data_fakes : .*3l.*      : 1.0  : shapeOnly2D_1.20X_1.30Y
-CMS_ttHl_FRm_shape_3l            : data_fakes : .*3l.*      : 1.0  : shapeOnly2D_1.20X_1.30Y
+CMS_ttHl_FRe_shape_2lss_corr     : data_fakes : .*2lss_ee.*            : 1.0  : shapeOnly2D_1.20X_1.40Y
+CMS_ttHl_FRe_shape_2lss_corr     : data_fakes : .*2lss_em.*|*2lss_me.* : 1.0  : shapeOnly2D_1.10X_1.20Y
+CMS_ttHl_FRm_shape_2lss_corr     : data_fakes : .*2lss_mm.*            : 1.0  : shapeOnly2D_1.20X_1.40Y
+CMS_ttHl_FRm_shape_2lss_corr     : data_fakes : .*2lss_em.*|*2lss_me.* : 1.0  : shapeOnly2D_1.10X_1.20Y
+CMS_ttHl_FRe_shape_2lss_anticorr : data_fakes : .*2lss_ee.*            : 1.0  : shapeOnly2D_1.20X_0.71Y
+CMS_ttHl_FRe_shape_2lss_anticorr : data_fakes : .*2lss_em.*|*2lss_me.* : 1.0  : shapeOnly2D_1.10X_0.83Y
+CMS_ttHl_FRm_shape_2lss_anticorr : data_fakes : .*2lss_mm.*            : 1.0  : shapeOnly2D_1.20X_0.71Y
+CMS_ttHl_FRm_shape_2lss_anticorr : data_fakes : .*2lss_em.*|*2lss_me.* : 1.0  : shapeOnly2D_1.10X_0.83Y
+CMS_ttHl_FRe_shape_3l            : data_fakes : .*3l.*                 : 1.0  : shapeOnly2D_1.20X_1.30Y
+CMS_ttHl_FRm_shape_3l            : data_fakes : .*3l.*                 : 1.0  : shapeOnly2D_1.20X_1.30Y
 # 3) Closure: QCD vs. TT fake rate, normalization
-CMS_ttHl_Clos_e_norm             : data_fakes : .*2lss_ee.* : 0.9
-CMS_ttHl_Clos_e_norm             : data_fakes : .*2lss_em.* : 0.95
-CMS_ttHl_Clos_e_norm             : data_fakes : .*3l.*      : 0.95
-CMS_ttHl_Clos_m_norm             : data_fakes : .*2lss_mm.* : 1.1
-CMS_ttHl_Clos_m_norm             : data_fakes : .*2lss_em.* : 1.05
-CMS_ttHl_Clos_m_norm             : data_fakes : .*3l.*      : 1.05
+CMS_ttHl_Clos_e_norm             : data_fakes : .*2lss_ee.*            : 0.9
+CMS_ttHl_Clos_e_norm             : data_fakes : .*2lss_em.*|*2lss_me.* : 0.95
+CMS_ttHl_Clos_e_norm             : data_fakes : .*3l.*                 : 0.95
+CMS_ttHl_Clos_m_norm             : data_fakes : .*2lss_mm.*            : 1.1
+CMS_ttHl_Clos_m_norm             : data_fakes : .*2lss_em.*|*2lss_me.* : 1.05
+CMS_ttHl_Clos_m_norm             : data_fakes : .*3l.*                 : 1.05
 # 4) Closure: QCD vs. TT fake rate, shape
-CMS_ttHl_Clos_e_shape            : data_fakes : .*2lss_ee.* : 1.0  : shapeOnly2D_1.05X_1.15Y
-CMS_ttHl_Clos_e_shape            : data_fakes : .*2lss_em.* : 1.0  : shapeOnly2D_1.03X_1.10Y
-CMS_ttHl_Clos_e_shape            : data_fakes : .*3l.*      : 1.0  : shapeOnly2D_1.05X_1.05Y
-CMS_ttHl_Clos_m_shape            : data_fakes : .*2lss_mm.* : 1.0  : shapeOnly2D_1.05X_1.10Y
-CMS_ttHl_Clos_m_shape            : data_fakes : .*2lss_em.* : 1.0  : shapeOnly2D_1.03X_1.15Y
-CMS_ttHl_Clos_m_shape            : data_fakes : .*3l.*      : 1.0  : shapeOnly2D_1.05X_1.05Y
+CMS_ttHl_Clos_e_shape            : data_fakes : .*2lss_ee.*            : 1.0  : shapeOnly2D_1.05X_1.15Y
+CMS_ttHl_Clos_e_shape            : data_fakes : .*2lss_em.*|*2lss_me.* : 1.0  : shapeOnly2D_1.03X_1.10Y
+CMS_ttHl_Clos_e_shape            : data_fakes : .*3l.*                 : 1.0  : shapeOnly2D_1.05X_1.05Y
+CMS_ttHl_Clos_m_shape            : data_fakes : .*2lss_mm.*            : 1.0  : shapeOnly2D_1.05X_1.10Y
+CMS_ttHl_Clos_m_shape            : data_fakes : .*2lss_em.*|*2lss_me.* : 1.0  : shapeOnly2D_1.03X_1.15Y
+CMS_ttHl_Clos_m_shape            : data_fakes : .*3l.*                 : 1.0  : shapeOnly2D_1.05X_1.05Y
 
 # Charge flip uncertainty
-CMS_ttHl_QF : flips_data  : .* : 1.3
+CMS_ttHl_QF : data_flips  : .* : 1.3
 
