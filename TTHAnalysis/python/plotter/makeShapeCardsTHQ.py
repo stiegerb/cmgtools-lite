@@ -664,10 +664,10 @@ if __name__ == '__main__':
     # Split the signal processes into different points (using the first '_')
     # and process all of them separately.
     allsignals = cardMaker.mca.listSignals(allProcs=True)
-    points = sorted(list(set([p.split('_',1)[1] for p in allsignals])))
+    points = sorted(list(set([p.split('_',2)[2] for p in allsignals])))
 
     for point in points:
-        signals = ['THQ_%s'%point, 'THW_%s'%point]
+        signals = ['tHq_hww_%s'%point, 'tHW_hww_%s'%point]
         if options.asimov:
             cardMaker.prepareAsimov(signals=signals)
         cardMaker.setProcesses(signals=signals)
