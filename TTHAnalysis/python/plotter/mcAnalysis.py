@@ -65,7 +65,8 @@ class MCAnalysis:
                         extra[key] = eval(val)
                     else: extra[setting] = True
             for k,v in addExtras.iteritems():
-                if k in extra: raise RuntimeError, 'You are trying to overwrite an extra option already set'
+                if k in extra and extra[k] != v:
+                    raise RuntimeError('You are trying to overwrite an extra option: %s'%k)
                 extra[k] = v
             field = [f.strip() for f in line.split(':')]
             if len(field) == 1 and field[0] == "*":
