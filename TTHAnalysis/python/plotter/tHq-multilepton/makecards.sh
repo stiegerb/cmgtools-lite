@@ -22,7 +22,7 @@ echo "Normalizing to ${LUMI}/fb";
 
 TREEINPUTS="-P thqtrees/TREES_TTH_250117_Summer16_JECV3_noClean_qgV2_tHqsoup/"
 FRIENDTREES=" -F sf/t thqtrees/tHq_production_Jan25/1_thq_recleaner_030217/evVarFriend_{cname}.root"\
-" -F sf/t thqtrees/tHq_production_Jan25/2_thq_friends_Feb3/evVarFriend_{cname}.root"\
+" -F sf/t thqtrees/tHq_production_Jan25/2_thq_friends_Feb14/evVarFriend_{cname}.root"\
 " -F sf/t thqtrees/tHq_production_Jan25/5_triggerDecision_250117_v1/evVarFriend_{cname}.root"\
 " -F sf/t thqtrees/tHq_production_Jan25/6_bTagSF_v2/evVarFriend_{cname}.root"
 
@@ -58,29 +58,29 @@ case "$CHANNEL" in
         OPTIONS="${OPTIONS} ${OPT3L}"
         MCA="tHq-multilepton/signal_extraction/mca-thq-3l-mcdata-frdata_limits.txt"
         CUTS="tHq-multilepton/cuts-thq-3l.txt"
-	BINNING="thqMVA_ttv_3l:thqMVA_tt_3l 40,-1,1,40,-1,1"
-	FUNCTION="--2d-binning-function 10:tHq_MVAto1D_3l_10"
+        BINNING="thqMVA_ttv_3l:thqMVA_tt_3l 40,-1,1,40,-1,1"
+        FUNCTION="--2d-binning-function 10:tHq_MVAto1D_3l_10"
         ;;
     "2lss_mm" )
         OPTIONS="${OPTIONS} ${OPT2L} -E mm_chan"
         MCA="tHq-multilepton/signal_extraction/mca-thq-2lss-mcdata-frdata_limits.txt"
         CUTS="tHq-multilepton/cuts-thq-2lss.txt"
-	BINNING="thqMVA_ttv_2lss:thqMVA_tt_2lss 40,-1,1,40,-1,1"
-	FUNCTION="--2d-binning-function 12:tHq_MVAto1D_3l_12"
+        BINNING="thqMVA_ttv_2lss:thqMVA_tt_2lss 40,-1,1,40,-1,1"
+        FUNCTION="--2d-binning-function 12:tHq_MVAto1D_3l_12"
         ;;
     "2lss_em" )
         OPTIONS="${OPTIONS} ${OPT2L} -E em_chan"
         MCA="tHq-multilepton/signal_extraction/mca-thq-2lss-mcdata-frdata_limits.txt"
         CUTS="tHq-multilepton/cuts-thq-2lss.txt"
-	BINNING="thqMVA_ttv_2lss:thqMVA_tt_2lss 40,-1,1,40,-1,1"
-	FUNCTION="--2d-binning-function 12:tHq_MVAto1D_2lss_12"
+        BINNING="thqMVA_ttv_2lss:thqMVA_tt_2lss 40,-1,1,40,-1,1"
+        FUNCTION="--2d-binning-function 12:tHq_MVAto1D_2lss_12"
         ;;
     "2lss_ee" )
         OPTIONS="${OPTIONS} ${OPT2L} -E ee_chan"
         MCA="tHq-multilepton/signal_extraction/mca-thq-2lss-mcdata-frdata_limits.txt"
         CUTS="tHq-multilepton/cuts-thq-2lss.txt"
-	BINNING="thqMVA_ttv_2lss:thqMVA_tt_2lss 40,-1,1,40,-1,1"
-	FUNCTION="--2d-binning-function 12:tHq_MVAto1D_2lss_12"
+        BINNING="thqMVA_ttv_2lss:thqMVA_tt_2lss 40,-1,1,40,-1,1"
+        FUNCTION="--2d-binning-function 12:tHq_MVAto1D_2lss_12"
         ;;
     *)
         echo "${USAGE}"

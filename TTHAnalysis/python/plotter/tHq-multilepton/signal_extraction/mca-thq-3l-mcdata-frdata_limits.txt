@@ -1,40 +1,28 @@
-# Format (use '#' to comment lines):
-# name of sample : name as in input directory : cross section : selection/event weight ; optional configurations
-# '+' after name declares as signal sample
-# 'xsec' as cross section will read the cross section as stored in the trees
-#
-# Some of the smaller samples are commented out for now to speed things up
-
-# Signal samples (with flipped yukawa sign!)
-signals: + ; IncludeMca="tHq-multilepton/mca-thq-3l-signal_reweightings.txt"
-
-ttW     : TTWToLNu_ext+TTWToLNu_ext2                                  : 0.196        : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kGreen-5,   Label='t\#bar{t}W'
-ttZ     : TTZToLLNuNu                                                 : 0.2526       : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+2,  Label='t\#bar{t}Z'
-ttZ     : TTZToLLNuNu_m1to10                                          : xsec         : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+2,  Label='t\#bar{t}Z'
-ttZ	    : TTJets_DiLepton                                             : xsec         : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+2,  Label='t\#bar{t}Z'
-ttZ     : TTJets_SingleLeptonFromT+TTJets_SingleLeptonFromT_ext       : xsec         : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+2,  Label='t\#bar{t}Z'
-ttZ     : TTJets_SingleLeptonFromTbar+TTJets_SingleLeptonFromTbar_ext : xsec         : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+2,  Label='t\#bar{t}Z'
-ttH     : TTHnobb_pow                                                 : 0.5071*0.418 : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+10, Label='t\#bar{t}H'
-
-# WZ      : WJetsToLNu_LO : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ;  FillColor=ROOT.kViolet-4
-WZ 	    : WZTo3LNu : 1.1*xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ;  FillColor=ROOT.kViolet-4
-Rares   : ZZTo4L   :     xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ;  FillColor=ROOT.kAzure-9
-
-# Gstar   : DYJetsToLL_M10to50_LO       : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kCyan+1
-# Gstar   : DYJetsToLL_M50_LO_ext_part1 : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kCyan+1
-# Gstar   : DYJetsToLL_M50_LO_ext_part2 : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kCyan+1
-# Gstar   : DYJetsToLL_M50_LO_ext_part3 : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kCyan+1
-
-
-# WWss  : WpWpJJ     : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kMagenta-10, Label='W^{\#pm}W^{\#pm}qq'
-# WWss  : WWDouble   : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kMagenta-11, Label='W^{\#pm}W^{\#pm} (DPS)'
-Rares : WWZ        : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kMagenta-6, Label='VVV'
-Rares : WZZ        : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kMagenta-6, Label='VVV'
-Rares : ZZZ        : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kMagenta-6, Label='VVV'
-Rares : TTTT       : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kMagenta-7, Label='t\#bar{t}t\#bar{t}'
-Rares : tZq_ll_ext : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kMagenta-8, Label='tZq'
-# Rares : tZW_ll     : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kMagenta-9, Label='tZW'
+prompts: + ; IncludeMca="tHq-multilepton/mca-thq-3l-sigprompt.txt"
 
 incl_data : + ; IncludeMca="ttH-multilepton/mca-includes/mca-data.txt"
 
 incl_datafakes  : + ; IncludeMca="ttH-multilepton/mca-includes/mca-data.txt", FakeRate="ttH-multilepton/fakeRate-3l-frdata.txt", Label="Fakes", FillColor=ROOT.kBlack, FillStyle=3005, NormSystematic=0.35, PostFix='_fakes'
+
+
+## Systematics
+incl_sigprompt_jec_Up           : + ; IncludeMca="tHq-multilepton/mca-thq-3l-sigprompt.txt", AddWeight="eventBTagSF_up_jes/eventBTagSF"        , SkipMe=True, PostFix="_jec_Up", FakeRate="ttH-multilepton/fr-jecUp.txt"
+incl_sigprompt_jec_Dn           : + ; IncludeMca="tHq-multilepton/mca-thq-3l-sigprompt.txt", AddWeight="eventBTagSF_down_jes/eventBTagSF"      , SkipMe=True, PostFix="_jec_Dn", FakeRate="ttH-multilepton/fr-jecDn.txt"
+incl_sigprompt_bTag_LF_Up       : + ; IncludeMca="tHq-multilepton/mca-thq-3l-sigprompt.txt", AddWeight="eventBTagSF_up_lf/eventBTagSF"         , SkipMe=True, PostFix="_bTag_LF_Up"
+incl_sigprompt_bTag_LF_Dn       : + ; IncludeMca="tHq-multilepton/mca-thq-3l-sigprompt.txt", AddWeight="eventBTagSF_down_lf/eventBTagSF"       , SkipMe=True, PostFix="_bTag_LF_Dn"
+incl_sigprompt_bTag_HF_Up       : + ; IncludeMca="tHq-multilepton/mca-thq-3l-sigprompt.txt", AddWeight="eventBTagSF_up_hf/eventBTagSF"         , SkipMe=True, PostFix="_bTag_HF_Up"
+incl_sigprompt_bTag_HF_Dn       : + ; IncludeMca="tHq-multilepton/mca-thq-3l-sigprompt.txt", AddWeight="eventBTagSF_down_hf/eventBTagSF"       , SkipMe=True, PostFix="_bTag_HF_Dn"
+incl_sigprompt_bTag_HFStats1_Up : + ; IncludeMca="tHq-multilepton/mca-thq-3l-sigprompt.txt", AddWeight="eventBTagSF_up_hfstats1/eventBTagSF"   , SkipMe=True, PostFix="_bTag_HFStats1_Up"
+incl_sigprompt_bTag_HFStats1_Dn : + ; IncludeMca="tHq-multilepton/mca-thq-3l-sigprompt.txt", AddWeight="eventBTagSF_down_hfstats1/eventBTagSF" , SkipMe=True, PostFix="_bTag_HFStats1_Dn"
+incl_sigprompt_bTag_HFStats2_Up : + ; IncludeMca="tHq-multilepton/mca-thq-3l-sigprompt.txt", AddWeight="eventBTagSF_up_hfstats2/eventBTagSF"   , SkipMe=True, PostFix="_bTag_HFStats2_Up"
+incl_sigprompt_bTag_HFStats2_Dn : + ; IncludeMca="tHq-multilepton/mca-thq-3l-sigprompt.txt", AddWeight="eventBTagSF_down_hfstats2/eventBTagSF" , SkipMe=True, PostFix="_bTag_HFStats2_Dn"
+incl_sigprompt_bTag_LFStats1_Up : + ; IncludeMca="tHq-multilepton/mca-thq-3l-sigprompt.txt", AddWeight="eventBTagSF_up_lfstats1/eventBTagSF"   , SkipMe=True, PostFix="_bTag_LFStats1_Up"
+incl_sigprompt_bTag_LFStats1_Dn : + ; IncludeMca="tHq-multilepton/mca-thq-3l-sigprompt.txt", AddWeight="eventBTagSF_down_lfstats1/eventBTagSF" , SkipMe=True, PostFix="_bTag_LFStats1_Dn"
+incl_sigprompt_bTag_LFStats2_Up : + ; IncludeMca="tHq-multilepton/mca-thq-3l-sigprompt.txt", AddWeight="eventBTagSF_up_lfstats2/eventBTagSF"   , SkipMe=True, PostFix="_bTag_LFStats2_Up"
+incl_sigprompt_bTag_LFStats2_Dn : + ; IncludeMca="tHq-multilepton/mca-thq-3l-sigprompt.txt", AddWeight="eventBTagSF_down_lfstats2/eventBTagSF" , SkipMe=True, PostFix="_bTag_LFStats2_Dn"
+incl_sigprompt_bTag_cErr1_Up    : + ; IncludeMca="tHq-multilepton/mca-thq-3l-sigprompt.txt", AddWeight="eventBTagSF_up_cferr1/eventBTagSF"     , SkipMe=True, PostFix="_bTag_cErr1_Up"
+incl_sigprompt_bTag_cErr1_Dn    : + ; IncludeMca="tHq-multilepton/mca-thq-3l-sigprompt.txt", AddWeight="eventBTagSF_down_cferr1/eventBTagSF"   , SkipMe=True, PostFix="_bTag_cErr1_Dn"
+incl_sigprompt_bTag_cErr2_Up    : + ; IncludeMca="tHq-multilepton/mca-thq-3l-sigprompt.txt", AddWeight="eventBTagSF_up_cferr2/eventBTagSF"     , SkipMe=True, PostFix="_bTag_cErr2_Up"
+incl_sigprompt_bTag_cErr2_Dn    : + ; IncludeMca="tHq-multilepton/mca-thq-3l-sigprompt.txt", AddWeight="eventBTagSF_down_cferr2/eventBTagSF"   , SkipMe=True, PostFix="_bTag_cErr2_Dn"
+# incl_sigprompt_elLooseUnc_Up    : + ; IncludeMca="tHq-multilepton/mca-thq-3l-sigprompt.txt", AddWeight="elLooseUnc_2lss_up"                    , SkipMe=True, PostFix="_elLooseUnc_Up"
+# incl_sigprompt_elLooseUnc_Dn    : + ; IncludeMca="tHq-multilepton/mca-thq-3l-sigprompt.txt", AddWeight="elLooseUnc_2lss_dn"                    , SkipMe=True, PostFix="_elLooseUnc_Dn"

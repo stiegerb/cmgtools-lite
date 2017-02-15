@@ -10,7 +10,7 @@ const float a_2 = 0.3;
 const float a_3 = 0.7; 
 const float b_1 = -0.3;
 const float b_2 = 0.2; 
-const float b_3 = 0.7; 
+const float b_3 = 0.6; 
 
 float tHq_MVAto1D_3l_16(float mva_tt, float mva_ttv){
 /*

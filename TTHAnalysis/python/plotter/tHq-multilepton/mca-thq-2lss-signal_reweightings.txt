@@ -1,29 +1,30 @@
 # tHq/tHW signals reweighted for cV/cF: 1_m3 means cV=1 and cF=-3; 1p5_0p25 means cV=1.5 and cF=+0.25
 # Numbers are: n_entries/sum_of_weights*cross-section (* BR for tHq) : LHEweight (445+x with x from mg_reweight_x)
 # cv = 1.0
-tHq_hww_1_m3+      : THQ : 3495799.0/35.700022*2.991*0.324  : LHEweight_wgt[446]*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ;  FillColor=ROOT.kOrange+0,
+tHq_hww_1_m1+      : THQ : 0.7927*0.324                     :                     LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge  ;  FillColor=ROOT.kOrange+1,
+tHW_hww_1_m1+      : THW : 0.1472                           :                     LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge  ;  FillColor=ROOT.kOrange+6,
+
+tHq_hww_1_m3+      : THQ : 3495799.0/35.700022*2.991*0.324  : LHEweight_wgt[446]*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ;  FillColor=ROOT.kOrange+0,  SkipMe=True
 tHq_hww_1_m2+      : THQ : 3495799.0/20.124298*1.706*0.324  : LHEweight_wgt[447]*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ;  FillColor=ROOT.kOrange+10, SkipMe=True
 tHq_hww_1_m1p5+    : THQ : 3495799.0/14.043198*1.205*0.324  : LHEweight_wgt[448]*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ;  FillColor=ROOT.kOrange+10, SkipMe=True
 tHq_hww_1_m1p25+   : THQ : 3495799.0/11.429338*0.9869*0.324 : LHEweight_wgt[449]*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ;  FillColor=ROOT.kOrange+10, SkipMe=True
-tHq_hww_1_m1+      : THQ : 0.7927*0.324                     :                     LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge  ;  FillColor=ROOT.kOrange+1,
 tHq_hww_1_m0p75+   : THQ : 3495799.0/7.054998*0.6212*0.324  : LHEweight_wgt[450]*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ;  FillColor=ROOT.kOrange+10, SkipMe=True
 tHq_hww_1_m0p5+    : THQ : 3495799.0/5.294518*0.4723*0.324  : LHEweight_wgt[451]*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ;  FillColor=ROOT.kOrange+10, SkipMe=True
 tHq_hww_1_m0p25+   : THQ : 3495799.0/3.818499*0.3505*0.324  : LHEweight_wgt[452]*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ;  FillColor=ROOT.kOrange+10, SkipMe=True
-tHq_hww_1_m0+      : THQ : 3495799.0/2.627360*0.2482*0.324  : LHEweight_wgt[453]*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ;  FillColor=ROOT.kOrange+2,
+tHq_hww_1_m0+      : THQ : 3495799.0/2.627360*0.2482*0.324  : LHEweight_wgt[453]*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ;  FillColor=ROOT.kOrange+2,  SkipMe=True
 tHq_hww_1_0p25+    : THQ : 3495799.0/1.719841*0.1694*0.324  : LHEweight_wgt[454]*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ;  FillColor=ROOT.kOrange+10, SkipMe=True
 tHq_hww_1_0p5+     : THQ : 3495799.0/1.097202*0.1133*0.324  : LHEweight_wgt[455]*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ;  FillColor=ROOT.kOrange+10, SkipMe=True
 tHq_hww_1_0p75+    : THQ : 3495799.0/0.759024*0.08059*0.324 : LHEweight_wgt[456]*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ;  FillColor=ROOT.kOrange+10, SkipMe=True
-tHq_hww_1_1+       : THQ : 3495799.0/0.705305*0.07096*0.324 : LHEweight_wgt[457]*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ;  FillColor=ROOT.kOrange+3,
+tHq_hww_1_1+       : THQ : 3495799.0/0.705305*0.07096*0.324 : LHEweight_wgt[457]*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ;  FillColor=ROOT.kOrange+3,  SkipMe=True
 tHq_hww_1_1p25+    : THQ : 3495799.0/0.936047*0.0839*0.324  : LHEweight_wgt[458]*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ;  FillColor=ROOT.kOrange+10, SkipMe=True
 tHq_hww_1_1p5+     : THQ : 3495799.0/1.451249*0.1199*0.324  : LHEweight_wgt[459]*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ;  FillColor=ROOT.kOrange+10, SkipMe=True
 tHq_hww_1_2+       : THQ : 3495799.0/3.335034*0.2602*0.324  : LHEweight_wgt[460]*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ;  FillColor=ROOT.kOrange+10, SkipMe=True
-tHq_hww_1_3+       : THQ : 3495799.0/10.516125*0.8210*0.324 : LHEweight_wgt[461]*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ;  FillColor=ROOT.kOrange+4,
+tHq_hww_1_3+       : THQ : 3495799.0/10.516125*0.8210*0.324 : LHEweight_wgt[461]*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ;  FillColor=ROOT.kOrange+4,  SkipMe=True
 
 tHW_hww_1_m3+      : THW : 1499200.0/11.030445*0.6409       : LHEweight_wgt[446]*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ;  FillColor=ROOT.kOrange+6, SkipMe=True
 tHW_hww_1_m2+      : THW : 1499200.0/5.967205*0.3458        : LHEweight_wgt[447]*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ;  FillColor=ROOT.kOrange+6, SkipMe=True
 tHW_hww_1_m1p5+    : THW : 1499200.0/4.029093*0.2353        : LHEweight_wgt[448]*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ;  FillColor=ROOT.kOrange+6, SkipMe=True
 tHW_hww_1_m1p25+   : THW : 1499200.0/3.208415*0.1876        : LHEweight_wgt[449]*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ;  FillColor=ROOT.kOrange+6, SkipMe=True
-tHW_hww_1_m1+      : THW : 0.1472                           :                     LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge  ;  FillColor=ROOT.kOrange+6, SkipMe=True
 tHW_hww_1_m0p75+   : THW : 1499200.0/1.863811*0.1102        : LHEweight_wgt[450]*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ;  FillColor=ROOT.kOrange+6, SkipMe=True
 tHW_hww_1_m0p5+    : THW : 1499200.0/1.339886*0.07979       : LHEweight_wgt[451]*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ;  FillColor=ROOT.kOrange+6, SkipMe=True
 tHW_hww_1_m0p25+   : THW : 1499200.0/0.914880*0.05518       : LHEweight_wgt[452]*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ;  FillColor=ROOT.kOrange+6, SkipMe=True
