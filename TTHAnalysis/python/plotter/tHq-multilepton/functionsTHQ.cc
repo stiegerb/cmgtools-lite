@@ -210,3 +210,59 @@ New bins are:
     if( mva_tt >= -1.0 && mva_ttv >= -1.0 ) return 1;
     return 0;
 }
+
+float fwdjet_eventWeight_25(float eta){
+/*
+Return an event weight based on the data/MC ratio of the maxJetEta25
+distribution in OS emu events.
+Forward jet pt cut of 25 GeV
+*/
+  eta = fabs(eta);
+  if(eta < 0.278) return 1.0662;
+  if(eta < 0.556) return 1.0720;
+  if(eta < 0.833) return 1.0640;
+  if(eta < 1.111) return 1.0695;
+  if(eta < 1.389) return 1.0572;
+  if(eta < 1.667) return 1.0109;
+  if(eta < 1.944) return 1.0537;
+  if(eta < 2.222) return 1.0500;
+  if(eta < 2.500) return 1.0100;
+  if(eta < 2.778) return 1.0526;
+  if(eta < 3.056) return 1.0059;
+  if(eta < 3.333) return 0.8293;
+  if(eta < 3.611) return 0.9290;
+  if(eta < 3.889) return 0.8861;
+  if(eta < 4.167) return 0.9487;
+  if(eta < 4.444) return 0.8366;
+  if(eta < 4.722) return 0.6497;
+  if(eta < 5.000) return 1.0000;
+  return 1.0;
+}
+
+float fwdjet_eventWeight_50(float eta){
+/*
+Return an event weight based on the data/MC ratio of the maxJetEta25
+distribution in OS emu events.
+Forward jet pt cut of 50 GeV
+*/
+  eta = fabs(eta);
+  if(eta < 0.278) return 1.0233;
+  if(eta < 0.556) return 1.0288;
+  if(eta < 0.833) return 1.0211;
+  if(eta < 1.111) return 1.0265;
+  if(eta < 1.389) return 1.0146;
+  if(eta < 1.667) return 0.9701;
+  if(eta < 1.944) return 1.0112;
+  if(eta < 2.222) return 1.0077;
+  if(eta < 2.500) return 0.9747;
+  if(eta < 2.778) return 0.9808;
+  if(eta < 3.056) return 0.9525;
+  if(eta < 3.333) return 0.9095;
+  if(eta < 3.611) return 1.0222;
+  if(eta < 3.889) return 0.9123;
+  if(eta < 4.167) return 1.0626;
+  if(eta < 4.444) return 0.8832;
+  if(eta < 4.722) return 0.5845;
+  if(eta < 5.000) return 1.0000;
+  return 1.0;
+}

@@ -21,11 +21,11 @@ CMS_ttHl_trigger_em     : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss_em
 CMS_ttHl_trigger_mm     : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss_mm.* : 1.01
 CMS_ttHl_trigger_3l     : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*3l.* : 1.09
 
-# JES FIXME
-CMS_tHql_JES  : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .* : jec : templates
-# FIXME: Need to add a shape variation for the forward jet modeling
+# JES
+CMS_tHql_JES    : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .* : jec    : templates
+CMS_tHql_fwdJet : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .* : fwdJet : alternateShapeOnly
 
-# btag FIXME
+# btag
 CMS_ttHl_btag_LF       : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .* : bTag_LF       : templates
 CMS_ttHl_btag_HF       : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .* : bTag_HF       : templates
 CMS_ttHl_btag_HFStats1 : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .* : bTag_HFStats1 : templates

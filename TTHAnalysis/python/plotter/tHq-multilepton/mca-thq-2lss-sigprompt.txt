@@ -26,4 +26,4 @@ Rares : WZZ        : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRight
 Rares : ZZZ        : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kMagenta-6, Label='VVV'
 Rares : TTTT       : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kMagenta-7, Label='t\#bar{t}t\#bar{t}'
 Rares : tZq_ll_ext : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kMagenta-8, Label='tZq'
-Rares : tZW_ll     : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kMagenta-9, Label='tZW'
+Rares : tWll       : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kMagenta-9, Label='tZW'

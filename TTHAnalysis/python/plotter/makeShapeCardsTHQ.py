@@ -513,7 +513,7 @@ class ShapeCardMaker:
                         self.mca._projection.scaleSystTemplate(name,nominal,p0Dn)
                 elif mode in ["alternateShape", "alternateShapeOnly"]:
                     nominal = self.report[proc]
-                    alternate = self.report[effect]
+                    alternate = self.report["%s_%s"%(proc,effect)]
                     if self.mca._projection != None:
                         self.mca._projection.scaleSystTemplate(name,nominal,alternate)
                     alternate.SetName("%s_%sUp" % (nominal.GetName(),name))
@@ -579,7 +579,7 @@ class ShapeCardMaker:
                 datacard.write((hpatt%name+'  lnN') + " ".join([kpatt % effmap[p] for p in self.processes]) +"\n")
 
             for name, (effmap0,effmap12,mode) in self.systsEnv.iteritems():
-                if mode == "templates":
+                if mode in ["templates", "alternateShape", "alternateShapeOnly"]:
                     datacard.write(hpatt%name+'shape')
                     datacard.write(" ".join([kpatt % effmap0[p] for p in self.processes]))
                     datacard.write("\n")

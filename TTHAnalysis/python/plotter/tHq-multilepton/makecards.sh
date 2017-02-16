@@ -62,7 +62,7 @@ case "$CHANNEL" in
         FUNCTION="--2d-binning-function 10:tHq_MVAto1D_3l_10"
         ;;
     "2lss_mm" )
-        OPTIONS="${OPTIONS} ${OPT2L} -E mm_chan"
+        OPTIONS="${OPTIONS} ${OPT2L} -E mm_chan --xp Gstar" # remove Gstar for mm channel
         MCA="tHq-multilepton/signal_extraction/mca-thq-2lss-mcdata-frdata_limits.txt"
         CUTS="tHq-multilepton/cuts-thq-2lss.txt"
         BINNING="thqMVA_ttv_2lss:thqMVA_tt_2lss 40,-1,1,40,-1,1"
