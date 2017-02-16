@@ -83,9 +83,6 @@ class ShapeCardMaker:
         self.mca = MCAnalysis(mcafile, self.options)
         self.cuts = CutsFile(cutsfile, self.options)
 
-        # allProcs=True: ignores SkipMe=True in mca
-        self.allprocesses = self.mca.listProcesses(allProcs=True)
-
         self.systs = {}
         self.systsEnv = {}
 
@@ -99,7 +96,7 @@ class ShapeCardMaker:
             if self.options.verbose > 0:
                 print "...reading from %s" % self.options.infile
             infile = ROOT.TFile(self.options.infile, "read")
-            for proc in self.allprocesses:
+            for proc in self.mca.listProcesses(allProcs=True): # ignore SkipMe=True in mca
                 histo = infile.Get(proc)
                 try:
                     histo.SetDirectory(0) # will raise ReferenceError if histo doesn't exist
@@ -123,10 +120,11 @@ class ShapeCardMaker:
             self.report['data_obs'].SetDirectory(0)
 
         if self.options.savefile != None:
-            savefile = ROOT.TFile(self.options.savefile, "recreate")
+            tfile = ROOT.TFile(self.options.savefile, "recreate")
             for n,h in self.report.iteritems():
-                savefile.WriteTObject(h,n)
-            savefile.Close()
+                tfile.WriteTObject(h,n)
+            tfile.Close()
+            print "...report written to %s" % self.options.savefile
 
         self.updateAllYields()
 
@@ -226,7 +224,7 @@ class ShapeCardMaker:
         if self.options.verbose: print ("...parsing normalization systs")
         for name, systentries in self.systs.iteritems():
             effmap = {}
-            for proc in self.allprocesses:
+            for proc in self.mca.listProcesses(allProcs=False):
                 effect = "-"
                 for (procmap, amount) in systentries:
                     if re.match(procmap, proc):
@@ -256,7 +254,7 @@ class ShapeCardMaker:
             if not (any([re.match(x+'.*', modes[0]) for x in ["envelop","shapeOnly"]])): continue
             effmap0  = {}
             effmap12 = {}
-            for proc in self.allprocesses:
+            for proc in self.mca.listProcesses(allProcs=False):
                 effect = "-"
                 effect0  = "-"
                 effect12 = "-"
@@ -391,7 +389,7 @@ class ShapeCardMaker:
 
             effmap0  = {}
             effmap12 = {}
-            for proc in self.allprocesses:
+            for proc in self.mca.listProcesses(allProcs=False):
                 effect = "-"
                 effect0  = "-"
                 effect12 = "-"
@@ -443,8 +441,8 @@ class ShapeCardMaker:
                                     self.report[str(p0Up.GetName())[2:]] = p0Up
                                     self.report[str(p0Dn.GetName())[2:]] = p0Dn
 
-                                    effmap0  = {_p:"1" if _p==proc else "-" for _p in self.allprocesses}
-                                    effmap12 = {_p:"1" if _p==proc else "-" for _p in self.allprocesses}
+                                    effmap0  = {_p:"1" if _p==proc else "-" for _p in self.mca.listProcesses(allProcs=False)}
+                                    effmap12 = {_p:"1" if _p==proc else "-" for _p in self.mca.listProcesses(allProcs=False)}
                                     systsEnv2["%s_%s_%s_bin%d"%(name,self.truebinname,proc,binx)] = (effmap0, effmap12, "templates")
                                     break # otherwise you apply more than once to the same bin if more regexps match
 
@@ -474,8 +472,8 @@ class ShapeCardMaker:
                                     self.report[str(p0Up.GetName())[2:]] = p0Up
                                     self.report[str(p0Dn.GetName())[2:]] = p0Dn
 
-                                    effmap0  = {_p:"1" if _p==proc else "-" for _p in self.allprocesses}
-                                    effmap12 = {_p:"1" if _p==proc else "-" for _p in self.allprocesses}
+                                    effmap0  = {_p:"1" if _p==proc else "-" for _p in self.mca.listProcesses(allProcs=False)}
+                                    effmap12 = {_p:"1" if _p==proc else "-" for _p in self.mca.listProcesses(allProcs=False)}
                                     systsEnv2["%s_%s_%s_bin%d_%d"%(name,self.truebinname,proc,binx,biny)] = (effmap0, effmap12, "templates")
                                     break # otherwise you apply more than once to the same bin if more regexps match
 
@@ -663,9 +661,9 @@ if __name__ == '__main__':
 
     # Split the signal processes into different points (using the first '_')
     # and process all of them separately.
-    allsignals = cardMaker.mca.listSignals(allProcs=True)
+    allsignals = cardMaker.mca.listSignals(allProcs=False) # exclude the systematics variations
     points = sorted(list(set([p.split('_',2)[2] for p in allsignals])))
-
+    print "...processing the following signal points: %s" % repr(points)
     for point in points:
         signals = ['tHq_hww_%s'%point, 'tHW_hww_%s'%point]
         if options.asimov:
