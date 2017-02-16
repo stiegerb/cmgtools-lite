@@ -66,21 +66,21 @@ case "$CHANNEL" in
         MCA="tHq-multilepton/signal_extraction/mca-thq-2lss-mcdata-frdata_limits.txt"
         CUTS="tHq-multilepton/cuts-thq-2lss.txt"
         BINNING="thqMVA_ttv_2lss:thqMVA_tt_2lss 40,-1,1,40,-1,1"
-        FUNCTION="--2d-binning-function 12:tHq_MVAto1D_3l_12"
+        FUNCTION="--2d-binning-function 10:tHq_MVAto1D_2lss_10"
         ;;
     "2lss_em" )
         OPTIONS="${OPTIONS} ${OPT2L} -E em_chan"
         MCA="tHq-multilepton/signal_extraction/mca-thq-2lss-mcdata-frdata_limits.txt"
         CUTS="tHq-multilepton/cuts-thq-2lss.txt"
         BINNING="thqMVA_ttv_2lss:thqMVA_tt_2lss 40,-1,1,40,-1,1"
-        FUNCTION="--2d-binning-function 12:tHq_MVAto1D_2lss_12"
+        FUNCTION="--2d-binning-function 10:tHq_MVAto1D_2lss_10"
         ;;
     "2lss_ee" )
         OPTIONS="${OPTIONS} ${OPT2L} -E ee_chan"
         MCA="tHq-multilepton/signal_extraction/mca-thq-2lss-mcdata-frdata_limits.txt"
         CUTS="tHq-multilepton/cuts-thq-2lss.txt"
         BINNING="thqMVA_ttv_2lss:thqMVA_tt_2lss 40,-1,1,40,-1,1"
-        FUNCTION="--2d-binning-function 12:tHq_MVAto1D_2lss_12"
+        FUNCTION="--2d-binning-function 10:tHq_MVAto1D_2lss_10"
         ;;
     *)
         echo "${USAGE}"
