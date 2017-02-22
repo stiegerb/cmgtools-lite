@@ -95,6 +95,12 @@ case "$PLOTTAG" in
         CUTS="tHq-multilepton/cuts-thq-2lss.txt"
         PLOTS="tHq-multilepton/plots-thq-2lss-kinMVA.txt"
         ;;
+    "2lss-ttcontrol" )
+        OPTIONS="${OPTIONS} ${DRAWOPTIONS} ${OPT2L}"
+        MCA="tHq-multilepton/mca-thq-2lss-mcdata-frdata.txt"
+        CUTS="tHq-multilepton/cuts-thq-2lss-ttbarcontrol.txt"
+        PLOTS="tHq-multilepton/plots-thq-2lss-kinMVA.txt"
+        ;;
     "2lss-mm-ttcontrol" )
         OPTIONS="${OPTIONS} ${DRAWOPTIONS} ${OPT2L} -E mm_chan"
         MCA="tHq-multilepton/mca-thq-2lss-mcdata-frdata.txt"

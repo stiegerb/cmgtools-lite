@@ -1,39 +1,39 @@
 # Luminosity
-lumi_13TeV  : tH[qW].*|tt[HWZ]|WZ|Rares|Gstar|WWss|Convs : .* : 1.06
+lumi_13TeV  : tH[qW].*|ttH.*|tt[WZ]|WZ|Rares|Gstar|WWss|Convs : .* : 1.06
 
 # Lepton efficiencies
-CMS_ttHl_lepEff_muloose : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss_mm.* : 1.04
-CMS_ttHl_lepEff_muloose : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss_em.*|.*2lss_me.* : 1.02
-CMS_ttHl_lepEff_muloose : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*3l.* : 1.03
+CMS_ttHl_lepEff_muloose : tH[qW].*|ttH.*|tt[WZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss_mm.* : 1.04
+CMS_ttHl_lepEff_muloose : tH[qW].*|ttH.*|tt[WZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss_em.*|.*2lss_me.* : 1.02
+CMS_ttHl_lepEff_muloose : tH[qW].*|ttH.*|tt[WZ]|Rares|WZ|Gstar|WWss|Convs : .*3l.* : 1.03
 
 # To be replaced by below FIXME
-CMS_ttHl_lepEff_elloose : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss_ee.* : 1.04
-CMS_ttHl_lepEff_elloose : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss_em.*|.*2lss_me.* : 1.02
-CMS_ttHl_lepEff_elloose : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*3l.* : 1.04
+CMS_ttHl_lepEff_elloose : tH[qW].*|ttH.*|tt[WZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss_ee.* : 1.04
+CMS_ttHl_lepEff_elloose : tH[qW].*|ttH.*|tt[WZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss_em.*|.*2lss_me.* : 1.02
+CMS_ttHl_lepEff_elloose : tH[qW].*|ttH.*|tt[WZ]|Rares|WZ|Gstar|WWss|Convs : .*3l.* : 1.04
 # CMS_ttHl_lepEff_elloose : ttH.*|tt[WZ]|Rares|Gstar|WWss|Convs : .* : elLooseUnc : templates
 
-CMS_ttHl_lepEff_tight   : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss.* : 1.06
-CMS_ttHl_lepEff_tight   : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*3l.* : 1.09
+CMS_ttHl_lepEff_tight   : tH[qW].*|ttH.*|tt[WZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss.* : 1.06
+CMS_ttHl_lepEff_tight   : tH[qW].*|ttH.*|tt[WZ]|Rares|WZ|Gstar|WWss|Convs : .*3l.* : 1.09
 
 # Trigger efficiencies
-CMS_ttHl_trigger_ee     : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss_ee.* : 1.03
-CMS_ttHl_trigger_em     : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss_em.*|.*2lss_me.* : 1.02
-CMS_ttHl_trigger_mm     : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss_mm.* : 1.01
-CMS_ttHl_trigger_3l     : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .*3l.* : 1.09
+CMS_ttHl_trigger_ee     : tH[qW].*|ttH.*|tt[WZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss_ee.* : 1.03
+CMS_ttHl_trigger_em     : tH[qW].*|ttH.*|tt[WZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss_em.*|.*2lss_me.* : 1.02
+CMS_ttHl_trigger_mm     : tH[qW].*|ttH.*|tt[WZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss_mm.* : 1.01
+CMS_ttHl_trigger_3l     : tH[qW].*|ttH.*|tt[WZ]|Rares|WZ|Gstar|WWss|Convs : .*3l.* : 1.09
 
 # JES
-CMS_tHql_JES    : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .* : jec    : templates
-CMS_tHql_fwdJet : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .* : fwdJet : alternateShapeOnly
+CMS_tHql_JES    : tH[qW].*|ttH.*|tt[WZ]|Rares|WZ|Gstar|WWss|Convs : .* : jec    : templates
+CMS_tHql_fwdJet : tH[qW].*|ttH.*|tt[WZ]|Rares|WZ|Gstar|WWss|Convs : .* : fwdJet : alternateShapeOnly
 
 # btag
-CMS_ttHl_btag_LF       : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .* : bTag_LF       : templates
-CMS_ttHl_btag_HF       : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .* : bTag_HF       : templates
-CMS_ttHl_btag_HFStats1 : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .* : bTag_HFStats1 : templates
-CMS_ttHl_btag_HFStats2 : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .* : bTag_HFStats2 : templates 
-CMS_ttHl_btag_LFStats1 : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .* : bTag_LFStats1 : templates
-CMS_ttHl_btag_LFStats2 : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .* : bTag_LFStats2 : templates
-CMS_ttHl_btag_cErr1    : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .* : bTag_cErr1    : templates
-CMS_ttHl_btag_cErr2    : tH[qW].*|tt[HWZ]|Rares|WZ|Gstar|WWss|Convs : .* : bTag_cErr2    : templates
+CMS_ttHl_btag_LF       : tH[qW].*|ttH.*|tt[WZ]|Rares|WZ|Gstar|WWss|Convs : .* : bTag_LF       : templates
+CMS_ttHl_btag_HF       : tH[qW].*|ttH.*|tt[WZ]|Rares|WZ|Gstar|WWss|Convs : .* : bTag_HF       : templates
+CMS_ttHl_btag_HFStats1 : tH[qW].*|ttH.*|tt[WZ]|Rares|WZ|Gstar|WWss|Convs : .* : bTag_HFStats1 : templates
+CMS_ttHl_btag_HFStats2 : tH[qW].*|ttH.*|tt[WZ]|Rares|WZ|Gstar|WWss|Convs : .* : bTag_HFStats2 : templates 
+CMS_ttHl_btag_LFStats1 : tH[qW].*|ttH.*|tt[WZ]|Rares|WZ|Gstar|WWss|Convs : .* : bTag_LFStats1 : templates
+CMS_ttHl_btag_LFStats2 : tH[qW].*|ttH.*|tt[WZ]|Rares|WZ|Gstar|WWss|Convs : .* : bTag_LFStats2 : templates
+CMS_ttHl_btag_cErr1    : tH[qW].*|ttH.*|tt[WZ]|Rares|WZ|Gstar|WWss|Convs : .* : bTag_cErr1    : templates
+CMS_ttHl_btag_cErr2    : tH[qW].*|ttH.*|tt[WZ]|Rares|WZ|Gstar|WWss|Convs : .* : bTag_cErr2    : templates
 
 # Statistical fluctuations of all templates
 CMS_ttHl_templstat : .* : .* : 1.0 : stat_foreach_shape_bins : .*
