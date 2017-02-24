@@ -1,3 +1,4 @@
+#define __BLOOSE__WORKING__POINT__ 0.5426
 #define __BMEDIUM__WORKING__POINT__ 0.8484
 
 #include <vector>
@@ -140,8 +141,8 @@ void BDTv8_eventReco::Init(std::string weight_file_name_bloose, std::string weig
 
   TMVAReader_Hj_ = new TMVA::Reader( "!Color:!Silent" );
   TMVAReader_Hj_->AddVariable( "Jet_lepdrmin", &iv1_1);
-  TMVAReader_Hj_->AddVariable( "Jet_pfCombinedInclusiveSecondaryVertexV2BJetTags", &iv1_2);
-  TMVAReader_Hj_->AddVariable( "Jet_qg", &iv1_3);
+  TMVAReader_Hj_->AddVariable( "max(Jet_pfCombinedInclusiveSecondaryVertexV2BJetTags,0.)", &iv1_2);
+  TMVAReader_Hj_->AddVariable( "max(Jet_qg,0.)", &iv1_3);
   TMVAReader_Hj_->AddVariable( "Jet_lepdrmax", &iv1_4);
   TMVAReader_Hj_->AddVariable( "Jet_pt", &iv1_5);
   TMVAReader_Hj_->BookMVA("BDTG method", weight_file_name_Hj);
@@ -332,10 +333,10 @@ std::vector<float> BDTv8_eventReco::CalcHadTopTagger(char* _permlep, char* _x){
 	//      BDTv8_eventReco_Jet *wjet2_fromHadTop = ((int)(_x[3])>=0) ? jets[(int)(_x[3])] : nulljet;
       
 	if (bjet_fromHadTop==nulljet && bjet_fromLepTop==nulljet) return std::vector<float>(1,this_hadTop_value);
-	if (nBMedium>1 && std::min(bjet_fromHadTop->csv,bjet_fromLepTop->csv)<0.8) return std::vector<float>(1,this_hadTop_value);
-	if (bjet_fromHadTop->csv>0 && bjet_fromHadTop->csv<0.46) return std::vector<float>(1,this_hadTop_value);
-	if (bjet_fromLepTop->csv>0 && bjet_fromLepTop->csv<0.46) return std::vector<float>(1,this_hadTop_value);
-	if (std::max(bjet_fromHadTop->csv,bjet_fromLepTop->csv)<0.80 && std::min(bjet_fromHadTop->csv,bjet_fromLepTop->csv)<0.46) return std::vector<float>(1,this_hadTop_value);
+	if (nBMedium>1 && std::min(bjet_fromHadTop->csv,bjet_fromLepTop->csv)<__BMEDIUM__WORKING__POINT__) return std::vector<float>(1,this_hadTop_value);
+	if (bjet_fromHadTop->csv>0 && bjet_fromHadTop->csv<__BLOOSE__WORKING__POINT__) return std::vector<float>(1,this_hadTop_value);
+	if (bjet_fromLepTop->csv>0 && bjet_fromLepTop->csv<__BLOOSE__WORKING__POINT__) return std::vector<float>(1,this_hadTop_value);
+	if (std::max(bjet_fromHadTop->csv,bjet_fromLepTop->csv)<__BMEDIUM__WORKING__POINT__ && std::min(bjet_fromHadTop->csv,bjet_fromLepTop->csv)<__BLOOSE__WORKING__POINT__) return std::vector<float>(1,this_hadTop_value);
 
 	auto hadTop_W = CalcJetComb(&done_jetcomb,_x[2],_x[3]);
 	auto hadTop = CalcJetComb(&done_jetcomb,_x[2],_x[3],_x[0]);
@@ -414,8 +415,8 @@ std::vector<float> BDTv8_eventReco::CalcHjTagger(char* _permlep, char* _x, std::
       float dr_lep1 = dR(lep_fromHig,jet_fromHiggs);
 	
       iv1_1 = std::min(dr_lep0,dr_lep1);
-      iv1_2 = jet_fromHiggs->csv;
-      iv1_3 = jet_fromHiggs->qgl;
+      iv1_2 = std::max(jet_fromHiggs->csv,float(0));
+      iv1_3 = std::max(jet_fromHiggs->qgl,float(0));
       iv1_4 = std::max(dr_lep0,dr_lep1);
       iv1_5 = jet_fromHiggs->p4.Pt();
 	
