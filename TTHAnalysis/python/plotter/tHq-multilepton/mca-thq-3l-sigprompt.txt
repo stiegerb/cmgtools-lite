@@ -1,8 +1,8 @@
 signals: + ; IncludeMca="tHq-multilepton/mca-thq-3l-signal_reweightings.txt"
 
-ttW     : TTWToLNu_ext+TTWToLNu_ext2                                  : 0.196        : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kGreen-5,   Label='t\#bar{t}W'
-ttZ     : TTZToLLNuNu                                                 : 0.2526       : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+2,  Label='t\#bar{t}Z'
-ttZ     : TTZToLLNuNu_m1to10                                          : xsec         : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+2,  Label='t\#bar{t}Z'
+ttW     : TTWToLNu_ext_LHE+TTWToLNu_ext2_LHE                          : 0.196        : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kGreen-5,   Label='t\#bar{t}W'
+ttZ     : TTZToLLNuNu_LHE                                             : 0.2526       : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+2,  Label='t\#bar{t}Z'
+ttZ     : TTZToLLNuNu_m1to10_LHE                                      : xsec         : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+2,  Label='t\#bar{t}Z'
 ttZ	    : TTJets_DiLepton                                             : xsec         : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+2,  Label='t\#bar{t}Z'
 ttZ     : TTJets_SingleLeptonFromT+TTJets_SingleLeptonFromT_ext       : xsec         : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+2,  Label='t\#bar{t}Z'
 ttZ     : TTJets_SingleLeptonFromTbar+TTJets_SingleLeptonFromTbar_ext : xsec         : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+2,  Label='t\#bar{t}Z'
@@ -20,11 +20,11 @@ Rares   : ZZTo4L   :     xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 &
 
 # WWss  : WpWpJJ     : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kMagenta-10, Label='W^{\#pm}W^{\#pm}qq'
 # WWss  : WWDouble   : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kMagenta-11, Label='W^{\#pm}W^{\#pm} (DPS)'
-Rares : WWW        : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kMagenta-6, Label='VVV'
-Rares : WWZ        : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kMagenta-6, Label='VVV'
-Rares : WZZ        : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kMagenta-6, Label='VVV'
-Rares : ZZZ        : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kMagenta-6, Label='VVV'
-Rares : TTTT       : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kMagenta-7, Label='t\#bar{t}t\#bar{t}'
-Rares : tZq_ll_ext : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kMagenta-8, Label='tZq'
-Rares : tWll       : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kMagenta-9, Label='tZW'
+Rares : WWW                 : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kMagenta-6, Label='VVV'
+Rares : WWZ                 : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kMagenta-6, Label='VVV'
+Rares : WZZ                 : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kMagenta-6, Label='VVV'
+Rares : ZZZ                 : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kMagenta-6, Label='VVV'
+Rares : TTTT                : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kMagenta-7, Label='t\#bar{t}t\#bar{t}'
+Rares : tZq_ll_ext_highstat : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kMagenta-8, Label='tZq'
+Rares : tWll                : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kMagenta-9, Label='tZW'
 

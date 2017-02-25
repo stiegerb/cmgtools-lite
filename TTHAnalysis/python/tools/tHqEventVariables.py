@@ -7,7 +7,7 @@ from math import log, exp
 
 from CMGTools.TTHAnalysis.treeReAnalyzer import Collection
 from itertools import combinations
-from PhysicsTools.HeppyCore.utils.deltar import deltaPhi, deltaR
+from PhysicsTools.HeppyCore.utils.deltar import deltaPhi, deltaR, deltaR2
 
 
 BTAGWP = 0.5426 # 0.8484 is for medium tags
@@ -34,50 +34,71 @@ def getCorrectedJetPt(jet, jec_syst=""):
         "_jecDown" : jet.pt * jet.corr_JECDown/jet.corr,
     }[jec_syst]
 
+
+def myBestMatch( object, matchCollection):
+    '''Return the best match to object in matchCollection, which is the closest object in delta R'''
+    deltaR2Min = float('+inf')
+    bm = None
+    for match in matchCollection:
+        try:
+            oeta, ophi, meta, mphi = object.eta(), object.phi(), match.eta(), match.phi()
+        except TypeError:
+            oeta, ophi, meta, mphi = object.eta, object.phi, match.eta, match.phi
+
+        dR2 = deltaR2( oeta, ophi, meta, mphi )
+        if dR2 < deltaR2Min:
+            deltaR2Min = dR2
+            bm = match
+    return bm, deltaR2Min
+
 class tHqEventVariableFriend:
     def __init__(self):
-        self.jecsysts = ["", "_jecUp", "_jecDown"] # Not sure we actually need these (only eta dependence)
+        self.jecsysts = ["", "_jecUp", "_jecDown"]
+        self.fwdjetptcuts = [(25., ""), (30.,"_30"), (40.,"_40")] # forward jet pt cut
         self.branches = [] # (branchname, default value)
         self.branches.append(("dPhiHighestPtSSPair", -99.9)) # delta phi highest pt same sign lepton pair
         self.branches.append(("minDRll", -99.9)) # minimum deltaR between all leptons
-        for jecsyst in self.jecsysts:
-            self.branches.append(("maxEtaJet25"+jecsyst, -99.9)) # max eta of any non-tagged jet
-            self.branches.append(("fwdJetPt25"+jecsyst, -99.9)) # pt of the non-tagged jet with max eta
-            self.branches.append(("nJetEta1"+jecsyst, -99.9)) # number of jets with |eta|>1.0
-            self.branches.append(("dEtaFwdJetBJet"+jecsyst, -99.9)) # delta eta: max fwd jet and hardest bjet
-            self.branches.append(("dEtaFwdJetClosestLep"+jecsyst,-99.9)) # delta eta: max fwd jet and closest lepton
-            self.branches.append(("maxEtaBJet"+jecsyst, -99.9)) # max eta of the hardest Bjet
-            self.branches.append(("maxEta2BJet"+jecsyst, -99.9)) # max Eta of the second hardest Bjet
-            self.branches.append(("dEtaFwdJet2BJet"+jecsyst, -99.9)) # delta eta: max fwd jet and second hardest bjet
-            self.branches.append(("dEtaBJet2BJet"+jecsyst, -99.9)) # delta eta: hardest bjet and second hardest bjet
+        for ptcut, ptcutlabel in self.fwdjetptcuts:
+            for jecsyst in self.jecsysts:
+                self.branches.append(("maxEtaJet25%s%s"%(ptcutlabel,jecsyst), -99.9)) # max eta of any non-tagged jet
+                self.branches.append(("fwdJetPt25%s%s"%(ptcutlabel,jecsyst), -99.9)) # pt of the non-tagged jet with max eta
+                self.branches.append(("fwdJetPUID%s%s"%(ptcutlabel,jecsyst), -99.9)) # pileup id of the non-tagged jet with max eta
+                self.branches.append(("nJetEta1%s%s"%(ptcutlabel,jecsyst), -99.9)) # number of jets with |eta|>1.0
+                self.branches.append(("dEtaFwdJetBJet%s%s"%(ptcutlabel,jecsyst), -99.9)) # delta eta: max fwd jet and hardest bjet
+                self.branches.append(("dEtaFwdJetClosestLep%s%s"%(ptcutlabel,jecsyst),-99.9)) # delta eta: max fwd jet and closest lepton
+                self.branches.append(("maxEtaBJet%s%s"%(ptcutlabel,jecsyst), -99.9)) # max eta of the hardest Bjet
+                self.branches.append(("maxEta2BJet%s%s"%(ptcutlabel,jecsyst), -99.9)) # max Eta of the second hardest Bjet
+                self.branches.append(("dEtaFwdJet2BJet%s%s"%(ptcutlabel,jecsyst), -99.9)) # delta eta: max fwd jet and second hardest bjet
+                self.branches.append(("dEtaBJet2BJet%s%s"%(ptcutlabel,jecsyst), -99.9)) # delta eta: hardest bjet and second hardest bjet
 
         # Signal MVA
         self.mvavars = {}
-        for jecsyst in self.jecsysts:
-            self.mvavars['3l'+jecsyst] = [
-                MVAVar(name="nJet25%s_Recl"%jecsyst),
-                MVAVar(name="nJetEta1"+jecsyst),
-                MVAVar(name="maxEtaJet25"+jecsyst),
-                MVAVar(name="dEtaFwdJetBJet"+jecsyst),
-                MVAVar(name="dEtaFwdJetClosestLep"+jecsyst),
-                MVAVar(name="dPhiHighestPtSSPair"),
-                MVAVar(name="LepGood_conePt[iLepFO_Recl[2]]"),
-                MVAVar(name="minDRll"),
-                MVAVar(name="LepGood_charge[iLepFO_Recl[0]]+LepGood_charge[iLepFO_Recl[1]]+LepGood_charge[iLepFO_Recl[2]]"),
-                MVAVar(name="dEtaFwdJet2BJet"+jecsyst),
-            ]
-            self.mvavars['2lss'+jecsyst] = [
-                MVAVar(name="nJet25%s_Recl"%jecsyst),
-                MVAVar(name="nJetEta1"+jecsyst),
-                MVAVar(name="maxEtaJet25"+jecsyst),
-                MVAVar(name="dEtaFwdJetBJet"+jecsyst),
-                MVAVar(name="dEtaFwdJetClosestLep"+jecsyst),
-                MVAVar(name="dPhiHighestPtSSPair"),
-                MVAVar(name="LepGood_conePt[iLepFO_Recl[1]]"),
-                MVAVar(name="minDRll"),
-                MVAVar(name="LepGood_charge[iLepFO_Recl[0]]+LepGood_charge[iLepFO_Recl[1]]"),
-                MVAVar(name="dEtaFwdJet2BJet"+jecsyst),
-            ]
+        for ptcut, ptcutlabel in self.fwdjetptcuts:
+            for jecsyst in self.jecsysts:
+                self.mvavars['3l%s%s'%(ptcutlabel,jecsyst)] = [
+                    MVAVar(name="nJet25%s_Recl"%jecsyst),
+                    MVAVar(name="nJetEta1%s%s"%(ptcutlabel,jecsyst)),
+                    MVAVar(name="maxEtaJet25%s%s"%(ptcutlabel,jecsyst)),
+                    MVAVar(name="dEtaFwdJetBJet%s%s"%(ptcutlabel,jecsyst)),
+                    MVAVar(name="dEtaFwdJetClosestLep%s%s"%(ptcutlabel,jecsyst)),
+                    MVAVar(name="dPhiHighestPtSSPair"),
+                    MVAVar(name="LepGood_conePt[iLepFO_Recl[2]]"),
+                    MVAVar(name="minDRll"),
+                    MVAVar(name="LepGood_charge[iLepFO_Recl[0]]+LepGood_charge[iLepFO_Recl[1]]+LepGood_charge[iLepFO_Recl[2]]"),
+                    MVAVar(name="dEtaFwdJet2BJet%s%s"%(ptcutlabel,jecsyst)),
+                ]
+                self.mvavars['2lss%s%s'%(ptcutlabel,jecsyst)] = [
+                    MVAVar(name="nJet25%s_Recl"%jecsyst),
+                    MVAVar(name="nJetEta1%s%s"%(ptcutlabel,jecsyst)),
+                    MVAVar(name="maxEtaJet25%s%s"%(ptcutlabel,jecsyst)),
+                    MVAVar(name="dEtaFwdJetBJet%s%s"%(ptcutlabel,jecsyst)),
+                    MVAVar(name="dEtaFwdJetClosestLep%s%s"%(ptcutlabel,jecsyst)),
+                    MVAVar(name="dPhiHighestPtSSPair"),
+                    MVAVar(name="LepGood_conePt[iLepFO_Recl[1]]"),
+                    MVAVar(name="minDRll"),
+                    MVAVar(name="LepGood_charge[iLepFO_Recl[0]]+LepGood_charge[iLepFO_Recl[1]]"),
+                    MVAVar(name="dEtaFwdJet2BJet%s%s"%(ptcutlabel,jecsyst)),
+                ]
 
         self.mvaspectators = [
             MVAVar(name="iLepFO_Recl[0]"),
@@ -99,8 +120,9 @@ class tHqEventVariableFriend:
                                      "src/CMGTools/TTHAnalysis/data/kinMVA/thq/",
                                      "thq_vs_%s_%s_BDTG.weights.xml"%(backgr,channel))
                 self.tmvaReaders[channel].BookMVA("BDTG_"+backgr, wfile)
-                for jecsyst in self.jecsysts:
-                    self.branches.append(("thqMVA_%s_%s%s"%(backgr,channel,jecsyst), -99.9))
+                for ptcut, ptcutlabel in self.fwdjetptcuts:
+                    for jecsyst in self.jecsysts:
+                        self.branches.append(("thqMVA_%s_%s%s%s"%(backgr,channel,ptcutlabel,jecsyst), -99.9))
 
     def listBranches(self):
         """Return a list of branch names that are added"""
@@ -150,49 +172,58 @@ class tHqEventVariableFriend:
         if len(lepdrs):
             ret['minDRll'] = min(lepdrs)
 
-        for jecsyst in self.jecsysts:
-            # Get jet collections
-            jets  = self.getJetCollection(event, jec_syst=jecsyst)
-            fjets = self.getJetCollection(event, jec_syst=jecsyst, coll="JetFwdSel")
-            bjets = [j for j in jets if j.btagCSV > BTAGWP]
-            bjets.sort(key=lambda x:x.pt, reverse=True)
+        for ptcut,ptcutlabel in self.fwdjetptcuts:
+            for jecsyst in self.jecsysts:
+                # Get jet collections
+                jets  = self.getJetCollection(event, jec_syst=jecsyst, coll="JetSel")
+                fjets = self.getJetCollection(event, jec_syst=jecsyst, coll="JetFwdSel", ptcut=ptcut)
+                bjets = [j for j in jets if j.btagCSV > BTAGWP]
+                bjets.sort(key=lambda x:x.pt, reverse=True)
 
-            # All non-btagged jets with pt > 25 GeV
-            light_jets =  [j for j in jets  if j.btagCSV < BTAGWP]
-            light_jets += [j for j in fjets if j.btagCSV < BTAGWP]
-            # Note that some fwd jets have btag values > 0 up to eta 3.05 or so
-            light_jets.sort(key=lambda x:x.pt, reverse=True)
+                # All non-btagged jets with pt > 25 GeV
+                light_jets =  [j for j in jets  if j.btagCSV < BTAGWP]
+                light_jets += [j for j in fjets if j.btagCSV < BTAGWP]
+                # Note that some fwd jets have btag values > 0 up to eta 3.05 or so
+                light_jets.sort(key=lambda x:x.pt, reverse=True)
 
-            # Get the most forward of these save its value
-            if len(light_jets):
-                maxjet = sorted(light_jets, key=lambda x:abs(x.eta), reverse=True)[0]
-                ret['maxEtaJet25'+jecsyst] = abs(maxjet.eta)
-                ret['fwdJetPt25'+jecsyst] = maxjet.pt
-                if len(bjets):
-                    ret['dEtaFwdJetBJet'+jecsyst] = abs(maxjet.eta - bjets[0].eta)
+                # Get the most forward of these save its value
+                if len(light_jets):
+                    maxjet = sorted(light_jets, key=lambda x:abs(x.eta), reverse=True)[0]
+                    ret['maxEtaJet25%s%s'%(ptcutlabel,jecsyst)] = abs(maxjet.eta)
+                    ret['fwdJetPt25%s%s'%(ptcutlabel,jecsyst)] = maxjet.pt
 
-                if len(bjets)>1:
-                    ret['dEtaFwdJet2BJet'+jecsyst] = abs(maxjet.eta - bjets[1].eta)
-                    
-                else: 
-                    ret['dEtaFwdJet2BJet'+jecsyst] = -1.0
+                    # Something really stupid, but better than running recleaner again for one variable
+                    origJet, drmin = myBestMatch(maxjet, Collection(event, "Jet", "nJet"))
+                    if drmin > 0:
+                        origJet, drmin = myBestMatch(maxjet, Collection(event, "JetFwd", "nJetFwd"))
+                        if drmin > 0: raise RuntimeError("Matching to original jet failed somehow")
+                    ret['fwdJetPUID%s%s'%(ptcutlabel,jecsyst)] = origJet.puId
 
-                if len(leptons):
-                    detas = [abs(lep.eta - maxjet.eta) for lep in leptons]
-                    ret['dEtaFwdJetClosestLep'+jecsyst] = sorted(detas)[0]
+                    if len(bjets):
+                        ret['dEtaFwdJetBJet%s%s'%(ptcutlabel,jecsyst)] = abs(maxjet.eta - bjets[0].eta)
 
-            ret['nJetEta1'+jecsyst] = len([j for j in light_jets if abs(j.eta) > 1.0])
+                    if len(bjets)>1:
+                        ret['dEtaFwdJet2BJet%s%s'%(ptcutlabel,jecsyst)] = abs(maxjet.eta - bjets[1].eta)
+                        
+                    else: 
+                        ret['dEtaFwdJet2BJet%s%s'%(ptcutlabel,jecsyst)] = -1.0
 
-            if(bjets):
-                ret['maxEtaBJet'+jecsyst] = abs(bjets[0].eta)
-                            
-                if len(bjets)>1:
-                    ret['maxEta2BJet'+jecsyst] = abs(bjets[1].eta)
-                    ret['dEtaBJet2BJet'+jecsyst] = abs(bjets[0].eta - bjets[1].eta)
+                    if len(leptons):
+                        detas = [abs(lep.eta - maxjet.eta) for lep in leptons]
+                        ret['dEtaFwdJetClosestLep%s%s'%(ptcutlabel,jecsyst)] = sorted(detas)[0]
 
-                else:
-                    ret['maxEta2BJet'+jecsyst] = -1.0
-                    ret['dEtaBJet2BJet'+jecsyst] = -1.0
+                ret['nJetEta1%s%s'%(ptcutlabel,jecsyst)] = len([j for j in light_jets if abs(j.eta) > 1.0])
+
+                if(bjets):
+                    ret['maxEtaBJet%s%s'%(ptcutlabel,jecsyst)] = abs(bjets[0].eta)
+                                
+                    if len(bjets)>1:
+                        ret['maxEta2BJet%s%s'%(ptcutlabel,jecsyst)] = abs(bjets[1].eta)
+                        ret['dEtaBJet2BJet%s%s'%(ptcutlabel,jecsyst)] = abs(bjets[0].eta - bjets[1].eta)
+
+                    else:
+                        ret['maxEta2BJet%s%s'%(ptcutlabel,jecsyst)] = -1.0
+                        ret['dEtaBJet2BJet%s%s'%(ptcutlabel,jecsyst)] = -1.0
 
         # Fix total charge for non-same sign events (for charge flips)
         br_lepcharge = "LepGood_charge[iLepFO_Recl[0]]+LepGood_charge[iLepFO_Recl[1]]" 
@@ -208,14 +239,17 @@ class tHqEventVariableFriend:
             for backgr in ['tt', 'ttv']:
                 ret["thqMVA_%s_%s"%(backgr,channel)] = self.tmvaReaders[channel].EvaluateMVA("BDTG_"+backgr)
 
-                # Systematics
-                for jecsyst in self.jecsysts[1:]:
-                    inputVec = ROOT.vector('double')()
-                    for mvavar in self.mvavars[channel+jecsyst]:
-                        mvavar.set(event, ret)
-                        inputVec.push_back(mvavar.var[0])
-    
-                    ret["thqMVA_%s_%s%s"%(backgr,channel,jecsyst)] = self.tmvaReaders[channel].EvaluateMVA(inputVec,"BDTG_"+backgr)
+                # Systematics and other fwd jet pt cuts
+                for ptcut,ptcutlabel in self.fwdjetptcuts:
+                    for jecsyst in self.jecsysts:
+                        # skip 25 GeV pt and central value (already filled)
+                        if ptcut == 25. and jecsyst == "": continue
+                        inputVec = ROOT.vector('double')()
+                        for mvavar in self.mvavars[channel+ptcutlabel+jecsyst]:
+                            mvavar.set(event, ret)
+                            inputVec.push_back(mvavar.var[0])
+        
+                        ret["thqMVA_%s_%s%s%s"%(backgr,channel,ptcutlabel,jecsyst)] = self.tmvaReaders[channel].EvaluateMVA(inputVec,"BDTG_"+backgr)
                         
                         # print ret["thqMVA_%s_%s"%(backgr,channel)]
                         # print self.tmvaReaders[channel].EvaluateMVA(inputVec, "BDTG_"+backgr)

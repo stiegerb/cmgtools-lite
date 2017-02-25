@@ -31,9 +31,9 @@ BASEOPTIONS=" -f -j 8 -l ${LUMI} --s2v"\
 " -L tHq-multilepton/functionsTHQ.cc"\
 " --tree treeProducerSusyMultilepton"\
 " --mcc ttH-multilepton/lepchoice-ttH-FO.txt"
-TREEINPUTS="-P thqtrees/TREES_TTH_250117_Summer16_JECV3_noClean_qgV2_tHqsoup/"
-FRIENDTREES=" -F sf/t thqtrees/tHq_production_Jan25/1_thq_recleaner_030217/evVarFriend_{cname}.root"\
-" -F sf/t thqtrees/tHq_production_Jan25/2_thq_friends_Feb14/evVarFriend_{cname}.root"\
+TREEINPUTS="-P thqtrees/TREES_TTH_250117_Summer16_JECV3_noClean_qgV2_tHqsoup_v2/"
+FRIENDTREES=" -F sf/t thqtrees/tHq_production_Jan25/1_thq_recleaner_240217/evVarFriend_{cname}.root"\
+" -F sf/t thqtrees/tHq_production_Jan25/2_thq_friends_Feb24/evVarFriend_{cname}.root"\
 " -F sf/t thqtrees/tHq_production_Jan25/5_triggerDecision_250117_v1/evVarFriend_{cname}.root"\
 " -F sf/t thqtrees/tHq_production_Jan25/6_bTagSF_v2/evVarFriend_{cname}.root"
 DRAWOPTIONS="--lspam '#bf{CMS} #it{Preliminary}' --legendWidth 0.20 --legendFontSize 0.035"\
