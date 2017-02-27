@@ -37,6 +37,8 @@ tttt  : TTTT                : xsec : LepGood1_isMatchRightCharge && LepGood2_isM
 tZq   : tZq_ll_ext_highstat : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kMagenta-8, Label='tZq'
 tZW   : tWll                : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kMagenta-9, Label='tZW'
 
+incl_convs     : + ; IncludeMca="ttH-multilepton/mca-includes/mca-2lss-convs.txt"
+
 incl_data : + ; IncludeMca="ttH-multilepton/mca-includes/mca-data.txt"
 
 incl_datafakes  : + ; IncludeMca="ttH-multilepton/mca-includes/mca-data.txt", FakeRate="ttH-multilepton/fakeRate-2lss-frdata.txt", Label="Fakes", FillColor=ROOT.kBlack, FillStyle=3005, NormSystematic=0.35, PostFix='_fakes'
