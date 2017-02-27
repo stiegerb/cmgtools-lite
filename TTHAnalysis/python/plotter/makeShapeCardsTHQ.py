@@ -185,7 +185,7 @@ class ShapeCardMaker:
                     systs[name].append( (re.compile(procmap+"$"), amount) )
 
                 # Shape systematics
-                elif field[4] in ["envelop","shapeOnly","templates",
+                elif field[4] in ["envelop","shapeOnly","templates","templatesShapeOnly",
                                   "alternateShape","alternateShapeOnly"] or '2D' in field[4]:
                     (name, procmap, binmap, amount) = field[:4]
                     if re.match(binmap+"$", self.truebinname) == None: continue
@@ -264,7 +264,7 @@ class ShapeCardMaker:
                     procmap, amount, mode = entry[:3]
                     if re.match(procmap, proc):
                         effect = amount
-                        if mode not in ["templates", "alternateShape", "alternateShapeOnly"]:
+                        if mode not in ["templates", "templatesShapeOnly", "alternateShape", "alternateShapeOnly"]:
                             effect = float(amount)
 
                 if (self.mca._projection != None and
@@ -402,7 +402,7 @@ class ShapeCardMaker:
                     procmap,amount,mode = entry[:3]
                     if re.match(procmap, proc):
                         effect = amount
-                        if mode not in ["templates","alternateShape", "alternateShapeOnly"]:
+                        if mode not in ["templates", "templatesShapeOnly", "alternateShape", "alternateShapeOnly"]:
                             effect = float(amount)
                         morefields = entry[3:]
 
@@ -482,7 +482,7 @@ class ShapeCardMaker:
                                     systsEnv2["%s_%s_%s_bin%d_%d"%(name,self.truebinname,proc,binx,biny)] = (effmap0, effmap12, "templates")
                                     break # otherwise you apply more than once to the same bin if more regexps match
 
-                elif mode in ["templates"]:
+                elif mode in ["templates", "templatesShapeOnly"]:
                     nominal = self.report[proc]
                     p0Up = self.report["%s_%s_Up" % (proc, effect)]
                     p0Dn = self.report["%s_%s_Dn" % (proc, effect)]
@@ -509,6 +509,9 @@ class ShapeCardMaker:
                             if p0Up.Integral()>0: p0Dn.SetBinContent(b, yM)
                             else: p0Up.SetBinContent(b, yM)
                         print 'The integral is now: %s, Nominal %f, Up %f, Down %f'%(proc,nominal.Integral(),p0Up.Integral(),p0Dn.Integral())
+                    if mode == 'templatesShapeOnly':
+                        p0Up.Scale(nominal.Integral()/p0Up.Integral())
+                        p0Dn.Scale(nominal.Integral()/p0Dn.Integral())
                     self.report[str(p0Up.GetName())[2:]] = p0Up
                     self.report[str(p0Dn.GetName())[2:]] = p0Dn
                     effect0  = "1"

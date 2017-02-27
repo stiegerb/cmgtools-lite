@@ -148,6 +148,16 @@ case "$PLOTTAG" in
         python mcPlots.py ${MCA} ${CUTS} ${PLOTS} ${OPTIONS} --exclude-plot dEtaFwdJet2BJet
         DONE
         ;;
+    "all" )
+        ./$0 ${OUTDIR}/3l 3l
+        ./$0 ${OUTDIR}/2lss-mm 2lss-mm
+        ./$0 ${OUTDIR}/2lss-em 2lss-em
+        ./$0 ${OUTDIR}/2lss-ee 2lss-ee
+        ./$0 ${OUTDIR}/3l-zcontrol 3l-zcontrol
+        ./$0 ${OUTDIR}/2lss-mm-ttcontrol 2lss-mm-ttcontrol
+        ./$0 ${OUTDIR}/2lss-em-ttcontrol 2lss-em-ttcontrol
+        ./$0 ${OUTDIR}/2lss-ee-ttcontrol 2lss-ee-ttcontrol
+        ;;
     *)
         echo "${USAGE}"
         echo -e "\e[31mUnknown plottag\e[0m"

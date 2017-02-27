@@ -50,7 +50,8 @@ OPTIONS="--od ${OUTNAME}/${CHANNEL} -o ${CHANNEL}"
 MCA=""
 CUTS=""
 BINNING=""
-SYSTFILE="tHq-multilepton/signal_extraction/systsEnv.txt"
+# SYSTFILE="tHq-multilepton/signal_extraction/systsEnv.txt"
+SYSTFILE="tHq-multilepton/signal_extraction/systsEnv_prev.txt"
 FUNCTION=""
 
 case "$CHANNEL" in
@@ -81,6 +82,12 @@ case "$CHANNEL" in
         CUTS="tHq-multilepton/cuts-thq-2lss.txt"
         BINNING="thqMVA_ttv_2lss:thqMVA_tt_2lss 40,-1,1,40,-1,1"
         FUNCTION="--2d-binning-function 10:tHq_MVAto1D_2lss_10"
+        ;;
+    "all" )
+        ./$0 ${OUTNAME} 3l
+        ./$0 ${OUTNAME} 2lss_mm
+        ./$0 ${OUTNAME} 2lss_em
+        ./$0 ${OUTNAME} 2lss_ee
         ;;
     *)
         echo "${USAGE}"

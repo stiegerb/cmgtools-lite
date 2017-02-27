@@ -16,7 +16,7 @@ def getLimits(card):
     tag = tag.groups()[0]
     tag = tag.replace('p', '.').replace('m','-')
     cv,ct = tuple(map(float, tag.split('_')))
-    print "%-40s CV=%5.2f, Ct=%5.2f : " % (card, cv, ct),
+    print "%-40s CV=%5.2f, Ct=%5.2f : " % (os.path.basename(card), cv, ct),
 
     combinecmd = "combine -M Asymptotic --run blind --rAbsAcc 0.0005 --rRelAcc 0.0005"
     try:
