@@ -102,17 +102,17 @@ CMS_ttHl_FRm_b    : data_fakes  : .* : FRm_b    : templatesShapeOnly
 CMS_ttHl_FRm_ec   : data_fakes  : .* : FRm_ec   : templatesShapeOnly
 # 3) Closure, QCD vs. TT fake rate, normalization
 CMS_ttHl_Clos_e_bl_norm : data_fakes : .*2lss_ee.*             : 1.1
-CMS_ttHl_Clos_e_bl_norm : data_fakes : .*2lss_em.*|.*2lss_me.* : 1.06
-CMS_ttHl_Clos_e_bl_norm : data_fakes : .*3l.*                  : 1.1
-CMS_ttHl_Clos_m_bl_norm : data_fakes : .*2lss_mm.*             : 1.1
-CMS_ttHl_Clos_m_bl_norm : data_fakes : .*2lss_em.*|.*2lss_me.* : 1.06
-CMS_ttHl_Clos_m_bl_norm : data_fakes : .*3l.*                  : 1.1
+CMS_ttHl_Clos_e_bl_norm : data_fakes : .*2lss_em.*|.*2lss_me.* : 1.2
+CMS_ttHl_Clos_e_bl_norm : data_fakes : .*3l.*                  : 1.2
+CMS_ttHl_Clos_m_bl_norm : data_fakes : .*2lss_mm.*             : 1.2
+CMS_ttHl_Clos_m_bl_norm : data_fakes : .*2lss_em.*|.*2lss_me.* : 1.2
+CMS_ttHl_Clos_m_bl_norm : data_fakes : .*3l.*                  : 1.2
 # 4) Closure, QCD vs. TT fake rate, shape
-CMS_ttHl_Clos_e_bl_shape : data_fakes  : .*2lss_ee.*             : 1.0 : shapeOnly2D_0.71X_1.60Y
-CMS_ttHl_Clos_e_bl_shape : data_fakes  : .*2lss_em.*|.*2lss_me.* : 1.0 : shapeOnly2D_0.67X_1.50Y
-CMS_ttHl_Clos_e_bl_shape : data_fakes  : .*3l.*                  : 1.0 : shapeOnly2D_0.71X_1.50Y
-CMS_ttHl_Clos_m_bl_shape : data_fakes  : .*2lss_mm.*             : 1.0 : shapeOnly2D_1.10X_1.05Y
-CMS_ttHl_Clos_m_bl_shape : data_fakes  : .*2lss_em.*|.*2lss_me.* : 1.0 : shapeOnly2D_1.30X_0.77Y
+CMS_ttHl_Clos_e_bl_shape : data_fakes  : .*2lss_ee.*             : 1.0 : shapeOnly2D_0.83X_1.20Y
+CMS_ttHl_Clos_e_bl_shape : data_fakes  : .*2lss_em.*|.*2lss_me.* : 1.0 : shapeOnly2D_0.83X_1.20Y
+CMS_ttHl_Clos_e_bl_shape : data_fakes  : .*3l.*                  : 1.0 : shapeOnly2D_0.83X_1.20Y
+CMS_ttHl_Clos_m_bl_shape : data_fakes  : .*2lss_mm.*             : 1.0 : shapeOnly2D_1.10X_1.10Y
+CMS_ttHl_Clos_m_bl_shape : data_fakes  : .*2lss_em.*|.*2lss_me.* : 1.0 : shapeOnly2D_1.31X_1.30Y
 CMS_ttHl_Clos_m_bl_shape : data_fakes  : .*3l.*                  : 1.0 : shapeOnly2D_1.10X_1.10Y
 # Charge flip uncertainty
 CMS_ttHl_QF : data_flips  : .* : 1.3
