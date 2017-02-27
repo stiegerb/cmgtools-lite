@@ -5,12 +5,7 @@ lumi_13TeV  : tH[qW].*|ttH.*|tt[WZ]|WZ|Rares|Gstar|WWss|Convs : .* : 1.026
 CMS_ttHl_lepEff_muloose : tH[qW].*|ttH.*|tt[WZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss_mm.* : 1.04
 CMS_ttHl_lepEff_muloose : tH[qW].*|ttH.*|tt[WZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss_em.*|.*2lss_me.* : 1.02
 CMS_ttHl_lepEff_muloose : tH[qW].*|ttH.*|tt[WZ]|Rares|WZ|Gstar|WWss|Convs : .*3l.* : 1.03
-
-# To be replaced by below FIXME
-CMS_ttHl_lepEff_elloose : tH[qW].*|ttH.*|tt[WZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss_ee.* : 1.04
-CMS_ttHl_lepEff_elloose : tH[qW].*|ttH.*|tt[WZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss_em.*|.*2lss_me.* : 1.02
-CMS_ttHl_lepEff_elloose : tH[qW].*|ttH.*|tt[WZ]|Rares|WZ|Gstar|WWss|Convs : .*3l.* : 1.04
-# CMS_ttHl_lepEff_elloose : ttH.*|tt[WZ]|Rares|Gstar|WWss|Convs : .* : elLooseUnc : templates
+CMS_ttHl_lepEff_elloose : tH[qW].*|ttH.*|tt[WZ]|Rares|WZ|Gstar|WWss|Convs : .* : elLooseUnc : templates
 
 CMS_ttHl_lepEff_mutight   : tH[qW].*|ttH.*|tt[WZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss_mm* : 1.06
 CMS_ttHl_lepEff_mutight   : tH[qW].*|ttH.*|tt[WZ]|Rares|WZ|Gstar|WWss|Convs : .*2lss_em* : 1.03

@@ -26,8 +26,8 @@ incl_sigprompt_bTag_cErr1_Up    : + ; IncludeMca="tHq-multilepton/mca-thq-3l-sig
 incl_sigprompt_bTag_cErr1_Dn    : + ; IncludeMca="tHq-multilepton/mca-thq-3l-sigprompt.txt", AddWeight="eventBTagSF_down_cferr1/eventBTagSF"   , SkipMe=True, PostFix="_bTag_cErr1_Dn"
 incl_sigprompt_bTag_cErr2_Up    : + ; IncludeMca="tHq-multilepton/mca-thq-3l-sigprompt.txt", AddWeight="eventBTagSF_up_cferr2/eventBTagSF"     , SkipMe=True, PostFix="_bTag_cErr2_Up"
 incl_sigprompt_bTag_cErr2_Dn    : + ; IncludeMca="tHq-multilepton/mca-thq-3l-sigprompt.txt", AddWeight="eventBTagSF_down_cferr2/eventBTagSF"   , SkipMe=True, PostFix="_bTag_cErr2_Dn"
-# incl_sigprompt_elLooseUnc_Up    : + ; IncludeMca="tHq-multilepton/mca-thq-3l-sigprompt.txt", AddWeight="elLooseUnc_2lss_up"                    , SkipMe=True, PostFix="_elLooseUnc_Up"
-# incl_sigprompt_elLooseUnc_Dn    : + ; IncludeMca="tHq-multilepton/mca-thq-3l-sigprompt.txt", AddWeight="elLooseUnc_2lss_dn"                    , SkipMe=True, PostFix="_elLooseUnc_Dn"
+incl_sigprompt_elLooseUnc_Up    : + ; IncludeMca="tHq-multilepton/mca-thq-3l-sigprompt.txt", AddWeight="elLooseUnc_2lss_up"                    , SkipMe=True, PostFix="_elLooseUnc_Up"
+incl_sigprompt_elLooseUnc_Dn    : + ; IncludeMca="tHq-multilepton/mca-thq-3l-sigprompt.txt", AddWeight="elLooseUnc_2lss_dn"                    , SkipMe=True, PostFix="_elLooseUnc_Dn"
 
 incl_datafakes_FRe_norm_Up : + ; IncludeMca="ttH-multilepton/mca-includes/mca-data.txt", FakeRate="ttH-multilepton/fakerate-vars/fakeRate-3l-frdata-e-up.txt"  , SkipMe=True, PostFix='_fakes_FRe_norm_Up'
 incl_datafakes_FRe_norm_Dn : + ; IncludeMca="ttH-multilepton/mca-includes/mca-data.txt", FakeRate="ttH-multilepton/fakerate-vars/fakeRate-3l-frdata-e-down.txt", SkipMe=True, PostFix='_fakes_FRe_norm_Dn'
