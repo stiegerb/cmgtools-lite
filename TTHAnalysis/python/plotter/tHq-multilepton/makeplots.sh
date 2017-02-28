@@ -147,6 +147,42 @@ case "$PLOTTAG" in
         python mcPlots.py ${MCA} ${CUTS} ${PLOTS} ${OPTIONS} --exclude-plot dEtaFwdJet2BJet
         DONE
         ;;
+    "ntuple_3l" )
+        OPTIONS="${OPTIONS} ${OPT3L} --xp data"
+        MCA="tHq-multilepton/mca-thq-3l-mc.txt"
+        CUTS="tHq-multilepton/cuts-thq-3l.txt"
+        PLOTS="tHq-multilepton/plots-thq-3l-kinMVA.txt"
+        SELECTPLOT="--sP thqMVA_tt_3l,thqMVA_ttv_3l"
+        OUTFILE="${OUTDIR}/ntuple_{cname}.root"
+        test -d ${OUTDIR} || mkdir -p ${OUTDIR}
+
+        ARGUMENTS="${MCA} ${CUTS} ${PLOTS}"
+        OPTIONS="${TREEINPUTS} ${FRIENDTREES} ${BASEOPTIONS} ${OPTIONS} ${SELECTPLOT}"
+        echo "mca    : ${MCA}"
+        echo "cuts   : ${CUTS}"
+        echo "plots  : ${PLOTS}"
+        echo "outfile: ${OUTFILE}"
+        python mcNtuple.py ${MCA} ${CUTS} ${PLOTS} ${OUTFILE} ${OPTIONS}
+        DONE
+        ;;
+    "ntuple_2lss" )
+        OPTIONS="${OPTIONS} ${OPT2L} --xp data"
+        MCA="tHq-multilepton/mca-thq-2lss-mc.txt"
+        CUTS="tHq-multilepton/cuts-thq-2lss.txt"
+        PLOTS="tHq-multilepton/plots-thq-2lss-kinMVA.txt"
+        SELECTPLOT="--sP thqMVA_tt_2lss,thqMVA_ttv_2lss"
+        OUTFILE="${OUTDIR}/ntuple_{cname}.root"
+        test -d ${OUTDIR} || mkdir -p ${OUTDIR}
+
+        ARGUMENTS="${MCA} ${CUTS} ${PLOTS}"
+        OPTIONS="${TREEINPUTS} ${FRIENDTREES} ${BASEOPTIONS} ${OPTIONS} ${SELECTPLOT}"
+        echo "mca    : ${MCA}"
+        echo "cuts   : ${CUTS}"
+        echo "plots  : ${PLOTS}"
+        echo "outfile: ${OUTFILE}"
+        python mcNtuple.py ${MCA} ${CUTS} ${PLOTS} ${OUTFILE} ${OPTIONS}
+        DONE
+        ;;
     "all" )
         ./$0 ${OUTDIR}/3l 3l
         ./$0 ${OUTDIR}/2lss-mm 2lss-mm

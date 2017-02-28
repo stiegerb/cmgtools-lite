@@ -51,9 +51,9 @@ OPT3L="-W puw2016_nTrueInt_36fb(nTrueInt)*eventBTagSF*"\
 MCA=""
 CUTS=""
 BINNING=""
-# SYSTFILE="tHq-multilepton/signal_extraction/systsEnv.txt"
-SYSTFILE="tHq-multilepton/signal_extraction/systsEnv_prev.txt"
-FUNCTION=""
+SYSTFILE="tHq-multilepton/signal_extraction/systsEnv.txt"
+# FUNCTION="--2d-binning-function 10:tHq_MVAto1D_2lss_10"
+FUNCTION="--2d-binning-function 10:tHq_MVAto1D_2lss_sbratio"
 
 case "$CHANNEL" in
     "3l" )
@@ -61,28 +61,26 @@ case "$CHANNEL" in
         MCA="tHq-multilepton/signal_extraction/mca-thq-3l-mcdata-frdata_limits.txt"
         CUTS="tHq-multilepton/cuts-thq-3l.txt"
         BINNING="thqMVA_ttv_3l:thqMVA_tt_3l 40,-1,1,40,-1,1"
-        FUNCTION="--2d-binning-function 10:tHq_MVAto1D_3l_10"
+        # FUNCTION="--2d-binning-function 10:tHq_MVAto1D_3l_10"
+        FUNCTION="--2d-binning-function 10:tHq_MVAto1D_3l_sbratio"
         ;;
     "2lss_mm" )
-        OPTIONS="${OPTIONS} ${OPT2L} -E mm_chan --xp Gstar" # remove Gstar for mm channel
+        OPTIONS="${OPTIONS} ${OPT2L} -E mm_chan --xp Convs" # remove conversions for mm channel
         MCA="tHq-multilepton/signal_extraction/mca-thq-2lss-mcdata-frdata_limits.txt"
         CUTS="tHq-multilepton/cuts-thq-2lss.txt"
-        BINNING="thqMVA_ttv_2lss:thqMVA_tt_2lss 40,-1,1,40,-1,1"
-        FUNCTION="--2d-binning-function 10:tHq_MVAto1D_2lss_10"
+        BINNING="thqMVA_ttv_2lss:thqMVA_tt_2lss 40,-1,1,40,-1,1"        
         ;;
     "2lss_em" )
-        OPTIONS="${OPTIONS} ${OPT2L} -E em_chan --xp Gstar"
+        OPTIONS="${OPTIONS} ${OPT2L} -E em_chan"
         MCA="tHq-multilepton/signal_extraction/mca-thq-2lss-mcdata-frdata_limits.txt"
         CUTS="tHq-multilepton/cuts-thq-2lss.txt"
         BINNING="thqMVA_ttv_2lss:thqMVA_tt_2lss 40,-1,1,40,-1,1"
-        FUNCTION="--2d-binning-function 10:tHq_MVAto1D_2lss_10"
         ;;
     "2lss_ee" )
-        OPTIONS="${OPTIONS} ${OPT2L} -E ee_chan --xp Gstar"
+        OPTIONS="${OPTIONS} ${OPT2L} -E ee_chan"
         MCA="tHq-multilepton/signal_extraction/mca-thq-2lss-mcdata-frdata_limits.txt"
         CUTS="tHq-multilepton/cuts-thq-2lss.txt"
         BINNING="thqMVA_ttv_2lss:thqMVA_tt_2lss 40,-1,1,40,-1,1"
-        FUNCTION="--2d-binning-function 10:tHq_MVAto1D_2lss_10"
         ;;
     "all" )
         ./$0 ${OUTNAME} 3l
