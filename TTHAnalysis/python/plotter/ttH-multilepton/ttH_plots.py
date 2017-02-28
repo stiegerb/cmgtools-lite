@@ -37,6 +37,9 @@ def base(selection):
     else:
         raise RuntimeError, 'Unknown selection'
 
+    if '_prescale' in torun:
+        GO = doprescale3l(GO)
+
     return GO
 
 def procs(GO,mylist):
@@ -58,10 +61,9 @@ def setwide(x):
 def fulltrees(x):
     return x.replace(TREESONLYSKIM,TREESONLYFULL)
 def doprescale3l(x):
-    raise RuntimeError, 'temporary: no prescaled datasets defined'
-    x2 = x.replace("mixture_jecv6prompt_datafull_jul20_skimOnlyMC","TREES_80X_180716_jecv6_skim_3ltight_relax")
-    x2 = x2.replace("--Fs {P}/4_kinMVA_without_MEM_v5 --Fs {P}/8_bTagSF_12fb_v45","--Fs {P}/4_kinMVA_with_MEM_v5 --Fs {P}/7_MEM_v5 --Fs {P}/8_bTagSF_12fb_v5")
-#    x2 = add(x2,"--sP kinMVA.*")
+    x2 = x.replace("TREES_TTH_250117_Summer16_JECV3_noClean_qgV2_skimOnlyMC_v6","TREES_TTH_250117_Summer16_JECV3_noClean_qgV2_skim3l2j2b1B_v6")
+    x2 = x2.replace("3_kinMVA_BDTv8_230217_v6","3_kinMVA_BDTv8_withMEM_230217_v6")
+    x2 = add(x2,"--Fs {P}/8_MEM_v6")
     return x2
 
 allow_unblinding = False
@@ -104,7 +106,7 @@ if __name__ == '__main__':
             x = x.replace('mca-2lss-mc.txt','mca-2lss-mc-closuretest.txt')
             #x = x.replace("--maxRatioRange 0 2","--maxRatioRange 0.5 1.5")
             x = add(x,"--AP --plotmode nostack --sP 2lep_catIndex_nosign --sP kinMVA_2lss_ttbar_withBDTv8 --sP kinMVA_2lss_ttV_withHj")
-            x = add(x,"-p incl_FR_QCD_elonly -p incl_FR_QCD_muonly -p TT_FR_QCD -p TT_FR_TT -p TT_fake --ratioDen TT_FR_QCD --ratioNums '.*' --errors ")
+            x = add(x,"-p incl_FR_QCD_elonly -p incl_FR_QCD_muonly -p TT_FR_QCD -p TT_FR_TT -p TT_fake --ratioDen TT_FR_QCD --ratioNums TT_fake --errors ")
             if '_closuretest_norm' in torun:
                 x = x.replace("--plotmode nostack","--plotmode norm")
                 x = add(x,"--fitRatio 1")
@@ -152,33 +154,21 @@ if __name__ == '__main__':
                 x = add(x,'--xp data')
             elif not '_data' in torun: raise RuntimeError
             x = x.replace('mca-3l-mcdata.txt','mca-3l-mcdata-frdata.txt')
-            if '_prescale' in torun:
-                x = doprescale3l(x)
-                x = x.replace('mca-3l-mcdata-frdata.txt','mca-3l-mcdata-frdata-prescale.txt')
             if '_table' in torun:
                 x = x.replace('mca-3l-mcdata-frdata.txt','mca-3l-mcdata-frdata-table.txt')
-        else:
-            if 'data' in torun and '_prescale' in torun:
-                raise RuntimeError # trees not ready
-                x = doprescale3l(x)
-                x = x.replace('mca-3l-mcdata.txt','mca-3l-mcdata-prescale.txt')
-            elif '_prescale' in torun:
-                raise RuntimeError # trees not ready
-                x = doprescale3l(x)
-                x = x.replace('mca-3l-mc.txt','mca-3l-mc-prescale.txt')
         if '_table' in torun:
             x = x.replace('mca-3l-mc.txt','mca-3l-mc-table.txt')
 
         if '_closuretest' in torun:
             x = x.replace('mca-3l-mc.txt','mca-3l-mc-closuretest.txt')
             #x = x.replace("--maxRatioRange 0 3","--maxRatioRange 0.5 1.5")
-            x = add(x,"--AP --plotmode nostack --sP kinMVA_3l_ttbar --sP kinMVA_3l_ttV --sP kinMVA_3l_ttV_withMEM --sP 3lep_catIndex")
-            x = add(x,"-p TT_FR_QCD -p TT_FR_TT -p TT_all -p TT_fake --ratioDen TT_FR_QCD --ratioNums TT_fake --errors ")
+            x = add(x,"--AP --plotmode nostack --sP kinMVA_3l_ttbar --sP kinMVA_3l_ttV --sP 3lep_catIndex --sP nLepTight")
+            x = add(x,"-p TT_FR_QCD -p TT_FR_TT -p TT_fake --ratioDen TT_FR_QCD --ratioNums TT_fake --errors ")
             if '_closuretest_norm' in torun:
                 x = x.replace("--plotmode nostack","--plotmode norm")
                 x = add(x,"--fitRatio 1")
-            if '_mufake' in torun: x = add(x,"-A alwaystrue mufake '(abs(LepGood1_pdgId)==13 && LepGood_mcMatchId==0) || (abs(LepGood2_pdgId)==13 && LepGood2_mcMatchId==0) || (abs(LepGood3_pdgId)==13 && LepGood3_mcMatchId==0)'")
-            if '_elfake' in torun: x = add(x,"-A alwaystrue mufake '(abs(LepGood1_pdgId)==11 && LepGood_mcMatchId==0) || (abs(LepGood2_pdgId)==11 && LepGood2_mcMatchId==0) || (abs(LepGood3_pdgId)==11 && LepGood3_mcMatchId==0)'")
+            if '_mufake' in torun: x = add(x,"-A alwaystrue mufake '(abs(LepGood1_pdgId)==13 && LepGood1_mcMatchId==0) || (abs(LepGood2_pdgId)==13 && LepGood2_mcMatchId==0) || (abs(LepGood3_pdgId)==13 && LepGood3_mcMatchId==0)'")
+            if '_elfake' in torun: x = add(x,"-A alwaystrue elfake '(abs(LepGood1_pdgId)==11 && LepGood1_mcMatchId==0) || (abs(LepGood2_pdgId)==11 && LepGood2_mcMatchId==0) || (abs(LepGood3_pdgId)==11 && LepGood3_mcMatchId==0)'")
             if '_bloose' in torun: x = add(x,'-E ^BLoose ')
             if '_btight' in torun: x = add(x,'-E ^BTight ')
             if '_nobcut' in torun: x = add(x,'-X ^2b1B ')
