@@ -8,14 +8,17 @@ Where channel is one of:
 And the cards will be stored in outdir/channel
 "
 
+function DONE {
+    echo -e "\e[92mDONE\e[0m"
+    exit 0
+}
+
 if [[ "X$1" == "X" ]]; then echo "Please provide output directory name: [makecards.sh outdir channel]"; exit; fi
 OUTNAME=$1; shift;
 if [[ "X$1" == "X" ]]; then echo "Please provide channel (e.g. 2lss-mm): [makecards.sh outdir channel]"; exit; fi
 CHANNEL=$1; shift;
 
 LUMI=36.5
-echo "Normalizing to ${LUMI}/fb";
-
 # Note: tthtrees is a symlink to /afs/cern.ch/work/p/peruzzi/tthtrees/
 #       thqtrees is a symlink to /afs/cern.ch/work/s/stiegerb/TTHTrees/13TeV/
 
@@ -44,8 +47,6 @@ OPT3L="-W puw2016_nTrueInt_36fb(nTrueInt)*eventBTagSF*"\
 "leptonSF_ttH(LepGood_pdgId[iLepFO_Recl[0]],LepGood_pt[iLepFO_Recl[0]],LepGood_eta[iLepFO_Recl[0]],3)*"\
 "leptonSF_ttH(LepGood_pdgId[iLepFO_Recl[1]],LepGood_pt[iLepFO_Recl[1]],LepGood_eta[iLepFO_Recl[1]],3)*"\
 "leptonSF_ttH(LepGood_pdgId[iLepFO_Recl[2]],LepGood_pt[iLepFO_Recl[2]],LepGood_eta[iLepFO_Recl[2]],3)"
-
-OPTIONS="--od ${OUTNAME}/${CHANNEL} -o ${CHANNEL}"
 
 MCA=""
 CUTS=""
@@ -88,6 +89,7 @@ case "$CHANNEL" in
         ./$0 ${OUTNAME} 2lss_mm
         ./$0 ${OUTNAME} 2lss_em
         ./$0 ${OUTNAME} 2lss_ee
+        DONE
         ;;
     *)
         echo "${USAGE}"
@@ -97,10 +99,12 @@ esac
 
 test -d $OUTNAME/$CHANNEL || mkdir -p $OUTNAME/$CHANNEL
 echo "Storing output in ${OUTNAME}/${CHANNEL}/";
+OPTIONS="${OPTIONS} --od ${OUTNAME}/${CHANNEL} -o ${CHANNEL}"
 
 ARGUMENTS="${MCA} ${CUTS} ${BINNING} ${SYSTFILE}"
 OPTIONS="${TREEINPUTS} ${FRIENDTREES} ${BASEOPTIONS} ${FUNCTION} ${OPTIONS}"
 
+echo "Normalizing to ${LUMI}/fb";
 echo "mca      : ${MCA}"
 echo "cuts     : ${CUTS}"
 echo "binning  : ${BINNING}"
@@ -122,4 +126,4 @@ else
 fi
 
 
-echo -e "\e[92mDONE\e[0m"
+DONE

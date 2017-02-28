@@ -20,12 +20,11 @@ OUTDIR=$1; shift;
 if [[ "X$1" == "X" ]]; then echo "Please Provide plottag (e.g. 2lss-mm): [makeplots.sh outdir plottag]"; exit; fi
 PLOTTAG=$1; shift;
 
-LUMI=36.5
-echo "Normalizing to ${LUMI}/fb";
 
 # Note: tthtrees is a symlink to /afs/cern.ch/work/p/peruzzi/tthtrees/
 #       thqtrees is a symlink to /afs/cern.ch/work/s/stiegerb/TTHTrees/13TeV/
 
+LUMI=36.5
 BASEOPTIONS=" -f -j 8 -l ${LUMI} --s2v"\
 " -L ttH-multilepton/functionsTTH.cc"\
 " -L tHq-multilepton/functionsTHQ.cc"\
@@ -157,6 +156,7 @@ case "$PLOTTAG" in
         ./$0 ${OUTDIR}/2lss-mm-ttcontrol 2lss-mm-ttcontrol
         ./$0 ${OUTDIR}/2lss-em-ttcontrol 2lss-em-ttcontrol
         ./$0 ${OUTDIR}/2lss-ee-ttcontrol 2lss-ee-ttcontrol
+        DONE
         ;;
     *)
         echo "${USAGE}"
@@ -165,6 +165,7 @@ case "$PLOTTAG" in
 esac
 
 echo "Storing output in ${OUTDIR}/";
+echo "Normalizing to ${LUMI}/fb";
 
 ARGUMENTS="${MCA} ${CUTS} ${PLOTS}"
 OPTIONS="${TREEINPUTS} ${FRIENDTREES} ${BASEOPTIONS} ${OPTIONS}"
