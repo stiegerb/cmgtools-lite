@@ -91,8 +91,10 @@ case "$PLOTTAG" in
         PLOTS="tHq-multilepton/plots-thq-3l-kinMVA.txt"
         ARGOPTS="${MCA} ${CUTS} ${PLOTS} ${OPTIONS}"
 
-        python mcPlots.py ${ARGOPTS} --pdir ${OUTDIR}/3l_norm/ --plotmode nostack --fitRatio 0
-        python mcPlots.py ${ARGOPTS} --pdir ${OUTDIR}/3l_shape/ --plotmode norm --fitRatio 1
+        python mcPlots.py ${ARGOPTS} --pdir ${OUTDIR}/3l_mufake_norm/  -E mufake --plotmode nostack --fitRatio 0
+        python mcPlots.py ${ARGOPTS} --pdir ${OUTDIR}/3l_mufake_shape/ -E mufake --plotmode norm --fitRatio 1
+        python mcPlots.py ${ARGOPTS} --pdir ${OUTDIR}/3l_elfake_norm/  -E elfake --plotmode nostack --fitRatio 0
+        python mcPlots.py ${ARGOPTS} --pdir ${OUTDIR}/3l_elfake_shape/ -E elfake --plotmode norm --fitRatio 1
         DONE
         ;;
     "2lss-mvaout" )
@@ -175,10 +177,12 @@ case "$PLOTTAG" in
 
         python mcPlots.py ${ARGOPTS} --pdir ${OUTDIR}/2lss_mm_norm/  -E mm_chan --plotmode nostack --fitRatio 0
         python mcPlots.py ${ARGOPTS} --pdir ${OUTDIR}/2lss_mm_shape/ -E mm_chan --plotmode norm --fitRatio 1
-        python mcPlots.py ${ARGOPTS} --pdir ${OUTDIR}/2lss_em_norm/  -E em_chan --plotmode nostack --fitRatio 0
-        python mcPlots.py ${ARGOPTS} --pdir ${OUTDIR}/2lss_em_shape/ -E em_chan --plotmode norm --fitRatio 1
         python mcPlots.py ${ARGOPTS} --pdir ${OUTDIR}/2lss_ee_norm/  -E ee_chan --plotmode nostack --fitRatio 0
         python mcPlots.py ${ARGOPTS} --pdir ${OUTDIR}/2lss_ee_shape/ -E ee_chan --plotmode norm --fitRatio 1
+        python mcPlots.py ${ARGOPTS} --pdir ${OUTDIR}/2lss_em_mufake_norm/  -E em_chan -E mufake --plotmode nostack --fitRatio 0
+        python mcPlots.py ${ARGOPTS} --pdir ${OUTDIR}/2lss_em_mufake_shape/ -E em_chan -E mufake --plotmode norm --fitRatio 1
+        python mcPlots.py ${ARGOPTS} --pdir ${OUTDIR}/2lss_em_elfake_norm/  -E em_chan -E elfake --plotmode nostack --fitRatio 0
+        python mcPlots.py ${ARGOPTS} --pdir ${OUTDIR}/2lss_em_elfake_shape/ -E em_chan -E elfake --plotmode norm --fitRatio 1
         DONE
         ;;
     "ntuple_3l" )
@@ -228,6 +232,11 @@ case "$PLOTTAG" in
         ./$0 ${OUTDIR}/2lss-mm-ttcontrol 2lss-mm-ttcontrol
         ./$0 ${OUTDIR}/2lss-em-ttcontrol 2lss-em-ttcontrol
         ./$0 ${OUTDIR}/2lss-ee-ttcontrol 2lss-ee-ttcontrol
+        DONE
+        ;;
+    "frclosures" )
+        ./$0 ${OUTDIR} 3l-frclosure
+        ./$0 ${OUTDIR} 2lss-frclosure
         DONE
         ;;
     *)
