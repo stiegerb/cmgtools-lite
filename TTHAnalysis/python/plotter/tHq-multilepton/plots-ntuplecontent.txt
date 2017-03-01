@@ -1,0 +1,12 @@
+evt               : evt                                                       : 1,0,1
+lumi              : lumi                                                      : 1,0,1
+run               : run                                                       : 1,0,1
+GenHiggsDecayMode : GenHiggsDecayMode                                         : 1,0,1
+
+thqMVA_tt_2lss    : thqMVA_tt_2lss                                            : 1,0,1
+thqMVA_ttv_2lss   : thqMVA_ttv_2lss                                           : 1,0,1
+thqMVA_tt_3l      : thqMVA_tt_3l                                              : 1,0,1
+thqMVA_ttv_3l     : thqMVA_ttv_3l                                             : 1,0,1
+
+finalBins_2lss    : tHq_MVAto1D_2lss_sbratio(thqMVA_tt_2lss, thqMVA_ttv_2lss) : 1,0,1
+finalBins_3l      : tHq_MVAto1D_3l_sbratio(thqMVA_tt_3l, thqMVA_ttv_3l)       : 1,0,1

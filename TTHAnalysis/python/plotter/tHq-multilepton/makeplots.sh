@@ -80,6 +80,21 @@ case "$PLOTTAG" in
         CUTS="tHq-multilepton/cuts-thq-3l-ttbarcontrol.txt"
         PLOTS="tHq-multilepton/plots-thq-3l-kinMVA.txt"
         ;;
+    "3l-frclosure" )
+        DRAWOPTIONS="${DRAWOPTIONS} --ratioDen TT_FR_QCD --errors --AP --rebin 2 --ratioNums TT_fake"
+        SELECTPLOT="--sP thqMVA_tt_3l --sP thqMVA_ttv_3l"
+        SELECTPROCESS="-p incl_FR_QCD_elonly -p incl_FR_QCD_muonly -p TT_FR_QCD -p TT_FR_TT -p TT_fake"
+
+        OPTIONS="${TREEINPUTS} ${FRIENDTREES} ${BASEOPTIONS} ${DRAWOPTIONS} ${OPT3L} ${SELECTPROCESS} ${SELECTPLOT}"
+        MCA="ttH-multilepton/mca-3l-mc-closuretest.txt"
+        CUTS="tHq-multilepton/cuts-thq-3l.txt"
+        PLOTS="tHq-multilepton/plots-thq-3l-kinMVA.txt"
+        ARGOPTS="${MCA} ${CUTS} ${PLOTS} ${OPTIONS}"
+
+        python mcPlots.py ${ARGOPTS} --pdir ${OUTDIR}/3l_norm/ --plotmode nostack --fitRatio 0
+        python mcPlots.py ${ARGOPTS} --pdir ${OUTDIR}/3l_shape/ --plotmode norm --fitRatio 1
+        DONE
+        ;;
     "2lss-mvaout" )
         OPTIONS="${OPTIONS} ${OPT2L} --xp data --plotmode norm"
         OPTIONS="${OPTIONS} --select-plot thqMVA_tt_2lss,thqMVA_ttv_2lss"
@@ -147,17 +162,37 @@ case "$PLOTTAG" in
         python mcPlots.py ${MCA} ${CUTS} ${PLOTS} ${OPTIONS} --exclude-plot dEtaFwdJet2BJet
         DONE
         ;;
+    "2lss-frclosure" )
+        DRAWOPTIONS="${DRAWOPTIONS} --ratioDen TT_FR_QCD --errors --AP --rebin 2 --ratioNums TT_fake"
+        SELECTPLOT="--sP thqMVA_tt_2lss --sP thqMVA_ttv_2lss"
+        SELECTPROCESS="-p incl_FR_QCD_elonly -p incl_FR_QCD_muonly -p TT_FR_QCD -p TT_FR_TT -p TT_fake"
+
+        OPTIONS="${TREEINPUTS} ${FRIENDTREES} ${BASEOPTIONS} ${DRAWOPTIONS} ${OPT3L} ${SELECTPROCESS} ${SELECTPLOT}"
+        MCA="ttH-multilepton/mca-2lss-mc-closuretest.txt"
+        CUTS="tHq-multilepton/cuts-thq-2lss.txt"
+        PLOTS="tHq-multilepton/plots-thq-2lss-kinMVA.txt"
+        ARGOPTS="${MCA} ${CUTS} ${PLOTS} ${OPTIONS}"
+
+        python mcPlots.py ${ARGOPTS} --pdir ${OUTDIR}/2lss_mm_norm/  -E mm_chan --plotmode nostack --fitRatio 0
+        python mcPlots.py ${ARGOPTS} --pdir ${OUTDIR}/2lss_mm_shape/ -E mm_chan --plotmode norm --fitRatio 1
+        python mcPlots.py ${ARGOPTS} --pdir ${OUTDIR}/2lss_em_norm/  -E em_chan --plotmode nostack --fitRatio 0
+        python mcPlots.py ${ARGOPTS} --pdir ${OUTDIR}/2lss_em_shape/ -E em_chan --plotmode norm --fitRatio 1
+        python mcPlots.py ${ARGOPTS} --pdir ${OUTDIR}/2lss_ee_norm/  -E ee_chan --plotmode nostack --fitRatio 0
+        python mcPlots.py ${ARGOPTS} --pdir ${OUTDIR}/2lss_ee_shape/ -E ee_chan --plotmode norm --fitRatio 1
+        DONE
+        ;;
     "ntuple_3l" )
         OPTIONS="${OPTIONS} ${OPT3L} --xp data"
         MCA="tHq-multilepton/mca-thq-3l-mc.txt"
         CUTS="tHq-multilepton/cuts-thq-3l.txt"
-        PLOTS="tHq-multilepton/plots-thq-3l-kinMVA.txt"
+        PLOTS="tHq-multilepton/plots-ntuplecontent.txt"
         SELECTPLOT="--sP thqMVA_tt_3l,thqMVA_ttv_3l"
+        SELECTPROCESS="-p tHq_hww -p tHW_hww -p ttW -p ttZ -p ttH -p TT"
         OUTFILE="${OUTDIR}/ntuple_{cname}.root"
         test -d ${OUTDIR} || mkdir -p ${OUTDIR}
 
         ARGUMENTS="${MCA} ${CUTS} ${PLOTS}"
-        OPTIONS="${TREEINPUTS} ${FRIENDTREES} ${BASEOPTIONS} ${OPTIONS} ${SELECTPLOT}"
+        OPTIONS="${TREEINPUTS} ${FRIENDTREES} ${BASEOPTIONS} ${OPTIONS} ${SELECTPLOT} ${SELECTPROCESS}"
         echo "mca    : ${MCA}"
         echo "cuts   : ${CUTS}"
         echo "plots  : ${PLOTS}"
@@ -169,13 +204,14 @@ case "$PLOTTAG" in
         OPTIONS="${OPTIONS} ${OPT2L} --xp data"
         MCA="tHq-multilepton/mca-thq-2lss-mc.txt"
         CUTS="tHq-multilepton/cuts-thq-2lss.txt"
-        PLOTS="tHq-multilepton/plots-thq-2lss-kinMVA.txt"
+        PLOTS="tHq-multilepton/plots-ntuplecontent.txt"
         SELECTPLOT="--sP thqMVA_tt_2lss,thqMVA_ttv_2lss"
+        SELECTPROCESS="-p tHq_hww -p tHW_hww -p ttW -p ttZ -p ttH -p TT"
         OUTFILE="${OUTDIR}/ntuple_{cname}.root"
         test -d ${OUTDIR} || mkdir -p ${OUTDIR}
 
         ARGUMENTS="${MCA} ${CUTS} ${PLOTS}"
-        OPTIONS="${TREEINPUTS} ${FRIENDTREES} ${BASEOPTIONS} ${OPTIONS} ${SELECTPLOT}"
+        OPTIONS="${TREEINPUTS} ${FRIENDTREES} ${BASEOPTIONS} ${OPTIONS} ${SELECTPLOT} ${SELECTPROCESS}"
         echo "mca    : ${MCA}"
         echo "cuts   : ${CUTS}"
         echo "plots  : ${PLOTS}"
