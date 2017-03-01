@@ -53,7 +53,8 @@ def rebin2Dto1D(h, funcstring):
     for i in xrange(x.GetNbins()):
         for j in xrange(y.GetNbins()):
             ibin = int(func(x.GetBinCenter(i+1),y.GetBinCenter(j+1)))
-            if ibin not in allowed: raise RuntimeError, "Binning function gives not admissible result"
+            if ibin not in allowed:
+                raise RuntimeError("Binning function gives not admissible result: bin %d is not in %s" % (ibin, repr(allowed)))
             newh.SetBinContent(ibin,newh.GetBinContent(ibin)+h.GetBinContent(i+1,j+1))
             newh.SetBinError(ibin,math.hypot(newh.GetBinError(ibin),h.GetBinError(i+1,j+1)))
     for ibin in range(1,nbins+1):

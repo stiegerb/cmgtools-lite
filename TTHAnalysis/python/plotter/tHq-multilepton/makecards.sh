@@ -54,6 +54,7 @@ BINNING=""
 SYSTFILE="tHq-multilepton/signal_extraction/systsEnv.txt"
 FUNCTION="--2d-binning-function 10:tHq_MVAto1D_2lss_10"
 # FUNCTION="--2d-binning-function 10:tHq_MVAto1D_2lss_sbratio"
+# FUNCTION="--2d-binning-function 11:tHq_MVAto1D_2lss_kmeans"
 
 case "$CHANNEL" in
     "3l" )
@@ -63,6 +64,7 @@ case "$CHANNEL" in
         BINNING="thqMVA_ttv_3l:thqMVA_tt_3l 40,-1,1,40,-1,1"
         FUNCTION="--2d-binning-function 10:tHq_MVAto1D_3l_10"
         # FUNCTION="--2d-binning-function 10:tHq_MVAto1D_3l_sbratio"
+        # FUNCTION="--2d-binning-function 5:tHq_MVAto1D_3l_kmeans"
         ;;
     "2lss_mm" )
         OPTIONS="${OPTIONS} ${OPT2L} -E mm_chan --xp Convs --xp Gstar" # remove conversions for mm channel
