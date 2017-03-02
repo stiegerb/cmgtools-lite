@@ -7,7 +7,7 @@ trigger       : Trigger_3l
 # three good leptons
 trilep        : nLepFO>=3 && nLepTight < 4
 cleanup       : minMllAFAS > 12
-pt2010        : LepGood1_conePt>20 && LepGood2_conePt>10 && LepGood3_conePt>10
+pt251515      : LepGood1_conePt>25 && LepGood2_conePt>15 && LepGood3_conePt>15
 TTT           : LepGood1_isLepTight && LepGood2_isLepTight && LepGood3_isLepTight
 Zveto         : abs(mZ1-91.2) < 15
 q1            : abs(LepGood1_charge + LepGood2_charge + LepGood3_charge) == 1

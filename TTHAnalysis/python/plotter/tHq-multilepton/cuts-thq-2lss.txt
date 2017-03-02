@@ -7,7 +7,7 @@ trigger       : Trigger_2l
 # two good same-sign leptons
 dilep         : nLepFO>=2 && nLepTight < 3
 cleanup       : minMllAFAS > 12
-pt2510        : LepGood1_conePt>25 && LepGood2_conePt>10 && (abs(LepGood2_pdgId)!=11 || LepGood2_conePt>15)
+pt2515        : LepGood1_conePt>25 && LepGood2_conePt>15
 TT            : LepGood1_isLepTight && LepGood2_isLepTight
 samesign      : LepGood1_charge*LepGood2_charge > 0
 
