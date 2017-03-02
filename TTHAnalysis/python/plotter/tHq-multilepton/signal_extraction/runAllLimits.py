@@ -39,7 +39,15 @@ def main(args, options):
     inputdir = args[0]
     assert( os.path.isdir(inputdir) )
 
-    tag = "_"+options.tag if options.tag else ""
+    if options.tag != None:
+        tag = "_"+options.tag
+    elif options.tag == "":
+        tag = ""
+    else:
+        # Try to get the tag from the input directory
+        if inputdir.endswith('/'): inputdir = inputdir[:-1]
+        tag = "_"+os.path.basename(inputdir)
+        assert( '/' not in tag )
 
     cards = sorted([os.path.join(inputdir, c) for c in
                     os.listdir(inputdir) if c.endswith('card.txt')])
