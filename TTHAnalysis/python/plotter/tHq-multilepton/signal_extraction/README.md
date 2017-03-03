@@ -88,9 +88,9 @@ text2workspace.py -o tHq_cards.root comb3/tHq_1_m1.card.txt
 ```
 
 ```
-python combineTool.py -M Impacts [-t 1 --expectSignal 1] -d tHq_cards.root -m 125 --robustFit 1 --rMin -5 --rMax 10 --doInitialFit
+python combineTool.py -M Impacts -d tHq_cards.root -m 125 --robustFit 1 --rMin -5 --rMax 10 --doInitialFit
 
-python combineTool.py -M Impacts [-t 1 --expectSignal 1] -d tHq_cards.root -m 125 --robustFit 1 --rMin -5 --rMax 10 --doFits --parallel 12
+python combineTool.py -M Impacts -d tHq_cards.root -m 125 --robustFit 1 --rMin -5 --rMax 10 --doFits --parallel 12
 
 python combineTool.py -M Impacts -d tHq_cards.root -m 125 -o impacts.json
 

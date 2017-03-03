@@ -18,7 +18,7 @@ OUTNAME=$1; shift;
 if [[ "X$1" == "X" ]]; then echo "Please provide channel (e.g. 2lss-mm): [makecards.sh outdir channel]"; exit; fi
 CHANNEL=$1; shift;
 
-LUMI=36.5
+LUMI=35.9
 # Note: tthtrees is a symlink to /afs/cern.ch/work/p/peruzzi/tthtrees/
 #       thqtrees is a symlink to /afs/cern.ch/work/s/stiegerb/TTHTrees/13TeV/
 
@@ -73,13 +73,13 @@ case "$CHANNEL" in
         BINNING="thqMVA_ttv_2lss:thqMVA_tt_2lss 40,-1,1,40,-1,1"        
         ;;
     "2lss_em" )
-        OPTIONS="${OPTIONS} ${OPT2L} -E em_chan"
+        OPTIONS="${OPTIONS} ${OPT2L} -E em_chan --xp Gstar"
         MCA="tHq-multilepton/signal_extraction/mca-thq-2lss-mcdata-frdata_limits.txt"
         CUTS="tHq-multilepton/cuts-thq-2lss.txt"
         BINNING="thqMVA_ttv_2lss:thqMVA_tt_2lss 40,-1,1,40,-1,1"
         ;;
     "2lss_ee" )
-        OPTIONS="${OPTIONS} ${OPT2L} -E ee_chan"
+        OPTIONS="${OPTIONS} ${OPT2L} -E ee_chan --xp Gstar"
         MCA="tHq-multilepton/signal_extraction/mca-thq-2lss-mcdata-frdata_limits.txt"
         CUTS="tHq-multilepton/cuts-thq-2lss.txt"
         BINNING="thqMVA_ttv_2lss:thqMVA_tt_2lss 40,-1,1,40,-1,1"
