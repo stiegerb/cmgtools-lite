@@ -676,17 +676,23 @@ if __name__ == '__main__':
     for point in points:
         # Check if we have all the samples for this point
         absct = point.split('_')[1].strip('m') # '1p5_m0p25' -> '0p25'
-        for testing in ['tHq_hww_%s'%point, 'tHW_hww_%s'%point, 'ttH_%s'%absct]:
+        for testing in ['tHq_hww_%s'%point, 'tHW_hww_%s'%point, 'ttH_hww_%s'%absct,
+                        'tHq_hzz_%s'%point, 'tHW_hzz_%s'%point, 'ttH_hzz_%s'%absct,
+                        'tHq_htt_%s'%point, 'tHW_htt_%s'%point, 'ttH_htt_%s'%absct]:
             if testing == 'ttH_0': continue # Don't need that one
             if not testing in cardMaker.mca.listProcesses(allProcs=True):
                 print "Process %s not found, aborting" % testing
                 sys.exit(-1)
 
         # Take the correct signals for this point
-        signals = ['tHq_hww_%s'%point, 'tHW_hww_%s'%point]
+        signals = ['tHq_hww_%s'%point, 'tHq_htt_%s'%point, 'tHq_hzz_%s'%point,
+                   'tHW_hww_%s'%point, 'tHW_htt_%s'%point, 'tHW_hzz_%s'%point] 
         # Take all non-Higgs backgrounds and add the correct ttH for this point
         backgrounds = [p for p in cardMaker.mca.listBackgrounds() if not p.startswith('ttH')]
-        if absct != '0': backgrounds.insert(0, 'ttH_%s'%absct)
+        if absct != '0':
+            backgrounds.insert(0, 'ttH_hzz_%s'%absct)
+            backgrounds.insert(0, 'ttH_htt_%s'%absct)
+            backgrounds.insert(0, 'ttH_hww_%s'%absct)
 
         if options.asimov:
             cardMaker.prepareAsimov(signals=signals, backgrounds=backgrounds)
