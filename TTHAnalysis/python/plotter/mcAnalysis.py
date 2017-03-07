@@ -305,15 +305,15 @@ class MCAnalysis:
             if self._backgrounds and not ret.has_key('background') and len(allBg) > 0:
                 ret['background'] = mergeReports(allBg)
         return ret
-    def getPlotsRaw(self,name,expr,bins,cut,process=None,nodata=False,makeSummary=False,closeTreeAfter=False):
-        return self.getPlots(PlotSpec(name,expr,bins,{}),cut,process,nodata,makeSummary,closeTreeAfter)
-    def getPlots(self,plotspec,cut,process=None,nodata=False,makeSummary=False,closeTreeAfter=False):
+    def getPlotsRaw(self,name,expr,bins,cut,processes=None,nodata=False,makeSummary=False,closeTreeAfter=False):
+        return self.getPlots(PlotSpec(name,expr,bins,{}),cut,processes,nodata,makeSummary,closeTreeAfter)
+    def getPlots(self,plotspec,cut,processes=None,nodata=False,makeSummary=False,closeTreeAfter=False):
         ret = { }
         allSig = []; allBg = []
         tasks = []
         for key,ttys in self._allData.iteritems():
             if key == 'data' and nodata: continue
-            if process != None and key != process: continue
+            if processes != None and key not in processes: continue
             for tty in ttys:
                 tasks.append((key,tty,plotspec,cut,None,closeTreeAfter))
         if self._options.splitFactor > 1 or  self._options.splitFactor == -1:

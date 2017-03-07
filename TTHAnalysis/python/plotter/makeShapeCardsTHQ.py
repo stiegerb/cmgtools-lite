@@ -39,6 +39,30 @@ def getYieldScale(mass,process):
             break
     return scale
 
+SYSTEMATICS = {
+    "fwdJet"           : "fwdjet_eventWeight_25",
+    "jec_Up"           : "eventBTagSF_up_jes",
+    "jec_Dn"           : "eventBTagSF_down_jes",
+    "bTag_LF_Up"       : "eventBTagSF_up_lf",
+    "bTag_LF_Dn"       : "eventBTagSF_down_lf",
+    "bTag_HF_Up"       : "eventBTagSF_up_hf",
+    "bTag_HF_Dn"       : "eventBTagSF_down_hf",
+    "bTag_HFStats1_Up" : "eventBTagSF_up_hfstats1",
+    "bTag_HFStats1_Dn" : "eventBTagSF_down_hfstats1",
+    "bTag_HFStats2_Up" : "eventBTagSF_up_hfstats2",
+    "bTag_HFStats2_Dn" : "eventBTagSF_down_hfstats2",
+    "bTag_LFStats1_Up" : "eventBTagSF_up_lfstats1",
+    "bTag_LFStats1_Dn" : "eventBTagSF_down_lfstats1",
+    "bTag_LFStats2_Up" : "eventBTagSF_up_lfstats2",
+    "bTag_LFStats2_Dn" : "eventBTagSF_down_lfstats2",
+    "bTag_cErr1_Up"    : "eventBTagSF_up_cferr1",
+    "bTag_cErr1_Dn"    : "eventBTagSF_down_cferr1",
+    "bTag_cErr2_Up"    : "eventBTagSF_up_cferr2",
+    "bTag_cErr2_Dn"    : "eventBTagSF_down_cferr2",
+    "elLooseUnc_Up"    : "elLooseUnc_2lss_up",
+    "elLooseUnc_Dn"    : "elLooseUnc_2lss_dn",
+}
+
 def rebin2Dto1D(h, funcstring):
     nbins,fname = funcstring.split(':',1)
     func = getattr(ROOT,fname)
@@ -109,12 +133,22 @@ class ShapeCardMaker:
                 except ReferenceError:
                     raise RuntimeError("ERROR: Key %s not found in %s" % (proc, self.options.infile))
         else:
-            if self.options.verbose > 0:
-                print "...producing from trees for %d processes" % len(self.mca.listProcesses(allProcs=True))
+            ## Get the histos for all backgrounds only, from mcAnalysis
+            sigs_and_systs = [p for p in self.mca.listProcesses(allProcs=True) if
+                                                  any([p.startswith(x) for x in ['tHq', 'tHW', 'ttH']])]
+            all_the_rest = [p for p in self.mca.listProcesses(allProcs=True) if not p in sigs_and_systs]
 
+            if self.options.verbose > 0:
+                print "...running trees for %d processes" % len(all_the_rest)
             self.report = self.mca.getPlotsRaw("x", self.var, self.bins,
                                                self.cuts.allCuts(),
+                                               processes=self.mca.listBackgrounds(),
                                                nodata=self.options.asimov)
+
+            ## Add the histos for all the signal variations and their systematics, from the ntuples
+            if self.options.verbose > 0:
+                print "...processing mini ntuples for %d processes" % len(sigs_and_systs)
+            self.report.update(self.produceSignalReport(processes=sigs_and_systs))
 
         if not self.options.asimov:
             self.report['data_obs'] = self.report['data'].Clone("x_data_obs")
@@ -128,6 +162,48 @@ class ShapeCardMaker:
             print "...report written to %s" % self.options.savefile
 
         self.updateAllYields()
+
+    def produceSignalReport(self, processes):
+        report = {}
+        def getVariationsFromNtuple(filename, weight):
+            # Open the TFile
+            # Read the tree
+            # Draw the 2d BDT histo with the weight
+            # return them
+            pass
+
+
+        def parse(process):
+            weight = "_weight_*(GenHiggsDecayMode=={pdgid})"
+            filename = "ntuple_{proc}_{point}.root"
+
+            proc,dec,rest = process.split('_',2)
+            pdgid = {"hww":24, "hzz":23, "htt":15}.get(dec)
+
+            if proc in ['tHq', 'tHW']:
+                p1,p2,syst = re.match(r'([mp012357]{1,})_([mp012357]{1,})_?([\w]*)', rest).groups()
+                point = '_'.join([p1,p2])
+
+            if proc == 'ttH':
+                point,syst = re.match(r'([mp012357]{1,})_?([\w]*)', rest).groups()
+                assert('_' not in point)
+                xs_scale = (float(point.replace('p','.')))**2
+                weight += '*(%.3f)'%xs_scale
+                point = '1'
+
+            if syst != '':
+                weight += '*(%s)' % SYSTEMATICS.get(syst)
+                
+            return filename.format(proc=proc, point=point), weight.format(pdgid=pdgid)
+
+        for proc in processes:
+            print "...processing %s" % proc
+            filename, weight = parse(proc)
+            print "using %s and %s" % (filename, weight)
+            # assert (os.path.exists('ntuples_Mar7/3l/%s'%filename))
+            report[proc] = getVariationsFromNtuple(filename, weight)
+
+        return report
 
     def updateAllYields(self):
         self.allyields = {p:h.Integral() for p,h in self.report.iteritems()}
@@ -665,6 +741,8 @@ if __name__ == '__main__':
                                systsfiles=args[4:],
                                options=options)
 
+    cardMaker.produceSignalReport()
+    sys.exit(-1)
     cardMaker.produceReport()
     cardMaker.parseSystematicsEffects()
 

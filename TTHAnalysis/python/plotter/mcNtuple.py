@@ -26,7 +26,7 @@ class MCNtupleModule(Module):
         if self.dumpFile: self.endJob()
         self.mcde.beginComponent(tty)
         if self.dumpFileName:
-            self.dumpFile = self.dumpFileName.format(cname=tty.cname())
+            self.dumpFile = self.dumpFileName.format(cname=tty.cname(),name=tty.name())
             self.dumpTFile = ROOT.TFile.Open(self.dumpFile, "RECREATE")
             self.dumpTTree = ROOT.TTree("t","t")
             self.dumpPyTree = PyTree(self.dumpTTree)
@@ -35,7 +35,7 @@ class MCNtupleModule(Module):
             self.dumpPyTree.branch("_weight_","F")
             self.thisWeight = tty.getWeightForCut(self.cut)
     def openOutFile(self,dumpFileName):
-        if "{cname}" not in dumpFileName: raise RuntimeError
+        if "{cname}" not in dumpFileName and "{name}" not in dumpFileName: raise RuntimeError
         self.dumpFileName = dumpFileName
     def analyze(self,ev):
         self.mcde.update(ev)

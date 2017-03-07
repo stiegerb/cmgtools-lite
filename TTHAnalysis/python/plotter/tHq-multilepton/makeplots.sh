@@ -55,13 +55,13 @@ CUTS=""
 PLOTS=""
 case "$PLOTTAG" in
     "3l" )
-        OPTIONS="${OPTIONS} ${DRAWOPTIONS} ${OPT3L} --xp data"
+        OPTIONS="${OPTIONS} ${DRAWOPTIONS} ${OPT3L}"
         MCA="tHq-multilepton/mca-thq-3l-mcdata-frdata.txt"
         CUTS="tHq-multilepton/cuts-thq-3l.txt"
         PLOTS="tHq-multilepton/plots-thq-3l-kinMVA.txt"
         ;;
     "3l-mvaout" )
-        OPTIONS="${OPTIONS} ${OPT3L} --xp data --plotmode norm"
+        OPTIONS="${OPTIONS} ${OPT3L} --plotmode norm"
         OPTIONS="${OPTIONS} --select-plot thqMVA_tt_3l,thqMVA_ttv_3l"
         OPTIONS="${OPTIONS} --xp WWss,WWDPS,VVV,tttt,tZq,ZZ,WZ"
         MCA="tHq-multilepton/mca-thq-3l-mcdata-frdata.txt"
@@ -98,7 +98,7 @@ case "$PLOTTAG" in
         DONE
         ;;
     "2lss-mvaout" )
-        OPTIONS="${OPTIONS} ${OPT2L} --xp data --plotmode norm"
+        OPTIONS="${OPTIONS} ${OPT2L} --plotmode norm"
         OPTIONS="${OPTIONS} --select-plot thqMVA_tt_2lss,thqMVA_ttv_2lss"
         OPTIONS="${OPTIONS} --xp WWss,WWDPS,VVV,tttt,tZq,ZZ,WZ"
         MCA="tHq-multilepton/mca-thq-2lss-mcdata-frdata.txt"
@@ -106,7 +106,7 @@ case "$PLOTTAG" in
         PLOTS="tHq-multilepton/plots-thq-2lss-kinMVA.txt"
         ;;
     "2lss-mm" )
-        OPTIONS="${OPTIONS} ${DRAWOPTIONS} ${OPT2L} --xp data -E mm_chan"
+        OPTIONS="${OPTIONS} ${DRAWOPTIONS} ${OPT2L} -E mm_chan --xp data_flips"
         OPTIONS="${OPTIONS} --xP finalBins_log_em --xP finalBins_log_ee"
         MCA="tHq-multilepton/mca-thq-2lss-mcdata-frdata.txt"
         CUTS="tHq-multilepton/cuts-thq-2lss.txt"
@@ -119,21 +119,21 @@ case "$PLOTTAG" in
         PLOTS="tHq-multilepton/plots-thq-2lss-kinMVA.txt"
         ;;
     "2lss-mm-ttcontrol" )
-        OPTIONS="${OPTIONS} ${DRAWOPTIONS} ${OPT2L} -E mm_chan"
+        OPTIONS="${OPTIONS} ${DRAWOPTIONS} ${OPT2L} -E mm_chan --xp data_flips"
         OPTIONS="${OPTIONS} --xP finalBins_log_em --xP finalBins_log_ee"
         MCA="tHq-multilepton/mca-thq-2lss-mcdata-frdata.txt"
         CUTS="tHq-multilepton/cuts-thq-2lss-ttbarcontrol.txt"
         PLOTS="tHq-multilepton/plots-thq-2lss-kinMVA.txt"
         ;;
     "2lss-em" )
-        OPTIONS="${OPTIONS} ${DRAWOPTIONS} ${OPT2L} --xp data -E em_chan"
+        OPTIONS="${OPTIONS} ${DRAWOPTIONS} ${OPT2L} -E em_chan"
         OPTIONS="${OPTIONS} --xP finalBins_log_mm --xP finalBins_log_ee"
         MCA="tHq-multilepton/mca-thq-2lss-mcdata-frdata.txt"
         CUTS="tHq-multilepton/cuts-thq-2lss.txt"
         PLOTS="tHq-multilepton/plots-thq-2lss-kinMVA.txt"
         ;;
     "2lss-me" )
-        OPTIONS="${OPTIONS} ${DRAWOPTIONS} ${OPT2L} --xp data -E me_chan"
+        OPTIONS="${OPTIONS} ${DRAWOPTIONS} ${OPT2L} -E me_chan"
         MCA="tHq-multilepton/mca-thq-2lss-mcdata-frdata.txt"
         CUTS="tHq-multilepton/cuts-thq-2lss.txt"
         PLOTS="tHq-multilepton/plots-thq-2lss-kinMVA.txt"
@@ -146,7 +146,7 @@ case "$PLOTTAG" in
         PLOTS="tHq-multilepton/plots-thq-2lss-kinMVA.txt"
         ;;
     "2lss-ee" )
-        OPTIONS="${OPTIONS} ${DRAWOPTIONS} ${OPT2L} --xp data -E ee_chan"
+        OPTIONS="${OPTIONS} ${DRAWOPTIONS} ${OPT2L} -E ee_chan"
         OPTIONS="${OPTIONS} --xP finalBins_log_mm --xP finalBins_log_em"
         MCA="tHq-multilepton/mca-thq-2lss-mcdata-frdata.txt"
         CUTS="tHq-multilepton/cuts-thq-2lss.txt"
@@ -161,7 +161,7 @@ case "$PLOTTAG" in
         ;;
     "2los-em-ttcontrol" )
         TREEINPUTS="-P tthtrees/TREES_TTH_250117_Summer16_JECV3_noClean_qgV2"
-        FRIENDTREES=" --Fs {P}/1_recleaner_250117_v1 --Fs {P}/5_triggerDecision_250117_v1 -F sf/t thqtrees/tHq_eventvars_Feb2/evVarFriend_{cname}.root"
+        FRIENDTREES="--Fs {P}/5_triggerDecision_250117_v1 --Fs {P}/6_bTagSF_v2 -F sf/t thqtrees/1_thq_recleaner_240217_full/evVarFriend_{cname}.root -F sf/t thqtrees/2_thq_friends_Feb24_full//evVarFriend_{cname}.root"
         OPTIONS="${TREEINPUTS} ${FRIENDTREES} ${BASEOPTIONS} ${OPTIONS} ${DRAWOPTIONS} ${OPT2L}"
         MCA="tHq-multilepton/mca-2los-mcdata.txt"
         CUTS="tHq-multilepton/cuts-thq-ttbar-fwdjet.txt"
@@ -192,13 +192,16 @@ case "$PLOTTAG" in
         DONE
         ;;
     "ntuple_3l" )
-        OPTIONS="${OPTIONS} ${OPT3L} --xp data"
-        MCA="tHq-multilepton/mca-thq-3l-mc.txt"
+        OPTIONS="${OPTIONS} ${OPT3L}"
+        # MCA="tHq-multilepton/mca-thq-3l-mc.txt"
+        MCA="tHq-multilepton/signal_extraction/mca-thq-3l-mcdata-frdata_tontuple.txt"
         CUTS="tHq-multilepton/cuts-thq-3l.txt"
         PLOTS="tHq-multilepton/plots-ntuplecontent.txt"
-        SELECTPLOT="--sP thqMVA_tt_3l,thqMVA_ttv_3l,GenHiggsDecayMode"
-        SELECTPROCESS="-p tHq_hww -p tHW_hww" # -p ttW -p ttZ -p ttH -p TT"
-        OUTFILE="${OUTDIR}/ntuple_{cname}.root"
+        SELECTPLOT=""
+        # SELECTPLOT="--sP thqMVA_tt_3l,thqMVA_ttv_3l,GenHiggsDecayMode"
+        SELECTPROCESS=""
+        # SELECTPROCESS="-p tHq_hww -p tHW_hww" # -p ttW -p ttZ -p ttH -p TT"
+        OUTFILE="${OUTDIR}/ntuple_{name}.root"
         test -d ${OUTDIR} || mkdir -p ${OUTDIR}
 
         ARGUMENTS="${MCA} ${CUTS} ${PLOTS}"
@@ -211,7 +214,7 @@ case "$PLOTTAG" in
         DONE
         ;;
     "ntuple_2lss" )
-        OPTIONS="${OPTIONS} ${OPT2L} --xp data -E mm_chan"
+        OPTIONS="${OPTIONS} ${OPT2L} -E mm_chan"
         MCA="tHq-multilepton/mca-thq-2lss-mc.txt"
         CUTS="tHq-multilepton/cuts-thq-2lss.txt"
         PLOTS="tHq-multilepton/plots-ntuplecontent.txt"
@@ -234,10 +237,10 @@ case "$PLOTTAG" in
         ./$0 ${OUTDIR}/2lss-mm 2lss-mm
         ./$0 ${OUTDIR}/2lss-em 2lss-em
         ./$0 ${OUTDIR}/2lss-ee 2lss-ee
-        ./$0 ${OUTDIR}/3l-zcontrol 3l-zcontrol
-        ./$0 ${OUTDIR}/2lss-mm-ttcontrol 2lss-mm-ttcontrol
-        ./$0 ${OUTDIR}/2lss-em-ttcontrol 2lss-em-ttcontrol
-        ./$0 ${OUTDIR}/2lss-ee-ttcontrol 2lss-ee-ttcontrol
+        # ./$0 ${OUTDIR}/3l-zcontrol 3l-zcontrol
+        # ./$0 ${OUTDIR}/2lss-mm-ttcontrol 2lss-mm-ttcontrol
+        # ./$0 ${OUTDIR}/2lss-em-ttcontrol 2lss-em-ttcontrol
+        # ./$0 ${OUTDIR}/2lss-ee-ttcontrol 2lss-ee-ttcontrol
         DONE
         ;;
     "frclosures" )
