@@ -34,8 +34,8 @@ BASEOPTIONS="-f -j 8 -l ${LUMI} --s2v -v 2"\
 " -L tHq-multilepton/functionsTHQ.cc"\
 " --tree treeProducerSusyMultilepton"\
 " --mcc ttH-multilepton/lepchoice-ttH-FO.txt"\
-" --xp data --asimov"\
-" --neg"
+" --neg"\
+" --xp data --asimov"
 
 # Pileup weight, btag SFs, trigger SFs, lepton Eff SFs:
 OPT2L="-W puw2016_nTrueInt_36fb(nTrueInt)*eventBTagSF*"\
@@ -67,7 +67,7 @@ case "$CHANNEL" in
         # FUNCTION="--2d-binning-function 5:tHq_MVAto1D_3l_kmeans"
         ;;
     "2lss_mm" )
-        OPTIONS="${OPTIONS} ${OPT2L} -E mm_chan --xp Convs --xp Gstar" # remove conversions for mm channel
+        OPTIONS="${OPTIONS} ${OPT2L} -E mm_chan --xp Convs --xp Gstar --xp data_flips" # remove conversions for mm channel
         MCA="tHq-multilepton/signal_extraction/mca-thq-2lss-mcdata-frdata_limits.txt"
         CUTS="tHq-multilepton/cuts-thq-2lss.txt"
         BINNING="thqMVA_ttv_2lss:thqMVA_tt_2lss 40,-1,1,40,-1,1"        

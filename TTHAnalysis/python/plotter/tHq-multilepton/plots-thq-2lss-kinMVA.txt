@@ -11,10 +11,10 @@ dPhiHighestPtSSPair  : dPhiHighestPtSSPair  : 18,0,3.2; XTitle="#Delta#phi highe
 Lep1Pt               : LepGood1_conePt      : 18,0,200; XTitle="Leading lepton p_{T} [GeV]"
 Lep2Pt               : LepGood2_conePt      : 18,0,80;  XTitle="Sub-leading lepton p_{T} [GeV]"
 minDRll              : minDRll              : 18,0,4;   XTitle="Minimum #DeltaR between any two leptons"
-totCharge            : LepGood1_charge+LepGood2_charge : [-1.5,-0.5,0.5,1.5]; XTitle="Total lepton charge", Legend='TL'
+totCharge            : LepGood1_charge*2    : [-1.5,-0.5,0.5,1.5]; XTitle="Total lepton charge", Legend='BR'
 
-thqMVA_tt_2lss   : thqMVA_tt_2lss  : 16,-1.,1.0; XTitle="kinMVA (tHq vs t#bar{t})", Legend='TL'
-thqMVA_ttv_2lss  : thqMVA_ttv_2lss : 16,-1.,1.0; XTitle="kinMVA (tHq vs t#bar{t}V)", Legend='TL'
+thqMVA_tt_2lss   : thqMVA_tt_2lss  : 16,-1.,1.0; XTitle="kinMVA (tHq vs t#bar{t})", Legend='TR'
+thqMVA_ttv_2lss  : thqMVA_ttv_2lss : 16,-1.,1.0; XTitle="kinMVA (tHq vs t#bar{t}V)", Legend='TR'
 
 finalBins        : tHq_MVAto1D_2lss_10(thqMVA_tt_2lss, thqMVA_ttv_2lss) : [0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,10.5]; XTitle='Bin No.'
 finalBins_log_mm : tHq_MVAto1D_2lss_10(thqMVA_tt_2lss, thqMVA_ttv_2lss) : [0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,10.5]; XTitle='Bin No.',Logy,LegendCutoff=0.01,YMin=0.5,YMax=100,Legend='BL' # for mm
