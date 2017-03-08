@@ -671,6 +671,10 @@ class ShapeCardMaker:
                 datacard.write((hpatt%name+'  lnN') + " ".join([kpatt % effmap[p] for p in self.processes]) +"\n")
 
             for name, (effmap0,effmap12,mode) in self.systsEnv.iteritems():
+                if 'templstat' in name: # Throw out systs that don't apply to any in self.processes
+                    if not any([p in name for p in self.processes]):
+                        continue
+
                 if mode in ["templates", "alternateShape", "alternateShapeOnly"]:
                     datacard.write(hpatt%name+'shape')
                     datacard.write(" ".join([kpatt % effmap0[p] for p in self.processes]))
@@ -711,7 +715,7 @@ class ShapeCardMaker:
 
             histname = hist.GetName()
             for orig,repl in procnames.iteritems():
-                histname = histname.replace(orig,repl)
+                histname = histname.replace(orig, repl, 1)
 
             workspace.WriteTObject(hist, histname)
         workspace.Close()
