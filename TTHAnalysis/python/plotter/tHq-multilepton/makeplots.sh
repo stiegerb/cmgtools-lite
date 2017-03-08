@@ -161,13 +161,12 @@ case "$PLOTTAG" in
         ;;
     "2los-em-ttcontrol" )
         TREEINPUTS="-P tthtrees/TREES_TTH_250117_Summer16_JECV3_noClean_qgV2"
-        FRIENDTREES=" --Fs {P}/1_recleaner_250117_v1 --Fs {P}/5_triggerDecision_250117_v1 -F sf/t thqtrees/tHq_eventvars_Feb2/evVarFriend_{cname}.root"
+	FRIENDTREES="-F sf/t thqtrees/5_triggerDecision_230217_v6//evVarFriend_{cname}.root -F sf/t thqtrees/6_bTagSF_v6/evVarFriend_{cname}.root -F sf/t thqtrees/1_thq_recleaner_240217_full/evVarFriend_{cname}.root -F sf/t thqtrees/2_thq_friends_Feb24_full/evVarFriend_{cname}.root"
         OPTIONS="${TREEINPUTS} ${FRIENDTREES} ${BASEOPTIONS} ${OPTIONS} ${DRAWOPTIONS} ${OPT2L}"
         MCA="tHq-multilepton/mca-2los-mcdata.txt"
         CUTS="tHq-multilepton/cuts-thq-ttbar-fwdjet.txt"
         PLOTS="tHq-multilepton/plots-thq-ttbar-fwdjet.txt"
-        python mcPlots.py ${MCA} ${CUTS} ${PLOTS} ${OPTIONS} --enable-cut 2bl --select-plot dEtaFwdJet2BJet
-        python mcPlots.py ${MCA} ${CUTS} ${PLOTS} ${OPTIONS} --exclude-plot dEtaFwdJet2BJet
+	python mcPlots.py ${MCA} ${CUTS} ${PLOTS} ${OPTIONS} --scaleBkgToData TT --scaleBkgToData DY --scaleBkgToData WJets --scaleBkgToData SingleTop --scaleBkgToData WW -E fwdjetpt25 --select_plot maxEtaJet25
         DONE
         ;;
     "2lss-frclosure" )
