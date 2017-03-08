@@ -11,6 +11,7 @@ from CMGTools.TTHAnalysis.plotter.mcAnalysis import MCAnalysis
 from CMGTools.TTHAnalysis.plotter.mcAnalysis import CutsFile
 from CMGTools.TTHAnalysis.plotter.mcAnalysis import addMCAnalysisOptions
 from CMGTools.TTHAnalysis.plotter.tree2yield import mergePlots
+from CMGTools.TTHAnalysis.plotter.tree2yield import makeHistFromBinsAndSpec
 
 def mkOneSpline():
     x_vec,y_vec = ROOT.std.vector('double')(), ROOT.std.vector('double')()
@@ -110,67 +111,64 @@ class ShapeCardMaker:
 
         self.systs = {}
         self.systsEnv = {}
+        self.report = {}
 
         for sysfile in systsfiles:
             self.parseSystsFile(sysfile)
 
-    def produceReport(self):
-        if self.options.verbose: print ("...producing report")
-        self.report = {}
-        if self.options.infile != None:
-            if self.options.verbose > 0:
-                print "...reading from %s" % self.options.infile
-            infile = ROOT.TFile(self.options.infile, "read")
-            for proc in self.mca.listProcesses(allProcs=True): # ignore SkipMe=True in mca
-                histo = infile.Get(proc)
-                try:
-                    histo.SetDirectory(0) # will raise ReferenceError if histo doesn't exist
-                    if self.options.verbose > 1:
-                        print "...read %s (%d entries) from %s" % (histo.GetName(),
-                                                                   histo.GetEntries(),
-                                                                   self.options.infile)
-                    self.report[proc] = histo
-                except ReferenceError:
-                    raise RuntimeError("ERROR: Key %s not found in %s" % (proc, self.options.infile))
-        else:
-            ## Get the histos for all backgrounds only, from mcAnalysis
-            sigs_and_systs = [p for p in self.mca.listProcesses(allProcs=True) if
-                                                  any([p.startswith(x) for x in ['tHq', 'tHW', 'ttH']])]
-            all_the_rest = [p for p in self.mca.listProcesses(allProcs=True) if not p in sigs_and_systs]
+    def readReport(self, filename):
+        if self.options.verbose > 0:
+            print "...reading from %s" % filename
+        infile = ROOT.TFile(filename, "read")
+        for proc in self.mca.listProcesses(allProcs=True): # ignore SkipMe=True in mca
+            histo = infile.Get(proc)
+            try:
+                histo.SetDirectory(0) # will raise ReferenceError if histo doesn't exist
+                if self.options.verbose > 5:
+                    print "...read %s (%d entries) from %s" % (histo.GetName(),
+                                                               histo.GetEntries(),
+                                                               filename)
+                self.report[proc] = histo
+            except ReferenceError:
+                raise RuntimeError("ERROR: Key %s not found in %s" % (proc, filename))
 
-            if self.options.verbose > 0:
-                print "...running trees for %d processes" % len(all_the_rest)
-            self.report = self.mca.getPlotsRaw("x", self.var, self.bins,
-                                               self.cuts.allCuts(),
-                                               processes=self.mca.listBackgrounds(),
-                                               nodata=self.options.asimov)
+    def saveReport(self, filename):
+        tfile = ROOT.TFile(filename, "recreate")
+        for n,h in self.report.iteritems():
+            tfile.WriteTObject(h,n)
+        tfile.Close()
+        print "...report written to %s" % filename
 
-            ## Add the histos for all the signal variations and their systematics, from the ntuples
-            if self.options.verbose > 0:
-                print "...processing mini ntuples for %d processes" % len(sigs_and_systs)
-            self.report.update(self.produceSignalReport(processes=sigs_and_systs))
+    def produceReportFromMCA(self, processes=None):
+        processes = processes or self.mca.listProcesses(allProcs=True)
+        report = {}
+        if self.options.verbose > 0:
+            print "...producing report"
+            print "...running trees for %d processes" % len(processes)
+        report = self.mca.getPlotsRaw("x", self.var, self.bins,
+                                           self.cuts.allCuts(),
+                                           processes=processes,
+                                           nodata=self.options.asimov)
 
         if not self.options.asimov:
-            self.report['data_obs'] = self.report['data'].Clone("x_data_obs")
-            self.report['data_obs'].SetDirectory(0)
+            report['data_obs'] = report['data'].Clone("x_data_obs")
+            report['data_obs'].SetDirectory(0)
 
-        if self.options.savefile != None:
-            tfile = ROOT.TFile(self.options.savefile, "recreate")
-            for n,h in self.report.iteritems():
-                tfile.WriteTObject(h,n)
-            tfile.Close()
-            print "...report written to %s" % self.options.savefile
-
+        self.report.update(report)
         self.updateAllYields()
 
-    def produceSignalReport(self, processes):
+    def produceReportFromNTuples(self, processes=None, inputfolder=None):
         report = {}
-        def getVariationsFromNtuple(filename, weight):
-            # Open the TFile
-            # Read the tree
-            # Draw the 2d BDT histo with the weight
-            # return them
-            pass
+        def getVariationsFromNtuple(filename, weight, histname):
+            tfile = ROOT.TFile.Open(filename, "read")
+            tree = tfile.Get("t")
+            histo = makeHistFromBinsAndSpec(name=histname, expr=self.var,
+                                            bins=self.bins, plotspec=None)
+            tree.Draw("%s>>%s" % (self.var,histname), weight)
+            histo.SetDirectory(0)
+            tfile.Close()
+            if self.options.verbose>2: print "(%d entries)" % histo.GetEntries()
+            return histo
 
 
         def parse(process):
@@ -193,17 +191,24 @@ class ShapeCardMaker:
 
             if syst != '':
                 weight += '*(%s)' % SYSTEMATICS.get(syst)
+
+            if '2lss' in self.truebinname:
+                if self.truebinname == '2lss_mm': weight += '*(channel==%d)'%(13*13)
+                if self.truebinname == '2lss_em': weight += '*(channel==%d)'%(11*13)
+                if self.truebinname == '2lss_ee': weight += '*(channel==%d)'%(11*11)
                 
             return filename.format(proc=proc, point=point), weight.format(pdgid=pdgid)
 
         for proc in processes:
-            print "...processing %s" % proc
+            if self.options.verbose>2: print "...processing %s, " % proc,
             filename, weight = parse(proc)
-            print "using %s and %s" % (filename, weight)
-            # assert (os.path.exists('ntuples_Mar7/3l/%s'%filename))
-            report[proc] = getVariationsFromNtuple(filename, weight)
+            if self.options.verbose>2: print "using %s and %s" % (filename, weight),
+            assert (os.path.exists(os.path.join(inputfolder, filename)))
+            report[proc] = getVariationsFromNtuple(filename=os.path.join(inputfolder,filename),
+                                                   weight=weight, histname="x_%s"%proc)
 
-        return report
+        self.report.update(report)
+        self.updateAllYields()
 
     def updateAllYields(self):
         self.allyields = {p:h.Integral() for p,h in self.report.iteritems()}
@@ -621,8 +626,8 @@ class ShapeCardMaker:
                         # mirror normalization
                         mnorm = (nominal.Integral()**2)/alternate.Integral()
                         mirror.Scale(mnorm/alternate.Integral())
-                    self.report[alternate.GetName()] = alternate
-                    self.report[mirror.GetName()] = mirror
+                    self.report[str(alternate.GetName())[2:]] = alternate
+                    self.report[str(mirror.GetName())[2:]] = mirror
                     effect0  = "1"
                     effect12 = "-"
                 effmap0[proc]  = effect0
@@ -631,11 +636,13 @@ class ShapeCardMaker:
 
         return systsEnv2
 
-    def writeDataCard(self, ofilename=None):
+    def writeDataCard(self, ofilename=None, procnames=None):
         if self.options.verbose: print ("...writing datacard")
         myyields = {k:v for (k,v) in self.allyields.iteritems()} # doesn't this just copy the dict?
         if not os.path.exists(self.options.outdir):
             os.mkdir(self.options.outdir)
+
+        procnames = procnames or dict() # use custom process names in case
 
         ofilename = ofilename or self.binname+".card.txt"
         with open(os.path.join(self.options.outdir, ofilename), 'w') as datacard:
@@ -655,7 +662,7 @@ class ShapeCardMaker:
             hpatt = "%%-%ds " % hlen
             datacard.write('##----------------------------------\n')
             datacard.write(hpatt%'bin'     +"     "+(" ".join([kpatt % self.binname  for p in self.processes]))+"\n")
-            datacard.write(hpatt%'process' +"     "+(" ".join([kpatt % p             for p in self.processes]))+"\n")
+            datacard.write(hpatt%'process' +"     "+(" ".join([kpatt % procnames.get(p,p) for p in self.processes]))+"\n")
             datacard.write(hpatt%'process' +"     "+(" ".join([kpatt % self.iproc[p] for p in self.processes]))+"\n")
             datacard.write(hpatt%'rate'    +"     "+(" ".join([fpatt % myyields[p]   for p in self.processes]))+"\n")
             datacard.write('##----------------------------------\n')
@@ -684,19 +691,29 @@ class ShapeCardMaker:
                         datacard.write("\n")
             datacard.write("\n")
 
-        self.writeInputRootFile(ofilename=ofilename.replace('.card.txt', '.input.root'))
+        self.writeInputRootFile(ofilename=ofilename.replace('.card.txt', '.input.root'),
+                                procnames=procnames)
 
-    def writeInputRootFile(self, ofilename=None):
+    def writeInputRootFile(self, ofilename=None, procnames=None):
         ofilename = ofilename or self.binname+".input.root"
+        procnames = procnames or dict() # use custom process names in case
         if self.options.verbose: print ("...writing input root file to %s" %
                                           os.path.join(self.options.outdir, ofilename))
         workspace = ROOT.TFile.Open(os.path.join(self.options.outdir,
                                                  ofilename),
                                     "RECREATE")
-        for n,h in self.report.iteritems():
-            if self.options.verbose>2:
-                print "      %-60s %8.3f events" % (h.GetName(),h.Integral())
-            workspace.WriteTObject(h,h.GetName())
+
+        hists_to_store = [h for n,h in self.report.iteritems() if any([n.startswith(p) for p in self.processes])]
+        hists_to_store.append(self.report['data_obs'])
+        for hist in hists_to_store:
+            if self.options.verbose > 2:
+                print "      %-60s %8.3f events" % (hist.GetName(),hist.Integral())
+
+            histname = hist.GetName()
+            for orig,repl in procnames.iteritems():
+                histname = histname.replace(orig,repl)
+
+            workspace.WriteTObject(hist, histname)
         workspace.Close()
 
 
@@ -721,6 +738,8 @@ if __name__ == '__main__':
                       default=None, help="File to read histos from")
     parser.add_option("--savefile", dest="savefile", type="string",
                       default=None, help="File to save histos to")
+    parser.add_option("--ntuple_folder", dest="ntuple_folder", type="string",
+                      default=None, help="Read signal trees from ntuples in this directory")
 
     (options, args) = parser.parse_args()
     options.weight = True
@@ -741,10 +760,25 @@ if __name__ == '__main__':
                                systsfiles=args[4:],
                                options=options)
 
-    cardMaker.produceSignalReport()
-    sys.exit(-1)
-    cardMaker.produceReport()
+    if options.infile != None:
+        cardMaker.readReport(options.infile)
+    else:
+        all_processes = cardMaker.mca.listProcesses(allProcs=True)
+        sigs_and_systs = [p for p in all_processes if any([p.startswith(x) for x in ['tHq', 'tHW', 'ttH']])]
+        backgrounds    = [p for p in all_processes if not p in sigs_and_systs]
+
+        if options.ntuple_folder != None:
+            cardMaker.produceReportFromNTuples(processes=sigs_and_systs, inputfolder=options.ntuple_folder)
+            cardMaker.produceReportFromMCA(processes=backgrounds)
+        else:
+            cardMaker.produceReportFromMCA(processes=all_processes)
+
+    if options.savefile != None:
+        cardMaker.saveReport(options.savefile)
+
     cardMaker.parseSystematicsEffects()
+
+    # import pdb; pdb.set_trace()
 
     # Split the signal processes into different points (using the first '_')
     # and process all of them separately.
@@ -776,6 +810,12 @@ if __name__ == '__main__':
             cardMaker.prepareAsimov(signals=signals, backgrounds=backgrounds)
         cardMaker.setProcesses(signals=signals, backgrounds=backgrounds)
         ofilename = "%s_%s.card.txt" % (cardMaker.binname, point)
-        cardMaker.writeDataCard(ofilename=ofilename)
+
+        procnames = {} # remove points from process names in card and input file
+        for sig in signals:
+            procnames[sig] = sig.replace('_%s'%point, '')
+        for tth in ['ttH_hzz_%s'%absct, 'ttH_htt_%s'%absct, 'ttH_hww_%s'%absct]:
+            procnames[tth] = tth.replace('_%s'%absct, '')
+        cardMaker.writeDataCard(ofilename=ofilename, procnames=procnames)
 
     sys.exit(0)

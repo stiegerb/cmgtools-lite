@@ -193,14 +193,11 @@ case "$PLOTTAG" in
         ;;
     "ntuple_3l" )
         OPTIONS="${OPTIONS} ${OPT3L}"
-        # MCA="tHq-multilepton/mca-thq-3l-mc.txt"
-        MCA="tHq-multilepton/signal_extraction/mca-thq-3l-mcdata-frdata_tontuple.txt"
+        MCA="tHq-multilepton/signal_extraction/mca-thq-3l-tontuple.txt"
         CUTS="tHq-multilepton/cuts-thq-3l.txt"
         PLOTS="tHq-multilepton/plots-ntuplecontent.txt"
         SELECTPLOT=""
-        # SELECTPLOT="--sP thqMVA_tt_3l,thqMVA_ttv_3l,GenHiggsDecayMode"
         SELECTPROCESS=""
-        # SELECTPROCESS="-p tHq_hww -p tHW_hww" # -p ttW -p ttZ -p ttH -p TT"
         OUTFILE="${OUTDIR}/ntuple_{name}.root"
         test -d ${OUTDIR} || mkdir -p ${OUTDIR}
 
@@ -214,21 +211,21 @@ case "$PLOTTAG" in
         DONE
         ;;
     "ntuple_2lss" )
-        OPTIONS="${OPTIONS} ${OPT2L} -E mm_chan"
-        MCA="tHq-multilepton/mca-thq-2lss-mc.txt"
+        OPTIONS="${OPTIONS} ${OPT2L}"
+        MCA="tHq-multilepton/signal_extraction/mca-thq-2lss-tontuple.txt"
         CUTS="tHq-multilepton/cuts-thq-2lss.txt"
         PLOTS="tHq-multilepton/plots-ntuplecontent.txt"
-        SELECTPLOT="--sP thqMVA_tt_2lss,thqMVA_ttv_2lss,GenHiggsDecayMode"
-        SELECTPROCESS="-p tHq_hww -p tHW_hww" # -p ttW -p ttZ -p ttH -p TT"
-        OUTFILE="${OUTDIR}/ntuple_{cname}.root"
+        SELECTPLOT=""
+        SELECTPROCESS=""
+        OUTFILE="${OUTDIR}/ntuple_{name}.root"
         test -d ${OUTDIR} || mkdir -p ${OUTDIR}
 
         ARGUMENTS="${MCA} ${CUTS} ${PLOTS}"
         OPTIONS="${TREEINPUTS} ${FRIENDTREES} ${BASEOPTIONS} ${OPTIONS} ${SELECTPLOT} ${SELECTPROCESS}"
-        echo "mca    : ${MCA}"
-        echo "cuts   : ${CUTS}"
-        echo "plots  : ${PLOTS}"
-        echo "outfile: ${OUTFILE}"
+        echo "mca     : ${MCA}"
+        echo "cuts    : ${CUTS}"
+        echo "plots   : ${PLOTS}"
+        echo "outfiles: ${OUTFILE}"
         python mcNtuple.py ${MCA} ${CUTS} ${PLOTS} ${OUTFILE} ${OPTIONS}
         DONE
         ;;

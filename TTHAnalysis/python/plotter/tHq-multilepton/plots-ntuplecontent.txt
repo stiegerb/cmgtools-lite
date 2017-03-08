@@ -1,12 +1,37 @@
 evt               : evt                                                       : 1,0,1
 lumi              : lumi                                                      : 1,0,1
 run               : run                                                       : 1,0,1
-GenHiggsDecayMode : GenHiggsDecayMode                                         : 1,0,1
 
 thqMVA_tt_2lss    : thqMVA_tt_2lss                                            : 1,0,1
 thqMVA_ttv_2lss   : thqMVA_ttv_2lss                                           : 1,0,1
 thqMVA_tt_3l      : thqMVA_tt_3l                                              : 1,0,1
 thqMVA_ttv_3l     : thqMVA_ttv_3l                                             : 1,0,1
 
-finalBins_2lss    : tHq_MVAto1D_2lss_sbratio(thqMVA_tt_2lss, thqMVA_ttv_2lss) : 1,0,1
-finalBins_3l      : tHq_MVAto1D_3l_sbratio(thqMVA_tt_3l, thqMVA_ttv_3l)       : 1,0,1
+# finalBins_2lss    : tHq_MVAto1D_2lss_10(thqMVA_tt_2lss, thqMVA_ttv_2lss) : 1,0,1
+# finalBins_3l      : tHq_MVAto1D_3l_10(thqMVA_tt_3l, thqMVA_ttv_3l)       : 1,0,1
+
+GenHiggsDecayMode : GenHiggsDecayMode                                         : 1,0,1
+
+fwdjet_eventWeight_25     : fwdjet_eventWeight_25(maxEtaJet25)    : 1,0,1
+eventBTagSF_up_jes        : eventBTagSF_up_jes/eventBTagSF        : 1,0,1
+eventBTagSF_down_jes      : eventBTagSF_down_jes/eventBTagSF      : 1,0,1
+eventBTagSF_up_lf         : eventBTagSF_up_lf/eventBTagSF         : 1,0,1
+eventBTagSF_down_lf       : eventBTagSF_down_lf/eventBTagSF       : 1,0,1
+eventBTagSF_up_hf         : eventBTagSF_up_hf/eventBTagSF         : 1,0,1
+eventBTagSF_down_hf       : eventBTagSF_down_hf/eventBTagSF       : 1,0,1
+eventBTagSF_up_hfstats1   : eventBTagSF_up_hfstats1/eventBTagSF   : 1,0,1
+eventBTagSF_down_hfstats1 : eventBTagSF_down_hfstats1/eventBTagSF : 1,0,1
+eventBTagSF_up_hfstats2   : eventBTagSF_up_hfstats2/eventBTagSF   : 1,0,1
+eventBTagSF_down_hfstats2 : eventBTagSF_down_hfstats2/eventBTagSF : 1,0,1
+eventBTagSF_up_lfstats1   : eventBTagSF_up_lfstats1/eventBTagSF   : 1,0,1
+eventBTagSF_down_lfstats1 : eventBTagSF_down_lfstats1/eventBTagSF : 1,0,1
+eventBTagSF_up_lfstats2   : eventBTagSF_up_lfstats2/eventBTagSF   : 1,0,1
+eventBTagSF_down_lfstats2 : eventBTagSF_down_lfstats2/eventBTagSF : 1,0,1
+eventBTagSF_up_cferr1     : eventBTagSF_up_cferr1/eventBTagSF     : 1,0,1
+eventBTagSF_down_cferr1   : eventBTagSF_down_cferr1/eventBTagSF   : 1,0,1
+eventBTagSF_up_cferr2     : eventBTagSF_up_cferr2/eventBTagSF     : 1,0,1
+eventBTagSF_down_cferr2   : eventBTagSF_down_cferr2/eventBTagSF   : 1,0,1
+elLooseUnc_2lss_up        : elLooseUnc_2lss_up                    : 1,0,1
+elLooseUnc_2lss_dn        : elLooseUnc_2lss_dn                    : 1,0,1
+
+channel            : abs(LepGood1_pdgId*LepGood2_pdgId)           : 1,0,1

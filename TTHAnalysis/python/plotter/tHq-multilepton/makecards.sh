@@ -55,6 +55,7 @@ SYSTFILE="tHq-multilepton/signal_extraction/systsEnv.txt"
 FUNCTION="--2d-binning-function 10:tHq_MVAto1D_2lss_10"
 # FUNCTION="--2d-binning-function 10:tHq_MVAto1D_2lss_sbratio"
 # FUNCTION="--2d-binning-function 11:tHq_MVAto1D_2lss_kmeans"
+NTUPLEFOLDER="thqtrees/finaltrees_Mar7/2lss/"
 
 case "$CHANNEL" in
     "3l" )
@@ -63,6 +64,7 @@ case "$CHANNEL" in
         CUTS="tHq-multilepton/cuts-thq-3l.txt"
         BINNING="thqMVA_ttv_3l:thqMVA_tt_3l 40,-1,1,40,-1,1"
         FUNCTION="--2d-binning-function 10:tHq_MVAto1D_3l_10"
+        NTUPLEFOLDER="thqtrees/finaltrees_Mar7/3l/"
         # FUNCTION="--2d-binning-function 10:tHq_MVAto1D_3l_sbratio"
         # FUNCTION="--2d-binning-function 5:tHq_MVAto1D_3l_kmeans"
         ;;
@@ -121,7 +123,9 @@ if [[ "X$1" != "X" ]]; then
     OPTIONS="${OPTIONS} --infile ${INPUTFILE}"
     python makeShapeCardsTHQ.py ${ARGUMENTS} ${OPTIONS}
 else
+    echo "ntuples  : ${NTUPLEFOLDER}"
     OPTIONS="${OPTIONS} --savefile ${OUTNAME}/${CHANNEL}/report_thq_${CHANNEL}.root"
+    OPTIONS="${OPTIONS} --ntuple_folder ${NTUPLEFOLDER}"
     python makeShapeCardsTHQ.py ${ARGUMENTS} ${OPTIONS}
 fi
 
