@@ -4,17 +4,18 @@ from subprocess import Popen, PIPE
 
 def combineCards(cards, chans, oname):
     try:
-	assert( all(['2lss' in c for c in cards[:-1]]) )	
-	assert( '2lss_mm' in cards[0] )
-	assert( '2lss_em' in cards[:-1][1] )
-	assert( '2lss_ee' in cards[:-1][2] )
-	assert( '3l' in cards[-1] )
+        assert( all(['2lss' in c for c in cards[:-1]]) )	
+        assert( '2lss_mm' in cards[0] )
+        assert( '2lss_em' in cards[:-1][1] )
+        assert( '2lss_ee' in cards[:-1][2] )
+        assert( '3l' in cards[-1] )
     except AssertionError:
-        print "Warning, cards out of order? Assuming mm, em, ee, 3l"
+        if len(cards) > 1:
+            print "Warning, cards out of order? Assuming mm, em, ee, 3l"
     except IndexError: pass
     assert( len(cards) == len(chans) )
 
-    chanargs = ' '.join(['%s=%s' % (chn,cn) for chn,cn in zip(chans, cards)])
+    chanargs = ' '.join(['%s_13TeV=%s' % (chn,cn) for chn,cn in zip(chans, cards)])
     combinecmd = shlex.split('combineCards.py %s'%chanargs)
 
     try:
@@ -65,10 +66,13 @@ def main(args, options):
            "from %d directories" % (ncards, len(inputdirs)))
 
     chans = {
+        1 : None,
         2 : ['tHq_2lss_mm','tHq_3l'],
         3 : ['tHq_2lss_mm','tHq_2lss_em','tHq_3l'],
         4 : ['tHq_2lss_mm','tHq_2lss_em','tHq_2lss_ee','tHq_3l'],
     }[len(inputdirs)]
+    if chans == None:
+        chans = ['tHq_'+os.path.basename(inputdirs[0].strip('/'))]
 
 
     for cards in zip(*tuple([dn2cards[d] for d in inputdirs])):

@@ -119,3 +119,28 @@ python diffNuisances.py -a mlfit.root -g plots.root
 ```
 
 Check that the fit result is `r=1` and that pulls for the signal+background fit are all 0.00.
+
+### Limits as functions of Ct/CV or Ct**2/(Ct**2+CV**2) (work in progress)
+
+'lambda_FV' in [this](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/a94e7caa81ef26cdc3f0c9a0fdef7cea81544191/python/LHCHCGModels.py#L626) is basically our Ct/CV
+
+Add '13TeV' string to bin names:
+
+```
+combineCards.py tHq_3l_1_m1_13TeV=tHq_3l_1_m1.card.txt &> tHq_3l_1_m1_13TeV.txt
+```
+
+Produce the workspace using the HCG model:
+
+```
+text2workspace.py tHq_1_m1.card.txt \
+-P HiggsAnalysis.CombinedLimit.LHCHCGModels:L2 \
+--PO verbose \
+--PO BRU=0
+```
+
+Run the limit (??):
+
+```
+combine -M Asymptotic --run blind --rAbsAcc 0.0005 --rRelAcc 0.0005 tHq_3l_1_m1_13TeV.root  --freezeNuisances kappa_VV,lambda_du,lambda_Vu,kappa_uu,lambda_lq,lambda_Vq,kappa_qq
+```
