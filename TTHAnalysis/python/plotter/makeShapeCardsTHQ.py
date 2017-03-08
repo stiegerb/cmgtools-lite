@@ -679,7 +679,7 @@ if __name__ == '__main__':
         for testing in ['tHq_hww_%s'%point, 'tHW_hww_%s'%point, 'ttH_hww_%s'%absct,
                         'tHq_hzz_%s'%point, 'tHW_hzz_%s'%point, 'ttH_hzz_%s'%absct,
                         'tHq_htt_%s'%point, 'tHW_htt_%s'%point, 'ttH_htt_%s'%absct]:
-            if testing == 'ttH_0': continue # Don't need that one
+            if testing.startswith('ttH') and absct == '0': continue # Don't need that one
             if not testing in cardMaker.mca.listProcesses(allProcs=True):
                 print "Process %s not found, aborting" % testing
                 sys.exit(-1)
