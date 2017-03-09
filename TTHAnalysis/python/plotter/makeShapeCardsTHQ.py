@@ -185,8 +185,6 @@ class ShapeCardMaker:
             if proc == 'ttH':
                 point,syst = re.match(r'([mp012357]{1,})_?([\w]*)', rest).groups()
                 assert('_' not in point)
-                xs_scale = (float(point.replace('p','.')))**2
-                weight += '*(%.3f)'%xs_scale
                 point = '1'
 
             if syst != '':
@@ -203,7 +201,8 @@ class ShapeCardMaker:
             if self.options.verbose>2: print "...processing %s, " % proc,
             filename, weight = parse(proc)
             if self.options.verbose>2: print "using %s and %s" % (filename, weight),
-            assert (os.path.exists(os.path.join(inputfolder, filename)))
+            if not os.path.exists(os.path.join(inputfolder, filename)):
+                raise RuntimeError("missing ntuple file: %s" % os.path.join(inputfolder, filename))
             report[proc] = getVariationsFromNtuple(filename=os.path.join(inputfolder,filename),
                                                    weight=weight, histname="x_%s"%proc)
 
@@ -787,8 +786,11 @@ if __name__ == '__main__':
     # Split the signal processes into different points (using the first '_')
     # and process all of them separately.
     allsignals = cardMaker.mca.listSignals(allProcs=False) # exclude the systematics variations
-    points = sorted(list(set([p.split('_',2)[2] for p in allsignals])))
+    points = sorted(list(set([p.split('_',2)[2] for p in allsignals if 'tHq' in p])))
     print "...processing the following signal points: %s" % repr(points)
+    signal_names = ['tHq_hww', 'tHq_htt', 'tHq_hzz',
+                    'tHW_hww', 'tHW_htt', 'tHW_hzz',
+                    'ttH_hww', 'ttH_htt', 'ttH_hzz']
     for point in points:
         # Check if we have all the samples for this point
         absct = point.split('_')[1].strip('m') # '1p5_m0p25' -> '0p25'
@@ -802,24 +804,16 @@ if __name__ == '__main__':
 
         # Take the correct signals for this point
         signals = ['tHq_hww_%s'%point, 'tHq_htt_%s'%point, 'tHq_hzz_%s'%point,
-                   'tHW_hww_%s'%point, 'tHW_htt_%s'%point, 'tHW_hzz_%s'%point] 
-        # Take all non-Higgs backgrounds and add the correct ttH for this point
-        backgrounds = [p for p in cardMaker.mca.listBackgrounds() if not p.startswith('ttH')]
-        if absct != '0':
-            backgrounds.insert(0, 'ttH_hzz_%s'%absct)
-            backgrounds.insert(0, 'ttH_htt_%s'%absct)
-            backgrounds.insert(0, 'ttH_hww_%s'%absct)
+                   'tHW_hww_%s'%point, 'tHW_htt_%s'%point, 'tHW_hzz_%s'%point,
+                   'ttH_hww_1', 'ttH_htt_1', 'ttH_hzz_1']
 
         if options.asimov:
-            cardMaker.prepareAsimov(signals=signals, backgrounds=backgrounds)
-        cardMaker.setProcesses(signals=signals, backgrounds=backgrounds)
+            cardMaker.prepareAsimov(signals=signals, backgrounds=cardMaker.mca.listBackgrounds())
+        cardMaker.setProcesses(signals=signals, backgrounds=cardMaker.mca.listBackgrounds())
         ofilename = "%s_%s.card.txt" % (cardMaker.binname, point)
 
-        procnames = {} # remove points from process names in card and input file
-        for sig in signals:
-            procnames[sig] = sig.replace('_%s'%point, '')
-        for tth in ['ttH_hzz_%s'%absct, 'ttH_htt_%s'%absct, 'ttH_hww_%s'%absct]:
-            procnames[tth] = tth.replace('_%s'%absct, '')
+        # Remove points from process names in card and input file
+        procnames = dict(zip(signals,signal_names))
         cardMaker.writeDataCard(ofilename=ofilename, procnames=procnames)
 
     sys.exit(0)

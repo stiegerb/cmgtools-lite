@@ -120,17 +120,19 @@ python diffNuisances.py -a mlfit.root -g plots.root
 
 Check that the fit result is `r=1` and that pulls for the signal+background fit are all 0.00.
 
-### Limits as functions of Ct/CV or Ct**2/(Ct**2+CV**2) (work in progress)
+### Limits using HCG model (scaling ttH and tH coherently)
 
-'lambda_FV' in [this](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/a94e7caa81ef26cdc3f0c9a0fdef7cea81544191/python/LHCHCGModels.py#L626) is basically our Ct/CV
+'lambda_FV' in [LambdasReduced](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/74x-root6/python/LHCHCGModels.py#L626-L788) is basically our Ct/CV, 'kappa_VV' should correspond to CV^2.
 
-Add '13TeV' string to bin names:
+Could also use [KappaVKappaF](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/74x-root6/python/LHCHCGModels.py#L522-L624) which directly has Ct and CV (as 'kappa_F', 'kappa_V').
+
+Need to have '13TeV' string in bin names. We can use `combineCards.py` for that, or just our `combineChannels.py`.
 
 ```
 combineCards.py tHq_3l_1_m1_13TeV=tHq_3l_1_m1.card.txt &> tHq_3l_1_m1_13TeV.txt
 ```
 
-Produce the workspace using the HCG model:
+Produce the workspace using the HCG "LambdasReduced" model. Note that there are some small changes in that code, with respect to the original. See `tHq-multilepton/signal_extraction/LambdasReducedWithr.py`.
 
 ```
 text2workspace.py tHq_1_m1.card.txt \
@@ -139,8 +141,17 @@ text2workspace.py tHq_1_m1.card.txt \
 --PO BRU=0
 ```
 
-Run the limit (??):
+Or `LHCHCGModels:K3` for the kappa model.
+
+The workspace now contains the proper scaling functions of the higgs processes. Note that it assumes that the input yields (the 'rate' line in the datacards) corresponds to standard model cross sections!
+
+To run the limit for a given point, we need to specify the lambda_FV value at that point and redefine the parameter of interest as the signal strength. We freeze all the other nuisances, including lambda_FV (or kappa_F, kappa_V in case of the kappa model).
 
 ```
-combine -M Asymptotic --run blind --rAbsAcc 0.0005 --rRelAcc 0.0005 tHq_3l_1_m1_13TeV.root  --freezeNuisances kappa_VV,lambda_du,lambda_Vu,kappa_uu,lambda_lq,lambda_Vq,kappa_qq
+combine -M Asymptotic --run blind --rAbsAcc 0.0005 --rRelAcc 0.0005 tHq_1_m1.root --setPhysicsModelParameterRanges lambda_FV=-10,10 --setPhysicsModelParameters lambda_FV=-1.0 --freezeNuisances kappa_VV,lambda_du,lambda_Vu,kappa_uu,lambda_lq,lambda_Vq,kappa_qq,lambda_FV --redefineSignalPOIs r
 ```
+
+See also `runAllLimits.py` for the combine commands to use.
+
+Use -m 125 in text2workspace.py or combine in case you get `<ROOT::Math::GSLInterpolator::Eval>: input domain error` messages.
+

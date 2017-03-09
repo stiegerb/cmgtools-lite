@@ -1,4 +1,5 @@
-signals: + ; IncludeMca="tHq-multilepton/mca-thq-3l-signal_reweightings.txt"
+# signals: + ; IncludeMca="tHq-multilepton/mca-thq-3l-signal_reweightings.txt"
+signals: + ; IncludeMca="tHq-multilepton/mca-thq-3l-signal_reweightings-allSM.txt"
 
 ttW     : TTWToLNu_ext_LHE+TTWToLNu_ext2_LHE                          : 0.196        : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kGreen-5,   Label='t\#bar{t}W'
 ttZ     : TTZToLLNuNu_LHE                                             : 0.2526       : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+2,  Label='t\#bar{t}Z'
