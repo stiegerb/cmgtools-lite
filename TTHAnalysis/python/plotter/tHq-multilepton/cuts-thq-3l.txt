@@ -20,7 +20,7 @@ ele conv cuts : (abs(LepGood1_pdgId)!=11 || (LepGood1_convVeto && LepGood1_lostH
 # most backgrounds (ttbar, ttW, ttZ, ttH) have two.
 # In addition we expect one forward jet
 2j            : nJet25>=2
-fwdjet        : maxEtaJet25 >= 0
+fwdjet        : maxEtaJet25_40 >= 0
 1bm           : nBJetMedium25 >= 1
 2bl           : nBJetLoose25 >= 2; Disable=True
 

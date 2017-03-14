@@ -5,17 +5,17 @@
 #met           : met_pt        : 18,0,400; XTitle="E_{T}^{miss}  [GeV]"
 nJet25        : nJet25        : [1.5,2.5,3.5,4.5,5.5,6.5,7.5] ; XTitle='N(jet\, p_{T} > 25\, |#eta|<2.4)'
 nBJetLoose25  : nBJetLoose25  : [0.5,1.5,2.5,3.5,4.5] ; XTitle='N(jet\, p_{T} > 25\, CSV loose)'
-maxEtaJet25   : maxEtaJet25   : 18,0,5.0; XTitle="max jet |#eta| (p_{T} > 25 GeV)"
+maxEtaJet25_40   : maxEtaJet25_40   : 18,0,5.0; XTitle="max jet |#eta| (p_{T} > 40 GeV)"
 #totCharge     : LepGood1_charge+LepGood2_charge+LepGood3_charge : [-1.5,-0.5,0.5,1.5]; XTitle="Total lepton charge", Legend='TL'
-#nJetEta1     : nJetEta1         : [0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5]; XTitle='N(jet\,|#eta|>1.0) non CSV medium'
-#dEtaFwdJet2BJet:   dEtaFwdJetBJet: 18,0,6; XTitle="#Delta#eta max fwd jet and second bjet"
-#dEtaFwdJetClosestLep: dEtaFwdJetClosestLep : 18,0,6 ; XTitle="#Delta#eta max fwd jet and closest lepton"
+#nJetEta1_40     : nJetEta1_40         : [0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5]; XTitle='N(jet\,|#eta|>1.0) non CSV medium'
+#dEtaFwdJet2BJet_40 :   dEtaFwdJetBJet_40 : 18,0,6; XTitle="#Delta#eta max fwd jet and second bjet"
+#dEtaFwdJetClosestLep_40 : dEtaFwdJetClosestLep_40 : 18,0,6 ; XTitle="#Delta#eta max fwd jet and closest lepton"
 dPhiHighestPtSSPair : dPhiHighestPtSSPair : 18,0,3.2; XTitle="#Delta#phi highest pt same sign lepton pair", Legend='TL'
 minDRll         : minDRll         : 18,0,4; XTitle="minimum #DeltaR between any two leptons"
 Lep2Pt          : LepGood2_conePt : 18,0,160; XTitle="Lepton 2 pT [GeV]"
 Lep3Pt          : LepGood3_conePt : 18,0,80; XTitle="Lepton 3 pT [GeV]"
 # mZ1              : mZ1   : 18,71.2,111.2; XTitle="m_{ll} [GeV]"
-thqMVA_tt_3l     : thqMVA_tt_3l    : 16,-1.,1.0; XTitle="kinMVA (tHq vs t#bar{t})", Legend='TL'
-thqMVA_ttv_3l    : thqMVA_ttv_3l   : 16,-1.,1.0; XTitle="kinMVA (tHq vs t#bar{t}V)", Legend='TL'
-thqMVA_tt_2lss   : thqMVA_tt_2lss  : 16,-1.,1.0; XTitle="kinMVA (tHq vs t#bar{t})", Legend='TL'
-thqMVA_ttv_2lss  : thqMVA_ttv_2lss : 16,-1.,1.0; XTitle="kinMVA (tHq vs t#bar{t}V)", Legend='TL'
+thqMVA_tt_3l_40     : thqMVA_tt_3l_40    : 16,-1.,1.0; XTitle="kinMVA (tHq vs t#bar{t})", Legend='TL'
+thqMVA_ttv_3l_40    : thqMVA_ttv_3l_40   : 16,-1.,1.0; XTitle="kinMVA (tHq vs t#bar{t}V)", Legend='TL'
+thqMVA_tt_2lss_40   : thqMVA_tt_2lss_40  : 16,-1.,1.0; XTitle="kinMVA (tHq vs t#bar{t})", Legend='TL'
+thqMVA_ttv_2lss_40  : thqMVA_ttv_2lss_40 : 16,-1.,1.0; XTitle="kinMVA (tHq vs t#bar{t}V)", Legend='TL'
