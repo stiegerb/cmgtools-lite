@@ -41,7 +41,7 @@ def getYieldScale(mass,process):
     return scale
 
 SYSTEMATICS = {
-    "fwdJet"           : "fwdjet_eventWeight_25",
+    "fwdJet"           : "fwdjet_eventWeight_40",
     "jec_Up"           : "eventBTagSF_up_jes",
     "jec_Dn"           : "eventBTagSF_down_jes",
     "bTag_LF_Up"       : "eventBTagSF_up_lf",

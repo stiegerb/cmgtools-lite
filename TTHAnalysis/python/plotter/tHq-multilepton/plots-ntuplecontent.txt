@@ -2,17 +2,17 @@ evt               : evt                                                       : 
 lumi              : lumi                                                      : 1,0,1
 run               : run                                                       : 1,0,1
 
-thqMVA_tt_2lss    : thqMVA_tt_2lss                                            : 1,0,1
-thqMVA_ttv_2lss   : thqMVA_ttv_2lss                                           : 1,0,1
-thqMVA_tt_3l      : thqMVA_tt_3l                                              : 1,0,1
-thqMVA_ttv_3l     : thqMVA_ttv_3l                                             : 1,0,1
+thqMVA_tt_2lss_40    : thqMVA_tt_2lss_40                                            : 1,0,1
+thqMVA_ttv_2lss_40   : thqMVA_ttv_2lss_40                                           : 1,0,1
+thqMVA_tt_3l_40      : thqMVA_tt_3l_40                                              : 1,0,1
+thqMVA_ttv_3l_40     : thqMVA_ttv_3l_40                                             : 1,0,1
 
-# finalBins_2lss    : tHq_MVAto1D_2lss_10(thqMVA_tt_2lss, thqMVA_ttv_2lss) : 1,0,1
-# finalBins_3l      : tHq_MVAto1D_3l_10(thqMVA_tt_3l, thqMVA_ttv_3l)       : 1,0,1
+# finalBins_2lss    : tHq_MVAto1D_2lss_10(thqMVA_tt_2lss_40, thqMVA_ttv_2lss_40) : 1,0,1
+# finalBins_3l      : tHq_MVAto1D_3l_10(thqMVA_tt_3l_40, thqMVA_ttv_3l_40)       : 1,0,1
 
 GenHiggsDecayMode : GenHiggsDecayMode                                         : 1,0,1
 
-fwdjet_eventWeight_25     : fwdjet_eventWeight_25(maxEtaJet25)    : 1,0,1
+fwdjet_eventWeight_40     : fwdjet_eventWeight_40(maxEtaJet25_40) : 1,0,1
 eventBTagSF_up_jes        : eventBTagSF_up_jes/eventBTagSF        : 1,0,1
 eventBTagSF_down_jes      : eventBTagSF_down_jes/eventBTagSF      : 1,0,1
 eventBTagSF_up_lf         : eventBTagSF_up_lf/eventBTagSF         : 1,0,1

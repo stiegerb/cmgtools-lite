@@ -17,7 +17,7 @@ eleID         : (abs(LepGood1_pdgId)!=11 || (LepGood1_convVeto && LepGood1_lostH
 muTightCharge : (abs(LepGood1_pdgId)!=13 || LepGood1_tightCharge>=1) && (abs(LepGood2_pdgId)!=13 || LepGood2_tightCharge>=1)
 
 2j            : nJet25>=2
-fwdjet        : maxEtaJet25 >= 0 
+fwdjet        : maxEtaJet25_40 >= 0 
 1bm           : nBJetMedium25 >= 1
 2bl           : nBJetLoose25 >= 2 ; Disable=True
 

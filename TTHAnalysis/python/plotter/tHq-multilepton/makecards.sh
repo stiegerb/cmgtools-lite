@@ -55,16 +55,16 @@ SYSTFILE="tHq-multilepton/signal_extraction/systsEnv.txt"
 FUNCTION="--2d-binning-function 10:tHq_MVAto1D_2lss_10"
 # FUNCTION="--2d-binning-function 10:tHq_MVAto1D_2lss_sbratio"
 # FUNCTION="--2d-binning-function 11:tHq_MVAto1D_2lss_kmeans"
-NTUPLEFOLDER="thqtrees/finaltrees_Mar7/2lss/"
+NTUPLEFOLDER="thqtrees/finaltrees_Mar14/2lss/"
 
 case "$CHANNEL" in
     "3l" )
         OPTIONS="${OPTIONS} ${OPT3L} --xp Gstar"
         MCA="tHq-multilepton/signal_extraction/mca-thq-3l-mcdata-frdata_limits.txt"
         CUTS="tHq-multilepton/cuts-thq-3l.txt"
-        BINNING="thqMVA_ttv_3l:thqMVA_tt_3l 40,-1,1,40,-1,1"
+        BINNING="thqMVA_ttv_3l_40:thqMVA_tt_3l_40 40,-1,1,40,-1,1"
         FUNCTION="--2d-binning-function 10:tHq_MVAto1D_3l_10"
-        NTUPLEFOLDER="thqtrees/finaltrees_Mar7/3l/"
+        NTUPLEFOLDER="thqtrees/finaltrees_Mar14/3l/"
         # FUNCTION="--2d-binning-function 10:tHq_MVAto1D_3l_sbratio"
         # FUNCTION="--2d-binning-function 5:tHq_MVAto1D_3l_kmeans"
         ;;
@@ -72,19 +72,19 @@ case "$CHANNEL" in
         OPTIONS="${OPTIONS} ${OPT2L} -E mm_chan --xp Convs --xp Gstar --xp data_flips" # remove conversions for mm channel
         MCA="tHq-multilepton/signal_extraction/mca-thq-2lss-mcdata-frdata_limits.txt"
         CUTS="tHq-multilepton/cuts-thq-2lss.txt"
-        BINNING="thqMVA_ttv_2lss:thqMVA_tt_2lss 40,-1,1,40,-1,1"        
+        BINNING="thqMVA_ttv_2lss_40:thqMVA_tt_2lss_40 40,-1,1,40,-1,1"        
         ;;
     "2lss_em" )
         OPTIONS="${OPTIONS} ${OPT2L} -E em_chan --xp Gstar"
         MCA="tHq-multilepton/signal_extraction/mca-thq-2lss-mcdata-frdata_limits.txt"
         CUTS="tHq-multilepton/cuts-thq-2lss.txt"
-        BINNING="thqMVA_ttv_2lss:thqMVA_tt_2lss 40,-1,1,40,-1,1"
+        BINNING="thqMVA_ttv_2lss_40:thqMVA_tt_2lss_40 40,-1,1,40,-1,1"
         ;;
     "2lss_ee" )
         OPTIONS="${OPTIONS} ${OPT2L} -E ee_chan --xp Gstar"
         MCA="tHq-multilepton/signal_extraction/mca-thq-2lss-mcdata-frdata_limits.txt"
         CUTS="tHq-multilepton/cuts-thq-2lss.txt"
-        BINNING="thqMVA_ttv_2lss:thqMVA_tt_2lss 40,-1,1,40,-1,1"
+        BINNING="thqMVA_ttv_2lss_40:thqMVA_tt_2lss_40 40,-1,1,40,-1,1"
         ;;
     "all" )
         ./$0 ${OUTNAME} 3l
