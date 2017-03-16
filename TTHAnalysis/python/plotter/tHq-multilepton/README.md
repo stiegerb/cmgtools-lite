@@ -93,7 +93,7 @@ If that went ok, you can remove all the chunk files and are left with only the f
 For producing the recleaner friends, selecting a few processes (example):
 
 ```
-python prepareEventVariablesFriendTree.py -m leptonJetFastReCleanerTTH_step1 -m leptonJetFastReCleanerTTH_step2_mc -I CMGTools.TTHAnalysis.tools.functionsTTH -t treeProducerSusyMultilepton -N 1000000 tthtrees/TREES_TTH_250117_Summer16_JECV3_noClean_qgV2/ 1_thq_recleaner_240217_full -D TTJets_.* -D DYJetsToLL_.*_LO -D WJetsToLNu_LO -D T_tch_powheg -D TToLeptons_sch -D WWTo2L2Nu -D TBar.* -D T_tWch_ext --tra2 -q 8nh
+python prepareEventVariablesFriendTree.py -m leptonJetFastReCleanerTTH_step1 -m leptonJetFastReCleanerTTH_step2_mc -I CMGTools.TTHAnalysis.tools.functionsTHQ -t treeProducerSusyMultilepton -N 1000000 tthtrees/TREES_TTH_250117_Summer16_JECV3_noClean_qgV2/ 1_thq_recleaner_240217_full -D TTJets_.* -D DYJetsToLL_.*_LO -D WJetsToLNu_LO -D T_tch_powheg -D TToLeptons_sch -D WWTo2L2Nu -D TBar.* -D T_tWch_ext --tra2 -q 8nh
 ```
 
 ----------------
