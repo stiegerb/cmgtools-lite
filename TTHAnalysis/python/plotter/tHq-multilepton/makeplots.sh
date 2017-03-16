@@ -196,7 +196,8 @@ case "$PLOTTAG" in
         ;;
     "ntuple_3l" )
         OPTIONS="${OPTIONS} ${OPT3L}"
-        MCA="tHq-multilepton/signal_extraction/mca-thq-3l-tontuple.txt"
+        # MCA="tHq-multilepton/signal_extraction/mca-thq-3l-tontuple.txt"
+        MCA="tHq-multilepton/signal_extraction/mca-thq-3l-tontuple-allSM.txt"
         CUTS="tHq-multilepton/cuts-thq-3l.txt"
         PLOTS="tHq-multilepton/plots-ntuplecontent.txt"
         SELECTPLOT=""
@@ -215,7 +216,8 @@ case "$PLOTTAG" in
         ;;
     "ntuple_2lss" )
         OPTIONS="${OPTIONS} ${OPT2L}"
-        MCA="tHq-multilepton/signal_extraction/mca-thq-2lss-tontuple.txt"
+        # MCA="tHq-multilepton/signal_extraction/mca-thq-2lss-tontuple.txt"
+        MCA="tHq-multilepton/signal_extraction/mca-thq-2lss-tontuple-allSM.txt"
         CUTS="tHq-multilepton/cuts-thq-2lss.txt"
         PLOTS="tHq-multilepton/plots-ntuplecontent.txt"
         SELECTPLOT=""

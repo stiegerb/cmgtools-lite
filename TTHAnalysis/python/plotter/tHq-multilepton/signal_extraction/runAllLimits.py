@@ -8,17 +8,28 @@ def getLimits(card):
     (cv,ct,twosigdown,onesigdown,exp,onesigup,twosigup)
     """
     # Turn the tag into floats:
-    tag = re.match(r'.*\_([\dpm]+\_[\dpm]+).*\.card\.txt', os.path.basename(card))
+    tag = re.match(r'.*\_([\dpm]+\_[\dpm]+).*\.card\.(txt|root)', os.path.basename(card))
     if tag == None:
         print "Couldn't figure out this one: %s" % card
         return
 
     tag = tag.groups()[0]
-    tag = tag.replace('p', '.').replace('m','-')
-    cv,ct = tuple(map(float, tag.split('_')))
+    tagf = tag.replace('p', '.').replace('m','-')
+    cv,ct = tuple(map(float, tagf.split('_')))
     print "%-40s CV=%5.2f, Ct=%5.2f : " % (os.path.basename(card), cv, ct),
 
-    combinecmd = "combine -M Asymptotic --run blind --rAbsAcc 0.0005 --rRelAcc 0.0005"
+    combinecmd =  "combine -M Asymptotic --run blind --rAbsAcc 0.0005 --rRelAcc 0.0005"
+    combinecmd += " -m 125 --verbose 0 -n cvct%s"%tag
+    combinecmd += " --setPhysicsModelParameters kappa_t=%.2f,kappa_V=%.2f" % (ct,cv)
+    # combinecmd += " --setPhysicsModelParameters kappa_t=%.2f,kappa_W=%.2f,kappa_Z=%.2f" % (ct,cv,cv)
+    # combinecmd += " --setPhysicsModelParameters kappa_F=%.2f,kappa_V=%.2f" % (ct,cv)
+    combinecmd += " --setPhysicsModelParameterRanges kappa_t=-4,4"
+    combinecmd += " --freezeNuisances kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam"
+    # combinecmd += " --freezeNuisances kappa_t,kappa_W,kappa_Z,kappa_tau,kappa_mu,kappa_b,kappa_c"
+    # combinecmd += " --freezeNuisances kappa_F,kappa_V --redefineSignalPOIs r"
+    combinecmd += " --redefineSignalPOIs r"
+    # combinecmd += " --setPhysicsModelParameterRanges kappa_F=-4,4"
+    # combinecmd = "combine -M Asymptotic --run blind --rAbsAcc 0.0005 --rRelAcc 0.0005 --setPhysicsModelParameterRanges lambda_FV=-10,10 --setPhysicsModelParameters lambda_FV=-1.0 --freezeNuisances kappa_VV,lambda_du,lambda_Vu,kappa_uu,lambda_lq,lambda_Vq,kappa_qq,lambda_FV --redefineSignalPOIs r"
     try:
         p = Popen(shlex.split(combinecmd) + [card] , stdout=PIPE)
         comboutput = p.communicate()[0]
@@ -36,21 +47,26 @@ def getLimits(card):
 
 def main(args, options):
 
-    inputdir = args[0]
-    assert( os.path.isdir(inputdir) )
+    if os.path.isdir(args[0]):
+        inputdir = args[0]
 
-    if options.tag != None:
-        tag = "_"+options.tag
-    elif options.tag == "":
-        tag = ""
-    else:
-        # Try to get the tag from the input directory
-        if inputdir.endswith('/'): inputdir = inputdir[:-1]
-        tag = "_"+os.path.basename(inputdir)
-        assert( '/' not in tag )
+        if options.tag != None:
+            tag = "_"+options.tag
+        elif options.tag == "":
+            tag = ""
+        else:
+            # Try to get the tag from the input directory
+            if inputdir.endswith('/'): inputdir = inputdir[:-1]
+            tag = "_"+os.path.basename(inputdir)
+            assert( '/' not in tag )
 
-    cards = sorted([os.path.join(inputdir, c) for c in
-                    os.listdir(inputdir) if c.endswith('card.txt')])
+        cards = sorted([os.path.join(inputdir, c) for c in
+                    os.listdir(inputdir) if c.endswith('card.txt') or c.endswith('card.root')])
+
+    elif os.path.exists(args[0]):
+        tag = options.tag or ""
+        cards = sorted([c for c in args if os.path.exists(c) and (c.endswith('card.txt') or c.endswith('card.root'))])
+
     print "Found %d cards to run" % len(cards)
 
     limdata = {} # (cv,ct) -> (2sd, 1sd, lim, 1su, 2su)
@@ -60,6 +76,7 @@ def main(args, options):
 
     fnames = []
     for cv_ in [0.5, 1.0, 1.5]:
+        if not cv_ in [v for v,_ in limdata.keys()]: continue
         csvfname = 'limits%s_cv_%s.csv' % (tag, str(cv_).replace('.','p'))
         with open(csvfname, 'w') as csvfile:
             csvfile.write('cv,cf,twosigdown,onesigdown,exp,onesigup,twosigup\n')
