@@ -23,7 +23,7 @@ def getLimits(card):
     combinecmd += " --setPhysicsModelParameters kappa_t=%.2f,kappa_V=%.2f" % (ct,cv)
     # combinecmd += " --setPhysicsModelParameters kappa_t=%.2f,kappa_W=%.2f,kappa_Z=%.2f" % (ct,cv,cv)
     # combinecmd += " --setPhysicsModelParameters kappa_F=%.2f,kappa_V=%.2f" % (ct,cv)
-    combinecmd += " --setPhysicsModelParameterRanges kappa_t=-4,4"
+    # combinecmd += " --setPhysicsModelParameterRanges kappa_t=-4,4"
     combinecmd += " --freezeNuisances kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam"
     # combinecmd += " --freezeNuisances kappa_t,kappa_W,kappa_Z,kappa_tau,kappa_mu,kappa_b,kappa_c"
     # combinecmd += " --freezeNuisances kappa_F,kappa_V --redefineSignalPOIs r"
@@ -64,7 +64,7 @@ def main(args, options):
                     os.listdir(inputdir) if c.endswith('card.txt') or c.endswith('card.root')])
 
     elif os.path.exists(args[0]):
-        tag = options.tag or ""
+        tag = "_"+options.tag or ""
         cards = sorted([c for c in args if os.path.exists(c) and (c.endswith('card.txt') or c.endswith('card.root'))])
 
     print "Found %d cards to run" % len(cards)

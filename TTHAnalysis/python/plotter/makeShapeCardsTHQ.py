@@ -175,17 +175,20 @@ class ShapeCardMaker:
             weight = "_weight_*(GenHiggsDecayMode=={pdgid})"
             filename = "ntuple_{proc}_{point}.root"
 
-            proc,dec,rest = process.split('_',2)
-            pdgid = {"hww":24, "hzz":23, "htt":15}.get(dec)
+            fields = process.split('_')
+            proc,dec = fields[:2]
+            rest = '_'.join(fields[2:])
+
+            weight = weight.format(pdgid={"hww":24, "hzz":23, "htt":15}.get(dec))
 
             if proc in ['tHq', 'tHW']:
                 p1,p2,syst = re.match(r'([mp012357]{1,})_([mp012357]{1,})_?([\w]*)', rest).groups()
                 point = '_'.join([p1,p2])
+                filename = "ntuple_{proc}_{point}.root".format(proc=proc, point=point)
 
-            if proc == 'ttH':
-                point,syst = re.match(r'([mp012357]{1,})_?([\w]*)', rest).groups()
-                assert('_' not in point)
-                point = '1'
+            else:
+                filename = "ntuple_{proc}.root".format(proc=proc)
+                syst = rest
 
             if syst != '':
                 weight += '*(%s)' % SYSTEMATICS.get(syst)
@@ -194,15 +197,18 @@ class ShapeCardMaker:
                 if self.truebinname == '2lss_mm': weight += '*(channel==%d)'%(13*13)
                 if self.truebinname == '2lss_em': weight += '*(channel==%d)'%(11*13)
                 if self.truebinname == '2lss_ee': weight += '*(channel==%d)'%(11*11)
-                
-            return filename.format(proc=proc, point=point), weight.format(pdgid=pdgid)
+            
+            return filename, weight
 
         for proc in processes:
             if self.options.verbose>2: print "...processing %s, " % proc,
-            filename, weight = parse(proc)
+            try:
+                filename, weight = parse(proc)
+            except ValueError:
+                raise RuntimeError("Failed to parse %s"%(proc))
             if self.options.verbose>2: print "using %s and %s" % (filename, weight),
             if not os.path.exists(os.path.join(inputfolder, filename)):
-                raise RuntimeError("missing ntuple file: %s" % os.path.join(inputfolder, filename))
+                raise RuntimeError("Missing ntuple file: %s" % os.path.join(inputfolder, filename))
             report[proc] = getVariationsFromNtuple(filename=os.path.join(inputfolder,filename),
                                                    weight=weight, histname="x_%s"%proc)
 
@@ -767,7 +773,8 @@ if __name__ == '__main__':
         cardMaker.readReport(options.infile)
     else:
         all_processes = cardMaker.mca.listProcesses(allProcs=True)
-        sigs_and_systs = [p for p in all_processes if any([p.startswith(x) for x in ['tHq', 'tHW', 'ttH']])]
+        sig_prods = ['tHq', 'tHW', 'ttH', 'ggH', 'WH']
+        sigs_and_systs = [p for p in all_processes if any([p.startswith(x) for x in sig_prods])]
         backgrounds    = [p for p in all_processes if not p in sigs_and_systs]
 
         if options.ntuple_folder != None:
@@ -791,21 +798,13 @@ if __name__ == '__main__':
     signal_names = ['tHq_hww', 'tHq_htt', 'tHq_hzz',
                     'tHW_hww', 'tHW_htt', 'tHW_hzz',
                     'ttH_hww', 'ttH_htt', 'ttH_hzz']
+                    # 'WH_hww', 'WH_htt', 'WH_hzz', 'ggH_hzz']
     for point in points:
-        # Check if we have all the samples for this point
-        absct = point.split('_')[1].strip('m') # '1p5_m0p25' -> '0p25'
-        for testing in ['tHq_hww_%s'%point, 'tHW_hww_%s'%point, 'ttH_hww_%s'%absct,
-                        'tHq_hzz_%s'%point, 'tHW_hzz_%s'%point, 'ttH_hzz_%s'%absct,
-                        'tHq_htt_%s'%point, 'tHW_htt_%s'%point, 'ttH_htt_%s'%absct]:
-            if testing.startswith('ttH') and absct == '0': continue # Don't need that one
-            if not testing in cardMaker.mca.listProcesses(allProcs=True):
-                print "Process %s not found, aborting" % testing
-                sys.exit(-1)
-
         # Take the correct signals for this point
         signals = ['tHq_hww_%s'%point, 'tHq_htt_%s'%point, 'tHq_hzz_%s'%point,
                    'tHW_hww_%s'%point, 'tHW_htt_%s'%point, 'tHW_hzz_%s'%point,
-                   'ttH_hww_1', 'ttH_htt_1', 'ttH_hzz_1']
+                   'ttH_hww', 'ttH_htt', 'ttH_hzz']
+                   # 'WH_hww', 'WH_htt', 'WH_hzz', 'ggH_hzz']
 
         if options.asimov:
             cardMaker.prepareAsimov(signals=signals, backgrounds=cardMaker.mca.listBackgrounds())

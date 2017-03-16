@@ -80,6 +80,12 @@ case "$PLOTTAG" in
         CUTS="tHq-multilepton/cuts-thq-3l-ttbarcontrol.txt"
         PLOTS="tHq-multilepton/plots-thq-3l-kinMVA.txt"
         ;;
+    "3l-otherhiggs" )
+        OPTIONS="${OPTIONS} ${DRAWOPTIONS} ${OPT3L}"
+        MCA="tHq-multilepton/mca-3l-otherhiggs.txt"
+        CUTS="tHq-multilepton/cuts-thq-3l.txt"
+        PLOTS="tHq-multilepton/plots-thq-3l-kinMVA.txt"
+        ;;
     "3l-frclosure" )
         DRAWOPTIONS="${DRAWOPTIONS} --ratioDen TT_FR_QCD --errors --AP --rebin 2 --ratioNums TT_fake"
         SELECTPLOT="--sP thqMVA_tt_3l --sP thqMVA_ttv_3l"
@@ -96,6 +102,12 @@ case "$PLOTTAG" in
         python mcPlots.py ${ARGOPTS} --pdir ${OUTDIR}/3l_elfake_norm/  -E elfake --plotmode nostack --fitRatio 0
         python mcPlots.py ${ARGOPTS} --pdir ${OUTDIR}/3l_elfake_shape/ -E elfake --plotmode norm --fitRatio 1
         DONE
+        ;;
+    "2lss-otherhiggs" )
+        OPTIONS="${OPTIONS} ${DRAWOPTIONS} ${OPT2L} -E mm_chan --neg"
+        MCA="tHq-multilepton/mca-2lss-otherhiggs.txt"
+        CUTS="tHq-multilepton/cuts-thq-2lss.txt"
+        PLOTS="tHq-multilepton/plots-thq-2lss-kinMVA.txt"
         ;;
     "2lss-mvaout" )
         OPTIONS="${OPTIONS} ${OPT2L} --plotmode norm"
@@ -248,6 +260,11 @@ case "$PLOTTAG" in
     "frclosures" )
         ./$0 ${OUTDIR} 3l-frclosure
         ./$0 ${OUTDIR} 2lss-frclosure
+        DONE
+        ;;
+    "ntuples" )
+        ./$0 ${OUTDIR}/3l ntuple_3l
+        ./$0 ${OUTDIR}/2lss ntuple_2lss
         DONE
         ;;
     *)

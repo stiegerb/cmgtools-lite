@@ -8,35 +8,13 @@ tHW_hzz_1_m1+      : THW : 0.01561                           : GenHiggsDecayMode
 tHq_htt_1_m1+      : THQ : 0.07096*0.324                     : GenHiggsDecayMode==15 && LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0  ;  FillColor=ROOT.kOrange+1
 tHW_htt_1_m1+      : THW : 0.01561                           : GenHiggsDecayMode==15 && LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0  ;  FillColor=ROOT.kOrange+6
 
-ttH_hww_1+       : TTHnobb_mWCutfix_ext_LHE : 0.5071*0.418*1.00*1.00 : GenHiggsDecayMode==24 && LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+10, Label='t\#bar{t}H'
-ttH_hzz_1+       : TTHnobb_mWCutfix_ext_LHE : 0.5071*0.418*1.00*1.00 : GenHiggsDecayMode==23 && LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+10, Label='t\#bar{t}H'
-ttH_htt_1+       : TTHnobb_mWCutfix_ext_LHE : 0.5071*0.418*1.00*1.00 : GenHiggsDecayMode==15 && LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+10, Label='t\#bar{t}H'
-
-# ttH gets scaled by Ct**2
-# ttH_hww_0+     : TTHnobb_mWCutfix_ext_LHE : 0.5071*0.418           : GenHiggsDecayMode==24 && LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+10, Label='t\#bar{t}H'
-ttH_hww_0p25+    : TTHnobb_mWCutfix_ext_LHE : 0.5071*0.418           : GenHiggsDecayMode==24 && LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+10, Label='t\#bar{t}H'
-ttH_hww_0p5+     : TTHnobb_mWCutfix_ext_LHE : 0.5071*0.418           : GenHiggsDecayMode==24 && LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+10, Label='t\#bar{t}H'
-ttH_hww_0p75+    : TTHnobb_mWCutfix_ext_LHE : 0.5071*0.418           : GenHiggsDecayMode==24 && LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+10, Label='t\#bar{t}H'
-ttH_hww_1p25+    : TTHnobb_mWCutfix_ext_LHE : 0.5071*0.418           : GenHiggsDecayMode==24 && LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+10, Label='t\#bar{t}H'
-ttH_hww_1p5+     : TTHnobb_mWCutfix_ext_LHE : 0.5071*0.418           : GenHiggsDecayMode==24 && LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+10, Label='t\#bar{t}H'
-ttH_hww_2+       : TTHnobb_mWCutfix_ext_LHE : 0.5071*0.418           : GenHiggsDecayMode==24 && LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+10, Label='t\#bar{t}H'
-ttH_hww_3+       : TTHnobb_mWCutfix_ext_LHE : 0.5071*0.418           : GenHiggsDecayMode==24 && LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+10, Label='t\#bar{t}H'
-# ttH_hzz_0+     : TTHnobb_mWCutfix_ext_LHE : 0.5071*0.418           : GenHiggsDecayMode==23 && LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+10, Label='t\#bar{t}H'
-ttH_hzz_0p25+    : TTHnobb_mWCutfix_ext_LHE : 0.5071*0.418           : GenHiggsDecayMode==23 && LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+10, Label='t\#bar{t}H'
-ttH_hzz_0p5+     : TTHnobb_mWCutfix_ext_LHE : 0.5071*0.418           : GenHiggsDecayMode==23 && LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+10, Label='t\#bar{t}H'
-ttH_hzz_0p75+    : TTHnobb_mWCutfix_ext_LHE : 0.5071*0.418           : GenHiggsDecayMode==23 && LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+10, Label='t\#bar{t}H'
-ttH_hzz_1p25+    : TTHnobb_mWCutfix_ext_LHE : 0.5071*0.418           : GenHiggsDecayMode==23 && LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+10, Label='t\#bar{t}H'
-ttH_hzz_1p5+     : TTHnobb_mWCutfix_ext_LHE : 0.5071*0.418           : GenHiggsDecayMode==23 && LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+10, Label='t\#bar{t}H'
-ttH_hzz_2+       : TTHnobb_mWCutfix_ext_LHE : 0.5071*0.418           : GenHiggsDecayMode==23 && LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+10, Label='t\#bar{t}H'
-ttH_hzz_3+       : TTHnobb_mWCutfix_ext_LHE : 0.5071*0.418           : GenHiggsDecayMode==23 && LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+10, Label='t\#bar{t}H'
-# ttH_htt_0+     : TTHnobb_mWCutfix_ext_LHE : 0.5071*0.418           : GenHiggsDecayMode==15 && LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+10, Label='t\#bar{t}H'
-ttH_htt_0p25+    : TTHnobb_mWCutfix_ext_LHE : 0.5071*0.418           : GenHiggsDecayMode==15 && LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+10, Label='t\#bar{t}H'
-ttH_htt_0p5+     : TTHnobb_mWCutfix_ext_LHE : 0.5071*0.418           : GenHiggsDecayMode==15 && LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+10, Label='t\#bar{t}H'
-ttH_htt_0p75+    : TTHnobb_mWCutfix_ext_LHE : 0.5071*0.418           : GenHiggsDecayMode==15 && LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+10, Label='t\#bar{t}H'
-ttH_htt_1p25+    : TTHnobb_mWCutfix_ext_LHE : 0.5071*0.418           : GenHiggsDecayMode==15 && LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+10, Label='t\#bar{t}H'
-ttH_htt_1p5+     : TTHnobb_mWCutfix_ext_LHE : 0.5071*0.418           : GenHiggsDecayMode==15 && LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+10, Label='t\#bar{t}H'
-ttH_htt_2+       : TTHnobb_mWCutfix_ext_LHE : 0.5071*0.418           : GenHiggsDecayMode==15 && LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+10, Label='t\#bar{t}H'
-ttH_htt_3+       : TTHnobb_mWCutfix_ext_LHE : 0.5071*0.418           : GenHiggsDecayMode==15 && LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+10, Label='t\#bar{t}H'
+ttH_hww+ : TTHnobb_mWCutfix_ext_LHE : 0.5071*0.418*1.00*1.00 : GenHiggsDecayMode==24 && LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+10, Label='t\#bar{t}H'
+ttH_hzz+ : TTHnobb_mWCutfix_ext_LHE : 0.5071*0.418*1.00*1.00 : GenHiggsDecayMode==23 && LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+10, Label='t\#bar{t}H'
+ttH_htt+ : TTHnobb_mWCutfix_ext_LHE : 0.5071*0.418*1.00*1.00 : GenHiggsDecayMode==15 && LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+10, Label='t\#bar{t}H'
+# WH_hww+  : VHToNonbb                : xsec                   : GenHiggsDecayMode==24 && LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kOrange+6, Label='VHnobb'
+# WH_hzz+  : VHToNonbb                : xsec                   : GenHiggsDecayMode==23 && LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kOrange+6, Label='VHnobb'
+# WH_htt+  : VHToNonbb                : xsec                   : GenHiggsDecayMode==15 && LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kOrange+6, Label='VHnobb'
+# ggH_hzz+ : GGHZZ4L                  : xsec                   : GenHiggsDecayMode==23 && LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kOrange+6, Label='ggHZZ4L'
 
 # cv = 1.0
 tHq_hww_1_m3+      : THQ : 3495799.0/35.700022*0.07096*0.324 : LHEweight_wgt[446]*(GenHiggsDecayMode==24 && LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0) ;  FillColor=ROOT.kOrange+0
