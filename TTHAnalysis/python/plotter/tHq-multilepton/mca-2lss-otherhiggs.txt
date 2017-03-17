@@ -1,0 +1,2 @@
+VHToNonbb : VHToNonbb : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kOrange+6, Label='VH'
+GGHZZ4L   : GGHZZ4L   : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kOrange+6, Label='ggH'

@@ -88,11 +88,11 @@ text2workspace.py -o tHq_cards.root comb3/tHq_1_m1.card.txt
 ```
 
 ```
-python combineTool.py -M Impacts -d tHq_cards.root -m 125 --robustFit 1 --rMin -5 --rMax 10 --doInitialFit
+python combineTool.py -M Impacts -d tHq_cards.root -m 125 --robustFit 1 --rMin -5 --rMax 10 --doInitialFit --setPhysicsModelParameters kappa_t=-1.0,kappa_V=1.0 --freezeNuisances kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam --redefineSignalPOIs r
 
-python combineTool.py -M Impacts -d tHq_cards.root -m 125 --robustFit 1 --rMin -5 --rMax 10 --doFits --parallel 12
+python combineTool.py -M Impacts -d tHq_cards.root -m 125 --robustFit 1 --rMin -5 --rMax 10 --doFits --parallel 12 --setPhysicsModelParameters kappa_t=-1.0,kappa_V=1.0 --freezeNuisances kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam --redefineSignalPOIs r
 
-python combineTool.py -M Impacts -d tHq_cards.root -m 125 -o impacts.json
+python combineTool.py -M Impacts -d tHq_cards.root -m 125 -o impacts.json  --setPhysicsModelParameters kappa_t=-1.0,kappa_V=1.0 --freezeNuisances kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam --redefineSignalPOIs r
 
 plotImpacts.py -i impacts.json -o impacts --per-page 20
 ```
@@ -154,4 +154,12 @@ combine -M Asymptotic --run blind --rAbsAcc 0.0005 --rRelAcc 0.0005 tHq_1_m1.roo
 See also `runAllLimits.py` for the combine commands to use.
 
 Use -m 125 in text2workspace.py or combine in case you get `<ROOT::Math::GSLInterpolator::Eval>: input domain error` messages.
+
+Recipe with shortcut scripts:
+
+```
+python combineChannels -o comb3 2lss_mm/ 2lss_em/ 3l/
+make_workspaces.sh K5 *.card.txt
+python runAllLimits.py -t K5 *K5.card.root
+```
 

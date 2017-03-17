@@ -48,14 +48,14 @@ OPT3L="-W puw2016_nTrueInt_36fb(nTrueInt)*eventBTagSF*"\
 "leptonSF_ttH(LepGood_pdgId[iLepFO_Recl[1]],LepGood_pt[iLepFO_Recl[1]],LepGood_eta[iLepFO_Recl[1]],3)*"\
 "leptonSF_ttH(LepGood_pdgId[iLepFO_Recl[2]],LepGood_pt[iLepFO_Recl[2]],LepGood_eta[iLepFO_Recl[2]],3)"
 
-MCA=""
-CUTS=""
-BINNING=""
+MCA="tHq-multilepton/signal_extraction/mca-thq-2lss-mcdata-frdata_limits.txt"
+CUTS="tHq-multilepton/cuts-thq-2lss.txt"
+BINNING="thqMVA_ttv_2lss_40:thqMVA_tt_2lss_40 40,-1,1,40,-1,1"        
 SYSTFILE="tHq-multilepton/signal_extraction/systsEnv.txt"
 FUNCTION="--2d-binning-function 10:tHq_MVAto1D_2lss_10"
 # FUNCTION="--2d-binning-function 10:tHq_MVAto1D_2lss_sbratio"
 # FUNCTION="--2d-binning-function 11:tHq_MVAto1D_2lss_kmeans"
-NTUPLEFOLDER="thqtrees/finaltrees_Mar14/2lss/"
+NTUPLEFOLDER="thqtrees/finaltrees_Mar16/2lss/"
 
 case "$CHANNEL" in
     "3l" )
@@ -64,27 +64,18 @@ case "$CHANNEL" in
         CUTS="tHq-multilepton/cuts-thq-3l.txt"
         BINNING="thqMVA_ttv_3l_40:thqMVA_tt_3l_40 40,-1,1,40,-1,1"
         FUNCTION="--2d-binning-function 10:tHq_MVAto1D_3l_10"
-        NTUPLEFOLDER="thqtrees/finaltrees_Mar14/3l/"
+        NTUPLEFOLDER="thqtrees/finaltrees_Mar16/3l/"
         # FUNCTION="--2d-binning-function 10:tHq_MVAto1D_3l_sbratio"
         # FUNCTION="--2d-binning-function 5:tHq_MVAto1D_3l_kmeans"
         ;;
     "2lss_mm" )
         OPTIONS="${OPTIONS} ${OPT2L} -E mm_chan --xp Convs --xp Gstar --xp data_flips" # remove conversions for mm channel
-        MCA="tHq-multilepton/signal_extraction/mca-thq-2lss-mcdata-frdata_limits.txt"
-        CUTS="tHq-multilepton/cuts-thq-2lss.txt"
-        BINNING="thqMVA_ttv_2lss_40:thqMVA_tt_2lss_40 40,-1,1,40,-1,1"        
         ;;
     "2lss_em" )
         OPTIONS="${OPTIONS} ${OPT2L} -E em_chan --xp Gstar"
-        MCA="tHq-multilepton/signal_extraction/mca-thq-2lss-mcdata-frdata_limits.txt"
-        CUTS="tHq-multilepton/cuts-thq-2lss.txt"
-        BINNING="thqMVA_ttv_2lss_40:thqMVA_tt_2lss_40 40,-1,1,40,-1,1"
         ;;
     "2lss_ee" )
         OPTIONS="${OPTIONS} ${OPT2L} -E ee_chan --xp Gstar"
-        MCA="tHq-multilepton/signal_extraction/mca-thq-2lss-mcdata-frdata_limits.txt"
-        CUTS="tHq-multilepton/cuts-thq-2lss.txt"
-        BINNING="thqMVA_ttv_2lss_40:thqMVA_tt_2lss_40 40,-1,1,40,-1,1"
         ;;
     "all" )
         ./$0 ${OUTNAME} 3l

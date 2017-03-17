@@ -2,9 +2,11 @@
 # Numbers are: n_entries/sum_of_weights*cross-section (* BR for tHq) : LHEweight (445+x with x from mg_reweight_x)
 # Note: avoid using SkipMe=True here, otherwise those will be skipped in makeShapeCardsTHQ.py
 # These are all scaled to the SM cross sections for correct input yields in the new fit model
-tHq_1_m1+      : THQ : 0.07096*0.324                     : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0  ;  FillColor=ROOT.kOrange+1
-tHW_1_m1+      : THW : 0.01561                           : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0  ;  FillColor=ROOT.kOrange+6
-ttH_1          : TTHnobb_mWCutfix_ext_LHE : 0.5071*0.418*1.00*1.00 : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+10, Label='t\#bar{t}H'
+tHq_1_m1+      : THQ : 0.07096*0.324                     : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kOrange+1
+tHW_1_m1+      : THW : 0.01561                           : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kOrange+6
+ttH+           : TTHnobb_mWCutfix_ext_LHE : 0.5071*0.418 : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+10, Label='t\#bar{t}H'
+WH+            : VHToNonbb                : xsec         : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kOrange+6, Label='VHnobb'
+ggH+           : GGHZZ4L                  : xsec         : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kOrange+6, Label='ggHZZ4L'
 
 # cv = 1.0
 tHq_1_m3+      : THQ : 3495799.0/35.700022*0.07096*0.324 : LHEweight_wgt[446]*(LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0) ;  FillColor=ROOT.kOrange+0
