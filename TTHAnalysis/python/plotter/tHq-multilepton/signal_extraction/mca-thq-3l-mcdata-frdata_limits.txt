@@ -29,7 +29,7 @@ incl_sigprompt_bTag_cErr2_Dn    : + ; IncludeMca="tHq-multilepton/mca-thq-3l-sig
 incl_sigprompt_elLooseUnc_Up    : + ; IncludeMca="tHq-multilepton/mca-thq-3l-sigprompt.txt", AddWeight="elLooseUnc_2lss_up"                    , SkipMe=True, PostFix="_elLooseUnc_Up"
 incl_sigprompt_elLooseUnc_Dn    : + ; IncludeMca="tHq-multilepton/mca-thq-3l-sigprompt.txt", AddWeight="elLooseUnc_2lss_dn"                    , SkipMe=True, PostFix="_elLooseUnc_Dn"
 
-incl_convs_fwdJet           : + ; IncludeMca="ttH-multilepton/mca-includes/mca-3l-convs.txt", AddWeight="fwdjet_eventWeight_25(maxEtaJet25)"    , SkipMe=True, PostFix="_fwdJet"
+incl_convs_fwdJet           : + ; IncludeMca="ttH-multilepton/mca-includes/mca-3l-convs.txt", AddWeight="fwdjet_eventWeight_40(maxEtaJet25_40)"    , SkipMe=True, PostFix="_fwdJet"
 incl_convs_jec_Up           : + ; IncludeMca="ttH-multilepton/mca-includes/mca-3l-convs.txt", AddWeight="eventBTagSF_up_jes/eventBTagSF"        , SkipMe=True, PostFix="_jec_Up", FakeRate="ttH-multilepton/fr-jecUp.txt"
 incl_convs_jec_Dn           : + ; IncludeMca="ttH-multilepton/mca-includes/mca-3l-convs.txt", AddWeight="eventBTagSF_down_jes/eventBTagSF"      , SkipMe=True, PostFix="_jec_Dn", FakeRate="ttH-multilepton/fr-jecDn.txt"
 incl_convs_bTag_LF_Up       : + ; IncludeMca="ttH-multilepton/mca-includes/mca-3l-convs.txt", AddWeight="eventBTagSF_up_lf/eventBTagSF"         , SkipMe=True, PostFix="_bTag_LF_Up"
