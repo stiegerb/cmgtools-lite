@@ -64,7 +64,8 @@ def main(args, options):
                     os.listdir(inputdir) if c.endswith('card.txt') or c.endswith('card.root')])
 
     elif os.path.exists(args[0]):
-        tag = "_"+options.tag or ""
+        tag = options.tag or ""
+        if len(tag): tag = '_'+tag
         cards = sorted([c for c in args if os.path.exists(c) and (c.endswith('card.txt') or c.endswith('card.root'))])
 
     print "Found %d cards to run" % len(cards)

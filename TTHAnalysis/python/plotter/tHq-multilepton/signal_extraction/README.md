@@ -88,11 +88,11 @@ text2workspace.py -o tHq_cards.root comb3/tHq_1_m1.card.txt
 ```
 
 ```
-python combineTool.py -M Impacts -d tHq_cards.root -m 125 --robustFit 1 --rMin -5 --rMax 10 --doInitialFit --setPhysicsModelParameters kappa_t=-1.0,kappa_V=1.0 --freezeNuisances kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam --redefineSignalPOIs r
+combineTool.py -M Impacts -d tHq_1_1.card.root -m 125 --robustFit 1 --rMin -5 --rMax 10 --doInitialFit --setPhysicsModelParameters kappa_t=1.0,kappa_V=1.0 --freezeNuisances kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam --redefineSignalPOIs r
 
-python combineTool.py -M Impacts -d tHq_cards.root -m 125 --robustFit 1 --rMin -5 --rMax 10 --doFits --parallel 12 --setPhysicsModelParameters kappa_t=-1.0,kappa_V=1.0 --freezeNuisances kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam --redefineSignalPOIs r
+combineTool.py -M Impacts -d tHq_1_1.card.root -m 125 --robustFit 1 --rMin -5 --rMax 10 --doFits --parallel 12 --setPhysicsModelParameters kappa_t=1.0,kappa_V=1.0 --freezeNuisances kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam --redefineSignalPOIs r
 
-python combineTool.py -M Impacts -d tHq_cards.root -m 125 -o impacts.json  --setPhysicsModelParameters kappa_t=-1.0,kappa_V=1.0 --freezeNuisances kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam --redefineSignalPOIs r
+combineTool.py -M Impacts -d tHq_1_1.card.root -m 125 -o impacts.json  --setPhysicsModelParameters kappa_t=1.0,kappa_V=1.0 --freezeNuisances kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam --redefineSignalPOIs r
 
 plotImpacts.py -i impacts.json -o impacts --per-page 20
 ```
