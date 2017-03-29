@@ -20,16 +20,10 @@ def getLimits(card):
 
     combinecmd =  "combine -M Asymptotic --run blind --rAbsAcc 0.0005 --rRelAcc 0.0005"
     combinecmd += " -m 125 --verbose 0 -n cvct%s"%tag
-    combinecmd += " --setPhysicsModelParameters kappa_t=%.2f,kappa_V=%.2f" % (ct,cv)
-    # combinecmd += " --setPhysicsModelParameters kappa_t=%.2f,kappa_W=%.2f,kappa_Z=%.2f" % (ct,cv,cv)
-    # combinecmd += " --setPhysicsModelParameters kappa_F=%.2f,kappa_V=%.2f" % (ct,cv)
-    # combinecmd += " --setPhysicsModelParameterRanges kappa_t=-4,4"
-    combinecmd += " --freezeNuisances kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam"
-    # combinecmd += " --freezeNuisances kappa_t,kappa_W,kappa_Z,kappa_tau,kappa_mu,kappa_b,kappa_c"
-    # combinecmd += " --freezeNuisances kappa_F,kappa_V --redefineSignalPOIs r"
-    combinecmd += " --redefineSignalPOIs r"
-    # combinecmd += " --setPhysicsModelParameterRanges kappa_F=-4,4"
-    # combinecmd = "combine -M Asymptotic --run blind --rAbsAcc 0.0005 --rRelAcc 0.0005 --setPhysicsModelParameterRanges lambda_FV=-10,10 --setPhysicsModelParameters lambda_FV=-1.0 --freezeNuisances kappa_VV,lambda_du,lambda_Vu,kappa_uu,lambda_lq,lambda_Vq,kappa_qq,lambda_FV --redefineSignalPOIs r"
+    if 'K5' in card or 'K4' in card:
+        combinecmd += " --setPhysicsModelParameters kappa_t=%.2f,kappa_V=%.2f" % (ct,cv)
+        combinecmd += " --freezeNuisances kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam"
+        combinecmd += " --redefineSignalPOIs r"
     try:
         p = Popen(shlex.split(combinecmd) + [card] , stdout=PIPE)
         comboutput = p.communicate()[0]
