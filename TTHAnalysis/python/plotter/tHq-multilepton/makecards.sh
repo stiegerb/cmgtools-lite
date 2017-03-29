@@ -34,8 +34,8 @@ BASEOPTIONS="-f -j 8 -l ${LUMI} --s2v -v 2"\
 " -L tHq-multilepton/functionsTHQ.cc"\
 " --tree treeProducerSusyMultilepton"\
 " --mcc ttH-multilepton/lepchoice-ttH-FO.txt"\
-" --neg"\
-" --xp data --asimov"
+" --neg"
+#" --xp data --asimov"
 
 # Pileup weight, btag SFs, trigger SFs, lepton Eff SFs:
 OPT2L="-W puw2016_nTrueInt_36fb(nTrueInt)*eventBTagSF*"\

@@ -6,8 +6,9 @@
 # Some of the smaller samples are commented out for now to speed things up
 
 # Signal sample (with flipped yukawa sign!)
-tHq_hww+ : THQ : 0.7927*0.324 : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kOrange+10, Label='tHq (C_{t} = -1.0)'
-tHW_hww+ : THW : 0.1472       : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kOrange+6, Label='tHW (C_{t} = -1.0)'
+tHq_hww+ : THQ : 0.7927*0.324 : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kOrange+10, Label='tHq (\#kappa_{t}=-1.0)'
+tHW_hww+ : THW : 0.1472       : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kOrange+6, Label='tHW (\#kappa_{t}=-1.0)'
+ttH+     : TTHnobb_mWCutfix_ext_LHE                                    : 0.5071*0.418 : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kOrange+2, Label='t\#bar{t}H'
 
 ttW     : TTWToLNu_ext_LHE+TTWToLNu_ext2_LHE                          : 0.196        : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kGreen-5,   Label='t\#bar{t}W'
 ttZ     : TTZToLLNuNu_LHE                                             : 0.2728       : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kSpring+2,  Label='t\#bar{t}Z'
@@ -15,7 +16,6 @@ ttZ     : TTZToLLNuNu_m1to10_LHE                                      : xsec    
 ttZ	    : TTJets_DiLepton                                             : xsec         : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kSpring+2,  Label='t\#bar{t}Z'
 ttZ     : TTJets_SingleLeptonFromT+TTJets_SingleLeptonFromT_ext       : xsec         : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kSpring+2,  Label='t\#bar{t}Z'
 ttZ     : TTJets_SingleLeptonFromTbar+TTJets_SingleLeptonFromTbar_ext : xsec         : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kSpring+2,  Label='t\#bar{t}Z'
-ttH     : TTHnobb_mWCutfix_ext_LHE                                    : 0.5071*0.418 : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kSpring+10, Label='t\#bar{t}H'
 
 # WZ      : WJetsToLNu_LO : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ;  FillColor=ROOT.kViolet-4
 WZ 	    : WZTo3LNu : 1.1*xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ;  FillColor=ROOT.kViolet-4
