@@ -120,37 +120,48 @@ python diffNuisances.py -a mlfit.root -g plots.root
 
 Check that the fit result is `r=1` and that pulls for the signal+background fit are all 0.00.
 
-### Limits using HCG model (scaling ttH and tH coherently)
+### Limits using HCG models (scaling BRs with couplings)
+Note that all of these assume that the input yields (the 'rate' line in the datacards) correspond to standard model cross sections!
 
-'lambda_FV' in [LambdasReduced](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/74x-root6/python/LHCHCGModels.py#L626-L788) is basically our Ct/CV, 'kappa_VV' should correspond to CV^2.
+A few possibilities:
 
-Could also use [KappaVKappaF](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/74x-root6/python/LHCHCGModels.py#L522-L624) which directly has Ct and CV (as 'kappa_F', 'kappa_V').
+- 'lambda_FV' in [LambdasReduced](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/74x-root6/python/LHCHCGModels.py#L626-L788) is basically our Ct/CV, 'kappa_VV' should correspond to CV^2.
 
-Need to have '13TeV' string in bin names. We can use `combineCards.py` for that, or just our `combineChannels.py`.
+- Could also use [KappaVKappaF](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/74x-root6/python/LHCHCGModels.py#L522-L624) which directly has Ct and CV (as 'kappa_F', 'kappa_V').
+
+- Currently using [KappaTKappaV](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/pull/369), either with K4 (resolved) or K5 (non-resolved)
+
+All of these need to have '13TeV' string in bin names. We can use `combineCards.py` for that, or just our `combineChannels.py`.
 
 ```
 combineCards.py tHq_3l_1_m1_13TeV=tHq_3l_1_m1.card.txt &> tHq_3l_1_m1_13TeV.txt
 ```
 
-Produce the workspace using the HCG "LambdasReduced" model. Note that there are some small changes in that code, with respect to the original. See `tHq-multilepton/signal_extraction/LambdasReducedWithr.py`.
+To use the models, we need to use `text2workspace.py` to produce a RooWorkspace with all the scaling functions, etc. (e.g. for K5):
 
 ```
 text2workspace.py tHq_1_m1.card.txt \
--P HiggsAnalysis.CombinedLimit.LHCHCGModels:L2 \
+-P HiggsAnalysis.CombinedLimit.LHCHCGModels:K5 \
 --PO verbose \
---PO BRU=0
+--PO BRU=0 \
+-m 125
 ```
 
-Or `LHCHCGModels:K3` for the kappa model.
+This workspace now contains the proper scaling functions of the higgs processes. 
 
-The workspace now contains the proper scaling functions of the higgs processes. Note that it assumes that the input yields (the 'rate' line in the datacards) corresponds to standard model cross sections!
-
-To run the limit for a given point, we need to specify the lambda_FV value at that point and redefine the parameter of interest as the signal strength. We freeze all the other nuisances, including lambda_FV (or kappa_F, kappa_V in case of the kappa model).
+To run the limit for a given point, we need to specify the kappa values at that point and redefine the parameter of interest as the signal strength. We freeze all the other nuisances.
 
 ```
-combine -M Asymptotic --run blind --rAbsAcc 0.0005 --rRelAcc 0.0005 tHq_1_m1.root --setPhysicsModelParameterRanges lambda_FV=-10,10 --setPhysicsModelParameters lambda_FV=-1.0 --freezeNuisances kappa_VV,lambda_du,lambda_Vu,kappa_uu,lambda_lq,lambda_Vq,kappa_qq,lambda_FV --redefineSignalPOIs r
+combine -M Asymptotic \
+--run blind \
+--rAbsAcc 0.0005 --rRelAcc 0.0005 \
+--setPhysicsModelParameters kappa_t=-1.0,kappa_V=1.0 \
+--freezeNuisances kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam \
+--redefineSignalPOIs r \
+tHq_1_m1.root
 ```
 
+Can also redefine the range of a parameter, in case it's necessary, using `--setPhysicsModelParameterRanges kappa_t=-4,4`.
 See also `runAllLimits.py` for the combine commands to use.
 
 Use -m 125 in text2workspace.py or combine in case you get `<ROOT::Math::GSLInterpolator::Eval>: input domain error` messages.
@@ -162,4 +173,30 @@ python combineChannels -o comb3 2lss_mm/ 2lss_em/ 3l/
 make_workspaces.sh K5 *.card.txt
 python runAllLimits.py -t K5 *K5.card.root
 ```
+
+### Limits ala Gritsan (no BR scaling)
+If we assume the relative fractions of WW/ZZ/tautau are the same for constant kt/kV, we can set cross section limits for 33 distinct points of kt/kV (or kt**2/(kt**2+kV**2)) which are then valid for all other possible kt and kV points with the same ratio. To do so, we now just have to let tHq and tHW float with the ttH scale for a given point.
+
+Note that tHq and tHW are proportional to kt**2 (and therefore r_ttH) for fixed kt/kV ratios. The relative fractions then depend on the value of the ratio as follows (where a = kt/kV):
+
+- r_tHq = (2.633 + 3.578/a**2 - 5.211/a) * r_ttH
+- r_tHW = (2.909 + 2.310/a**2 - 4.220/a) * r_ttH
+- r_ttH is left floating
+
+We can make a workspace with these scaling by using the `HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel` with mapping commands. We just have to provide the kt/kV ratio (e.g. for a kt=-3, kV=1.5 point):
+
+```
+text2workspace.py tHq_1p5_m3.card.txt -o ws_tHq_1p5_m3_K6.card.root \
+-P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel -m 125 \
+--PO 'map=.*/ttH.*:r_ttH[1,-5,10]' \
+--PO 'map=.*/tHq.*:r_tHq=expr::r_tHq("(2.633+3.578/(@1*@1)-5.211/(@1))*@0",r_ttH,-2.00)' \
+--PO 'map=.*/tHW.*:r_tHW=expr::r_tHW("(2.909+2.310/(@1*@1)-4.220/(@1))*@0",r_ttH,-2.00)'
+```
+
+This is now automated in `make_workspaces.sh`, where the ratio is extracted from the card name. We call the new model 'K6':
+
+```
+make_workspaces.sh K6 *.card.root
+```
+
 
