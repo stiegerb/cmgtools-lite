@@ -2,7 +2,7 @@
 import sys, os, re, shlex
 from subprocess import Popen, PIPE
 
-def getLimits(card):
+def getLimits(card, model='K5'):
     """
     Run combine on a single card, return a tuple of 
     (cv,ct,twosigdown,onesigdown,exp,onesigup,twosigup)
@@ -20,12 +20,16 @@ def getLimits(card):
 
     combinecmd =  "combine -M Asymptotic --run blind --rAbsAcc 0.0005 --rRelAcc 0.0005"
     combinecmd += " -m 125 --verbose 0 -n cvct%s"%tag
-    if 'K5' in card or 'K4' in card:
-        combinecmd += " --setPhysicsModelParameters kappa_t=%.2f,kappa_V=%.2f" % (ct,cv)
+    if model in ['K4', 'K5', 'K6']:
+        if model == 'K6':
+            # Rescale to cv = 1, we only care about the ct/cv ratio
+            combinecmd += " --setPhysicsModelParameters kappa_t=%.2f,kappa_V=%.2f" % (ct/cv, 1.0)
+        else:
+            combinecmd += " --setPhysicsModelParameters kappa_t=%.2f,kappa_V=%.2f" % (ct,cv)
         combinecmd += " --freezeNuisances kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam"
         combinecmd += " --redefineSignalPOIs r"
     try:
-        p = Popen(shlex.split(combinecmd) + [card] , stdout=PIPE)
+        p = Popen(shlex.split(combinecmd) + [card] , stdout=PIPE, stderr=PIPE)
         comboutput = p.communicate()[0]
     except OSError:
         print "combine command not known. Try this: cd /afs/cern.ch/user/s/stiegerb/combine/ ; cmsenv ; cd -"
@@ -41,6 +45,7 @@ def getLimits(card):
 
 def main(args, options):
 
+    cards = []
     if os.path.isdir(args[0]):
         inputdir = args[0]
 
@@ -66,7 +71,7 @@ def main(args, options):
 
     limdata = {} # (cv,ct) -> (2sd, 1sd, lim, 1su, 2su)
     for card in cards:
-        cv, ct, liminfo = getLimits(card)
+        cv, ct, liminfo = getLimits(card, model=options.model)
         limdata[(cv,ct)] = liminfo
 
     fnames = []
@@ -101,6 +106,8 @@ if __name__ == '__main__':
     #                   type="string", default="combined/")
     parser.add_option("-t","--tag", dest="tag",
                       type="string", default=None)
+    parser.add_option("-m","--model", dest="model",
+                      type="string", default="K5")
     (options, args) = parser.parse_args()
 
     sys.exit(main(args, options))

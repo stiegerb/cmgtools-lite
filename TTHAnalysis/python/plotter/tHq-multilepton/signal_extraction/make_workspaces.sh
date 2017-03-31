@@ -6,7 +6,7 @@ COMBINEDIR="/afs/cern.ch/user/s/stiegerb/combine/"
 cd $COMBINEDIR; eval `scramv1 runtime -sh`; cd -;
 
 MODEL="K5"
-if [[ "$1" == "K5" || "$1" == "K4" || "$1" == "K6" ]]; then
+if [[ "$1" == "K5" || "$1" == "K4" || "$1" == "K6"  || "$1" == "K6b" ]]; then
 	MODEL=$1
 	shift;
 fi
@@ -34,7 +34,7 @@ do
 
 	# Or do the scaling by hand:
 	# 'alpha' = kt/kV
-	if [[ ${MODEL} == "K6" ]]; then
+	if [[ ${MODEL} == "K6b" ]]; then
 		ALPHA=$(RATIO_FROM_NAME $card)
 		echo "... using alpha=${ALPHA}"
 		OPTIONS="-P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel -m 125"
