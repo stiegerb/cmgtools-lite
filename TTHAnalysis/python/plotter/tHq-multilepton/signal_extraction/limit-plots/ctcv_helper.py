@@ -46,11 +46,13 @@ def read_dataframe(ct, cv, df=None, att=None):
     Use with functools.partial to create a function of ct and cv
     to give to print_table
     """
+    result = None
     try:
-        return getattr(df.loc[df.cv==cv].loc[df.ct.round(3)==ct], att)
+        result = getattr(df.loc[df.cv==cv].loc[df.ct.round(3)==ct], att)
     except AttributeError:
         # Some call it cf instead of ct
-        return getattr(df.loc[df.cv==cv].loc[df.cf.round(3)==ct], att)
+        result = getattr(df.loc[df.cv==cv].loc[df.cf.round(3)==ct], att)
+    return result
 
 def read_dataframe_ratio(ct, cv, df=None, att1=None, att2=None):
     """
