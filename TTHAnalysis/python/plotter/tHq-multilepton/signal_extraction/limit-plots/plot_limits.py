@@ -62,8 +62,11 @@ def readXsecs():
 
     return xsec_thq, xsec_thw, xsec_tth
 
-def makePlot(inputfile='limits_1.dat', outdir='plots/', logscale=True, smoothing=0.0):
-    # reset()
+def makePlot(inputfile='limits_1.dat',
+             outdir='plots/',
+             logscale=True,
+             smoothing=0.0,
+             split_xsecs=False):
     print "...reading limits from %s" % inputfile
 
     try:
@@ -163,7 +166,7 @@ def makePlot(inputfile='limits_1.dat', outdir='plots/', logscale=True, smoothing
 
     # Plot xsec line
     ax2.plot(x2, y2_xsec_tot, lw=1.5, label='dummy',color='black' ,linestyle='-.')
-    if options.print_split_xsecs:
+    if split_xsecs:
         ax2.plot(x2, y2_xsec_tth, lw=0.5, label='dummy',color='black', linestyle='dashed')
         ax2.plot(x2, y2_xsec_th,  lw=0.5, label='dummy',color='black', linestyle='dotted')
 
@@ -173,6 +176,7 @@ def makePlot(inputfile='limits_1.dat', outdir='plots/', logscale=True, smoothing
 
     def print_text(x, y, text, fontsize=24):
         plt.text(x, y, text, fontsize=fontsize, transform=ax.transAxes)
+        ptext.set_bbox(dict(alpha=0.8, color='white'))
 
     print_text(0.06, 1.02, "$\mathbf{CMS}$ {\\huge{\\textit{Preliminary}}", 28)
     print_text(0.67, 1.02, "%.1f\,$\mathrm{fb}^{-1}$ (13\,TeV)"% (35.9))
@@ -194,23 +198,19 @@ def makePlot(inputfile='limits_1.dat', outdir='plots/', logscale=True, smoothing
                                label='med. expected limit', linewidth=1.5)
     xsline = mpl.lines.Line2D([], [], color='black', lw=1.5, linestyle='-.',
                                   label='$\sigma\\times \mathrm{BR}$ (tH+ttH)')
-    if options.print_split_xsecs:
+    if split_xsecs:
         tthxsline = mpl.lines.Line2D([], [], color='black', lw=1, linestyle='dashed',
                                   label='$\sigma\\times \mathrm{BR}$ (ttH)')
         thxsline = mpl.lines.Line2D([], [], color='black', lw=1, linestyle='dotted',
                                   label='$\sigma\\times \mathrm{BR}$ (tH)')
 
     # Legend
-    legend=plt.legend(loc=(0.71,0.75)) # Legend: list, location, Title (in bold)
-    if not options.print_split_xsecs:
-        plt.legend(handles=[expline,onesigpatch,twosigpatch,xsline], fontsize=18)
-    else:
-        plt.legend(handles=[expline,onesigpatch,twosigpatch,xsline,tthxsline,thxsline], fontsize=18)
-
-    # Set Figure parameter
-    # fig_size = plt.rcParams["figure.figsize"]
-    # fig_size[0] = 10
-    # fig_size[1] = 9
+    legentries = [expline,onesigpatch,twosigpatch,xsline]
+    if split_xsecs:
+        legentries += [tthxsline,thxsline]
+    legend = plt.legend(handles=legentries, fontsize=18, frameon=True, loc='upper right', framealpha=0.8)
+    legend.get_frame().set_facecolor('white')
+    legend.get_frame().set_linewidth(0)
 
     outfile = os.path.join(outdir, os.path.splitext(os.path.basename(inputfile))[0])
     plt.savefig("%s.pdf"%outfile, bbox_inches='tight')
@@ -240,6 +240,10 @@ if __name__ == '__main__':
 
     for ifile in args:
         if not os.path.exists(ifile): continue
-        makePlot(ifile, outdir=options.outdir, logscale=(not options.lin), smoothing=options.smoothing)
+        makePlot(ifile,
+                 outdir=options.outdir,
+                 logscale=(not options.lin),
+                 smoothing=options.smoothing,
+                 split_xsecs=options.print_split_xsecs)
 
     sys.exit(0)

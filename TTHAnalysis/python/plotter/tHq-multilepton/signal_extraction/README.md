@@ -175,7 +175,7 @@ python runAllLimits.py -t K5 *K5.card.root
 ```
 
 ### Limits ala Gritsan (no BR scaling)
-If we assume the relative fractions of WW/ZZ/tautau are the same for constant kt/kV, we can set cross section limits for 33 distinct points of kt/kV (or kt**2/(kt**2+kV**2)) which are then valid for all other possible kt and kV points with the same ratio. To do so, we now just have to let tHq and tHW float with the ttH scale for a given point.
+If we assume the relative fractions of WW/ZZ/tautau are the same for constant kt/kV (which is true if ktau=kt), we can set cross section limits for 33 distinct points of kt/kV (or kt**2/(kt**2+kV**2)) which are then valid for all other possible kt and kV points with the same ratio. To do so, we now just have to let tHq and tHW float with the ttH scale for a given point.
 
 Note that tHq and tHW are proportional to kt**2 (and therefore r_ttH) for fixed kt/kV ratios. The relative fractions then depend on the value of the ratio as follows (where a = kt/kV):
 
@@ -199,4 +199,17 @@ This is now automated in `make_workspaces.sh`, where the ratio is extracted from
 make_workspaces.sh K6 *.card.root
 ```
 
+### Run the unblinded fit
 
+To run the final fit on the unblinded data:
+
+```
+combine -M MaxLikelihoodFit \
+--saveShapes --saveWithUncertainties \
+--setPhysicsModelParameters kappa_t=-1.0,kappa_V=1.0 \
+--freezeNuisances kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam \
+--redefineSignalPOIs r \
+ws_tHq_1_m1_K6.card.root
+```
+
+This will produce the `mlfit.root` file needed to produce post-fit plots (using `postFitPlotsTHQ.py`).
