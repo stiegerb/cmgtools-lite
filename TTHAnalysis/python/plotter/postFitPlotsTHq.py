@@ -68,6 +68,9 @@ YAXIS_RANGE = {
     'tHq_2lss_ee_13TeV' : (0.5, 70),
 }
 
+REBINMAP_3l = {7:9, 2:5, 9:7, 5:2}
+REBINMAP_2l = {3:2, 2:4, 5:3, 4:8, 6:5, 9:6, 8:10, 10:9}
+
 def doTinyCmsPrelimCustom(textLeft="_default_",textRight="_default_",hasExpo=False,textSize=0.04,lumi=None, xoffs=0):
     from mcPlots import doSpam
     global options
@@ -122,6 +125,8 @@ if __name__ == "__main__":
                       help="Output directory for postfit plots");
     parser.add_option("--doLog", dest="doLog", action="store_true",
                       help="Do logarithmic scale plots");
+    parser.add_option("--doRebinning", dest="doRebinning", action="store_true",
+                      help="Remap the bins according to PR#18");
     (options, args) = parser.parse_args()
     options.path = ["thqtrees/TREES_TTH_250117_Summer16_JECV3_noClean_qgV2_tHqsoup_v2/"]
     options.lumi = 35.9
@@ -137,10 +142,11 @@ if __name__ == "__main__":
     mca_merged = MCAnalysis(args[0], options) # for the merged processes (plots)
     mca_indivi = MCAnalysis(args[1], options) # for the individual processes (fit)
     channel = {'3l': 'tHq_3l_13TeV', '2lss_mm':'tHq_2lss_mm_13TeV', '2lss_em':'tHq_2lss_em_13TeV'}[args[4]]
+    rebinmap = REBINMAP_3l if '3l' in channel else REBINMAP_2l
 
     var = "finalBins_40"
 
-    if args[4] not in args[2]: # channel not in filename is suspicious
+    if args[4].rsplit('_',1)[0] not in args[2]: # channel not in filename is suspicious
         print "WARNING"
 
     infile = ROOT.TFile(args[2])
@@ -150,6 +156,13 @@ if __name__ == "__main__":
         hdata.GetName()
     except ReferenceError:
         raise RuntimeError("Histo %s not found in %s" % (var+datahistname, args[2]))
+
+    hdata_rebinned = hdata.Clone("%s_rebinned"%hdata.GetName())
+    hdata_rebinned.Reset("ICE")
+    for b in xrange(1, hdata.GetNbinsX()+1):
+        hdata_rebinned.SetBinContent(rebinmap.get(b,b), hdata.GetBinContent(b))
+        hdata_rebinned.SetBinError(rebinmap.get(b,b), hdata.GetBinError(b))
+    hdata = hdata_rebinned
 
     ## Cosmetics
     hdata.SetMarkerSize(1.3)
@@ -209,8 +222,8 @@ if __name__ == "__main__":
 
             # Set the bin-content and error from the post-fit
             for b in xrange(1, hist.GetNbinsX()+1):
-                hist.SetBinContent(b, h_postfit.GetBinContent(b))
-                hist.SetBinError(b, h_postfit.GetBinError(b))
+                hist.SetBinContent(rebinmap.get(b,b), h_postfit.GetBinContent(b))
+                hist.SetBinError(rebinmap.get(b,b), h_postfit.GetBinError(b))
 
             # Add them up to reflect the plotting mca
             pout = mergeMap.get(process, process)
@@ -227,17 +240,17 @@ if __name__ == "__main__":
         hbkg_postfit = mldir.Get(channel+"/total_background")
 
         for b in xrange(1, hdata.GetNbinsX()+1):
-            htot.SetBinContent(b, htot_postfit.GetBinContent(b))
-            htot.SetBinError(  b, htot_postfit.GetBinError(b))
-            hbkg.SetBinContent(b, hbkg_postfit.GetBinContent(b))
-            hbkg.SetBinError(  b, hbkg_postfit.GetBinError(b))
+            htot.SetBinContent(rebinmap.get(b,b), htot_postfit.GetBinContent(b))
+            htot.SetBinError(  rebinmap.get(b,b), htot_postfit.GetBinError(b))
+            hbkg.SetBinContent(rebinmap.get(b,b), hbkg_postfit.GetBinContent(b))
+            hbkg.SetBinError(  rebinmap.get(b,b), hbkg_postfit.GetBinError(b))
 
         for hist in plots.values() + [htot]:
             outfile.WriteTObject(hist)
 
         if not options.doLog:
             if MLD == 'prefit':
-                ymax = 1.8*max(htot.GetMaximum(), hdata.GetMaximum())
+                ymax = 1.2*max(htot.GetMaximum(), hdata.GetMaximum())
             htot.GetYaxis().SetRangeUser(0, ymax)
         else:
             htot.GetYaxis().SetRangeUser(YAXIS_RANGE.get(channel, (0.5, 100))[0],
@@ -313,7 +326,10 @@ if __name__ == "__main__":
         ## Save the plots
         c1.cd()
         for ext in ['.pdf',]:#'.png', '.C']
-            c1.Print(os.path.join(options.outDir, '%s_%s%s' % (channel,MLD,ext)))
+            outname = '%s_%s%s' % (channel,MLD,ext)
+            if options.doLog:
+                outname = '%s_%s_log%s' % (channel,MLD,ext)
+            c1.Print(os.path.join(options.outDir, outname))
         del c1
 
         outfile.Close()

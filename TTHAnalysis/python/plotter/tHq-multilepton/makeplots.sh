@@ -55,7 +55,7 @@ CUTS=""
 PLOTS=""
 case "$PLOTTAG" in
     "3l" )
-        OPTIONS="${OPTIONS} ${DRAWOPTIONS} ${OPT3L}"
+        OPTIONS="${OPTIONS} ${DRAWOPTIONS} ${OPT3L} --sP finalBins_40 --sP finalBins_log_40"
         MCA="tHq-multilepton/mca-thq-3l-mcdata-frdata.txt"
         CUTS="tHq-multilepton/cuts-thq-3l.txt"
         PLOTS="tHq-multilepton/plots-thq-3l-kinMVA.txt"
@@ -119,7 +119,8 @@ case "$PLOTTAG" in
         ;;
     "2lss-mm" )
         OPTIONS="${OPTIONS} ${DRAWOPTIONS} ${OPT2L} -E mm_chan --xp data_flips"
-        OPTIONS="${OPTIONS} --xP finalBins_log_em_40 --xP finalBins_log_ee_40"
+        # OPTIONS="${OPTIONS} --xP finalBins_log_em_40 --xP finalBins_log_ee_40"
+        OPTIONS="${OPTIONS} --sP finalBins_40 --sP finalBins_log_mm_40 "
         MCA="tHq-multilepton/mca-thq-2lss-mcdata-frdata.txt"
         CUTS="tHq-multilepton/cuts-thq-2lss.txt"
         PLOTS="tHq-multilepton/plots-thq-2lss-kinMVA.txt"
@@ -139,7 +140,8 @@ case "$PLOTTAG" in
         ;;
     "2lss-em" )
         OPTIONS="${OPTIONS} ${DRAWOPTIONS} ${OPT2L} -E em_chan"
-        OPTIONS="${OPTIONS} --xP finalBins_log_mm_40 --xP finalBins_log_ee_40"
+        # OPTIONS="${OPTIONS} --xP finalBins_log_mm_40 --xP finalBins_log_ee_40"
+        OPTIONS="${OPTIONS} --sP finalBins_log_em_40"
         MCA="tHq-multilepton/mca-thq-2lss-mcdata-frdata.txt"
         CUTS="tHq-multilepton/cuts-thq-2lss.txt"
         PLOTS="tHq-multilepton/plots-thq-2lss-kinMVA.txt"
@@ -159,7 +161,8 @@ case "$PLOTTAG" in
         ;;
     "2lss-ee" )
         OPTIONS="${OPTIONS} ${DRAWOPTIONS} ${OPT2L} -E ee_chan"
-        OPTIONS="${OPTIONS} --xP finalBins_log_mm_40 --xP finalBins_log_em_40"
+        # OPTIONS="${OPTIONS} --xP finalBins_log_mm_40 --xP finalBins_log_em_40"
+        OPTIONS="${OPTIONS} --sP finalBins_40 --sP finalBins_log_ee_40"
         MCA="tHq-multilepton/mca-thq-2lss-mcdata-frdata.txt"
         CUTS="tHq-multilepton/cuts-thq-2lss.txt"
         PLOTS="tHq-multilepton/plots-thq-2lss-kinMVA.txt"
@@ -267,6 +270,28 @@ case "$PLOTTAG" in
         ./$0 ${OUTDIR}/2lss ntuple_2lss
         DONE
         ;;
+    "postfit" )
+        FITRESULT="tHq-multilepton/signal_extraction/cards_Mar28_unblinded/comb3/mlfit.root"
+        DRAWOPTIONS="--maxRatioRange 0 3.2 --fixRatioRange"
+
+        MCA1="tHq-multilepton/mca-thq-3l-mcdata-frdata.txt"
+        MCA2="tHq-multilepton/signal_extraction/mca-thq-3l-mcdata-frdata_limits.txt"
+        PLOTINPUT="www/Mar28_unblinding/3l/plots-thq-3l-kinMVA.root"
+        ./postFitPlotsTHq.py ${MCA1} ${MCA2} ${PLOTINPUT} ${FITRESULT} 3l --outDir ${OUTDIR}/3l/ ${DRAWOPTIONS} --doLog 
+        ./postFitPlotsTHq.py ${MCA1} ${MCA2} ${PLOTINPUT} ${FITRESULT} 3l --outDir ${OUTDIR}/3l/ ${DRAWOPTIONS}
+
+        MCA1="tHq-multilepton/mca-thq-2lss-mcdata-frdata.txt"
+        MCA2="tHq-multilepton/signal_extraction/mca-thq-2lss-mcdata-frdata_limits.txt"
+        PLOTINPUT="www/Mar28_unblinding/2lss-mm/plots-thq-2lss-kinMVA.root"
+        ./postFitPlotsTHq.py ${MCA1} ${MCA2} ${PLOTINPUT} ${FITRESULT} 2lss_mm --outDir ${OUTDIR}/2lss_mm/ ${DRAWOPTIONS} --doLog 
+        ./postFitPlotsTHq.py ${MCA1} ${MCA2} ${PLOTINPUT} ${FITRESULT} 2lss_mm --outDir ${OUTDIR}/2lss_mm/ ${DRAWOPTIONS}
+
+        PLOTINPUT="www/Mar28_unblinding/2lss-em/plots-thq-2lss-kinMVA.root"
+        ./postFitPlotsTHq.py ${MCA1} ${MCA2} ${PLOTINPUT} ${FITRESULT} 2lss_em --outDir ${OUTDIR}/2lss_em/ ${DRAWOPTIONS} --doLog 
+        ./postFitPlotsTHq.py ${MCA1} ${MCA2} ${PLOTINPUT} ${FITRESULT} 2lss_em --outDir ${OUTDIR}/2lss_em/ ${DRAWOPTIONS}
+
+        DONE
+        ;;
     *)
         echo "${USAGE}"
         echo -e "\e[31mUnknown plottag\e[0m"
@@ -290,7 +315,7 @@ if [[ "X$1" != "X" ]]; then
     echo "Running a single plot: ${SELECTPLOT}";
     python mcPlots.py ${ARGUMENTS} ${OPTIONS} --select-plot ${SELECTPLOT}
 else
-    python mcPlots.py ${ARGUMENTS} ${OPTIONS} --enable-cut 2bl --select-plot dEtaFwdJet2BJet_40
+    # python mcPlots.py ${ARGUMENTS} ${OPTIONS} --enable-cut 2bl --select-plot dEtaFwdJet2BJet_40
     python mcPlots.py ${ARGUMENTS} ${OPTIONS} --exclude-plot dEtaFwdJet2BJet_40
 fi
 
