@@ -101,35 +101,35 @@ Same as above but with merged bins:
    6 + 5
 New bins are:
  1 ---------------------
-   |    |    |  7 | 10 |
+   |    |    |  9 | 10 |
    |    |  6 |----|----|
-   |  2 |    |  9 |  8 |
+   |  5 |    |  7 |  8 |
  0 |    |----|----|----|
-   |    |  5 |    4    | 
+   |    |  2 |    4    | 
    |----|----|----|----|
    |  1 |      3       |
 -1 |----|----|----|----|
   -1         0         1
 */
-    if( mva_tt  > x_3  && mva_ttv  >  y_3 ) return 10;
-    if( mva_tt  > x_2  && mva_ttv  >  y_3 ) return 7;
-    if( mva_tt  > x_1  && mva_ttv  >  y_3 ) return 6;
-    if( mva_tt >= -1.0 && mva_ttv  >  y_3 ) return 2;
+    if( mva_tt  > x_3  && mva_ttv  >  y_3 ) return 10; 
+    if( mva_tt  > x_2  && mva_ttv  >  y_3 ) return 9;  
+    if( mva_tt  > x_1  && mva_ttv  >  y_3 ) return 6;  
+    if( mva_tt >= -1.0 && mva_ttv  >  y_3 ) return 5;  
 
-    if( mva_tt  > x_3  && mva_ttv  >  y_2 ) return 8;
-    if( mva_tt  > x_2  && mva_ttv  >  y_2 ) return 9;
-    if( mva_tt  > x_1  && mva_ttv  >  y_2 ) return 6;
-    if( mva_tt >= -1.0 && mva_ttv  >  y_2 ) return 2;
+    if( mva_tt  > x_3  && mva_ttv  >  y_2 ) return 8;  
+    if( mva_tt  > x_2  && mva_ttv  >  y_2 ) return 7;  
+    if( mva_tt  > x_1  && mva_ttv  >  y_2 ) return 6;  
+    if( mva_tt >= -1.0 && mva_ttv  >  y_2 ) return 5;  
 
-    if( mva_tt  > x_3  && mva_ttv  >  y_1 ) return 4;
-    if( mva_tt  > x_2  && mva_ttv  >  y_1 ) return 4;
-    if( mva_tt  > x_1  && mva_ttv  >  y_1 ) return 5;
-    if( mva_tt >= -1.0 && mva_ttv  >  y_1 ) return 2;
+    if( mva_tt  > x_3  && mva_ttv  >  y_1 ) return 4;  
+    if( mva_tt  > x_2  && mva_ttv  >  y_1 ) return 4;  
+    if( mva_tt  > x_1  && mva_ttv  >  y_1 ) return 2;  
+    if( mva_tt >= -1.0 && mva_ttv  >  y_1 ) return 5;  
 
-    if( mva_tt  > x_3  && mva_ttv >= -1.0 ) return 3;
-    if( mva_tt  > x_2  && mva_ttv >= -1.0 ) return 3;
-    if( mva_tt  > x_1  && mva_ttv >= -1.0 ) return 3;
-    if( mva_tt >= -1.0 && mva_ttv >= -1.0 ) return 1;
+    if( mva_tt  > x_3  && mva_ttv >= -1.0 ) return 3;  
+    if( mva_tt  > x_2  && mva_ttv >= -1.0 ) return 3;  
+    if( mva_tt  > x_1  && mva_ttv >= -1.0 ) return 3;  
+    if( mva_tt >= -1.0 && mva_ttv >= -1.0 ) return 1;  
 
     return 0;
 }
@@ -141,35 +141,35 @@ Same as above but with merged bins:
    6 + 5
 New bins are:
  1 ---------------------
-   |    |    |  7 | 10 |
-   |    |  6 |----|----|
-   |  2 |    |  9 |  8 |
+   |    |    |  7 |  9 |
+   |    |  5 |----|----|
+   |  4 |    |  6 | 10 |
  0 |    |----|----|----|
-   |    |  5 |    4    | 
+   |    |  3 |    8    | 
    |----|----|----|----|
-   |  1 |      3       |
+   |  1 |      2       |
 -1 |----|----|----|----|
   -1         0         1
 */
-    if( mva_tt  > a_3  && mva_ttv  >  b_3 ) return 10;
-    if( mva_tt  > a_2  && mva_ttv  >  b_3 ) return 7;
-    if( mva_tt  > a_1  && mva_ttv  >  b_3 ) return 6;
-    if( mva_tt >= -1.0 && mva_ttv  >  b_3 ) return 2;
+    if( mva_tt  > a_3  && mva_ttv  >  b_3 ) return 9;   
+    if( mva_tt  > a_2  && mva_ttv  >  b_3 ) return 7;  
+    if( mva_tt  > a_1  && mva_ttv  >  b_3 ) return 5;  
+    if( mva_tt >= -1.0 && mva_ttv  >  b_3 ) return 4;  
 
-    if( mva_tt  > a_3  && mva_ttv  >  b_2 ) return 8;
-    if( mva_tt  > a_2  && mva_ttv  >  b_2 ) return 9;
-    if( mva_tt  > a_1  && mva_ttv  >  b_2 ) return 6;
-    if( mva_tt >= -1.0 && mva_ttv  >  b_2 ) return 2;
+    if( mva_tt  > a_3  && mva_ttv  >  b_2 ) return 10; 
+    if( mva_tt  > a_2  && mva_ttv  >  b_2 ) return 6;  
+    if( mva_tt  > a_1  && mva_ttv  >  b_2 ) return 5;  
+    if( mva_tt >= -1.0 && mva_ttv  >  b_2 ) return 4;  
 
-    if( mva_tt  > a_3  && mva_ttv  >  b_1 ) return 4;
-    if( mva_tt  > a_2  && mva_ttv  >  b_1 ) return 4;
-    if( mva_tt  > a_1  && mva_ttv  >  b_1 ) return 5;
-    if( mva_tt >= -1.0 && mva_ttv  >  b_1 ) return 2;
+    if( mva_tt  > a_3  && mva_ttv  >  b_1 ) return 8;  
+    if( mva_tt  > a_2  && mva_ttv  >  b_1 ) return 8;  
+    if( mva_tt  > a_1  && mva_ttv  >  b_1 ) return 3;  
+    if( mva_tt >= -1.0 && mva_ttv  >  b_1 ) return 4;  
 
-    if( mva_tt  > a_3  && mva_ttv >= -1.0 ) return 3;
-    if( mva_tt  > a_2  && mva_ttv >= -1.0 ) return 3;
-    if( mva_tt  > a_1  && mva_ttv >= -1.0 ) return 3;
-    if( mva_tt >= -1.0 && mva_ttv >= -1.0 ) return 1;
+    if( mva_tt  > a_3  && mva_ttv >= -1.0 ) return 2;  
+    if( mva_tt  > a_2  && mva_ttv >= -1.0 ) return 2;  
+    if( mva_tt  > a_1  && mva_ttv >= -1.0 ) return 2;  
+    if( mva_tt >= -1.0 && mva_ttv >= -1.0 ) return 1;  
 
     return 0;
 }
