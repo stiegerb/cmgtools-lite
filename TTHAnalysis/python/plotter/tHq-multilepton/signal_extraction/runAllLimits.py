@@ -2,7 +2,7 @@
 import sys, os, re, shlex
 from subprocess import Popen, PIPE
 
-def getLimits(card, model='K5'):
+def getLimits(card, model='K6', unblind=False):
     """
     Run combine on a single card, return a tuple of 
     (cv,ct,twosigdown,onesigdown,exp,onesigup,twosigup)
@@ -18,7 +18,9 @@ def getLimits(card, model='K5'):
     cv,ct = tuple(map(float, tagf.split('_')))
     print "%-40s CV=%5.2f, Ct=%5.2f : " % (os.path.basename(card), cv, ct),
 
-    combinecmd =  "combine -M Asymptotic --run blind --rAbsAcc 0.0005 --rRelAcc 0.0005"
+    combinecmd =  "combine -M Asymptotic"
+    if not unblind:
+        combinecmd += " --run blind"
     combinecmd += " -m 125 --verbose 0 -n cvct%s"%tag
     if model in ['K4', 'K5', 'K6']:
         if model == 'K6':
@@ -35,13 +37,26 @@ def getLimits(card, model='K5'):
         print "combine command not known. Try this: cd /afs/cern.ch/user/s/stiegerb/combine/ ; cmsenv ; cd -"
         return
 
-    liminfo = []
+    liminfo = {}
     for line in comboutput.split('\n'):
-        if not line.startswith('Expected'): continue
-        liminfo.append(float(line.rsplit('<', 1)[1].strip()))
+        if line.startswith('Observed Limit:'):
+            liminfo['obs'] = float(line.rsplit('<', 1)[1].strip())
+        if line.startswith('Expected'):
+            value = float(line.rsplit('<', 1)[1].strip())
+            if   'Expected  2.5%' in line: liminfo['twosigdown'] = value
+            elif 'Expected 16.0%' in line: liminfo['onesigdown'] = value
+            elif 'Expected 50.0%' in line: liminfo['exp']        = value
+            elif 'Expected 84.0%' in line: liminfo['onesigup']   = value
+            elif 'Expected 97.5%' in line: liminfo['twosigup']   = value
 
-    print "%5.2f, %5.2f, \033[92m%5.2f\033[0m, %5.2f, %5.2f" % (tuple(liminfo))
-    return cv, ct, tuple(liminfo)
+    print "%5.2f, %5.2f, \033[92m%5.2f\033[0m, %5.2f, %5.2f" %(
+        liminfo['twosigdown'], liminfo['onesigdown'], liminfo['exp'],
+        liminfo['onesigup'], liminfo['twosigup']),
+    if 'obs' in liminfo: # Add observed limit to output, in case it's there
+        print "\033[1m %5.2f \033[0m" % (liminfo['obs'])
+    else:
+        print ""
+    return cv, ct, liminfo
 
 def main(args, options):
 
@@ -69,9 +84,9 @@ def main(args, options):
 
     print "Found %d cards to run" % len(cards)
 
-    limdata = {} # (cv,ct) -> (2sd, 1sd, lim, 1su, 2su)
+    limdata = {} # (cv,ct) -> (2sd, 1sd, lim, 1su, 2su, [obs])
     for card in cards:
-        cv, ct, liminfo = getLimits(card, model=options.model)
+        cv, ct, liminfo = getLimits(card, model=options.model, unblind=options.unblind)
         limdata[(cv,ct)] = liminfo
 
     fnames = []
@@ -79,10 +94,17 @@ def main(args, options):
         if not cv_ in [v for v,_ in limdata.keys()]: continue
         csvfname = 'limits%s_cv_%s.csv' % (tag, str(cv_).replace('.','p'))
         with open(csvfname, 'w') as csvfile:
-            csvfile.write('cv,cf,twosigdown,onesigdown,exp,onesigup,twosigup\n')
+            if options.unblind:
+                csvfile.write('cv,cf,twosigdown,onesigdown,exp,onesigup,twosigup,obs\n')
+            else:
+                csvfile.write('cv,cf,twosigdown,onesigdown,exp,onesigup,twosigup\n')
             for cv,ct in sorted(limdata.keys()):
                 if not cv == cv_: continue
-                csvfile.write(','.join(map(str, (cv,ct)+limdata[(cv,ct)])) + '\n')
+                values = [cv, ct]
+                values += [limdata[(cv,ct)][x] for x in ['twosigdown','onesigdown','exp','onesigup','twosigup']]
+                if options.unblind:
+                    values += [limdata[(cv,ct)]['obs']]
+                csvfile.write(','.join(map(str, values)) + '\n')
         fnames.append(csvfname)
 
     print "All done. Wrote limits to: %s" % (" ".join(fnames))
@@ -107,7 +129,9 @@ if __name__ == '__main__':
     parser.add_option("-t","--tag", dest="tag",
                       type="string", default=None)
     parser.add_option("-m","--model", dest="model",
-                      type="string", default="K5")
+                      type="string", default="K6")
+    parser.add_option("-u","--unblind", dest="unblind",
+                      action='store_true')
     (options, args) = parser.parse_args()
 
     sys.exit(main(args, options))
