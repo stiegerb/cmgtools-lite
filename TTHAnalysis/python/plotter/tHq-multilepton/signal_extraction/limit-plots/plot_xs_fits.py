@@ -95,19 +95,19 @@ def makePlot(inputfile='limits_1.dat',
 
     if alpha:
         ax.plot(df.alpha, df.get('median'), lw=2.0, c='black')
-        ax.errorbar(df.alpha, df.get('median'),
-                    yerr=[-df.downerror, df.uperror],
-                    ecolor='grey',
-                    linewidth=0.0,
-                    elinewidth=0.5)
+        # ax.errorbar(df.alpha, df.get('median'),
+        #             yerr=[-df.downerror, df.uperror],
+        #             ecolor='grey',
+        #             linewidth=0.0,
+        #             elinewidth=0.5)
         ax.scatter(df.alpha, df.get('median'), marker='o', s=30, c='black', lw=2)
     else:
         ax.plot(df.ratio, df.get('median'), lw=2.0, c='black')
-        ax.errorbar(df.ratio, df.get('median'),
-                    yerr=[-df.downerror, df.uperror],
-                    ecolor='grey',
-                    linewidth=0.0,
-                    elinewidth=0.5)
+        # ax.errorbar(df.ratio, df.get('median'),
+        #             yerr=[-df.downerror, df.uperror],
+        #             ecolor='grey',
+        #             linewidth=0.0,
+        #             elinewidth=0.5)
         ax.scatter(df.ratio, df.get('median'), marker='o', s=30, c='black', lw=2)
 
     # # Plot vertical line at 1 corresponding to SM
@@ -132,12 +132,15 @@ def makePlot(inputfile='limits_1.dat',
     # ax.set_ylabel('95\% C.L. limit on $\sigma_{\mathrm{tH+t\\bar{t}H}}\\times$ BR [pb]',fontsize=24,labelpad=20)
     ax.set_ylabel('$\sigma\\times$ BR [pb]',fontsize=24,labelpad=20)
 
-    def print_text(x, y, text, fontsize=24):
-        ptext = plt.text(x, y, text, fontsize=fontsize, transform=ax.transAxes, backgroundcolor='white')
-        ptext.set_bbox(dict(alpha=0.8, color='white'))
+    def print_text(x, y, text, fontsize=24, addbackground=True):
+        if addbackground:
+            ptext = plt.text(x, y, text, fontsize=fontsize, transform=ax.transAxes, backgroundcolor='white')
+            ptext.set_bbox(dict(alpha=0.8, color='white'))
+        else:
+            ptext = plt.text(x, y, text, fontsize=fontsize, transform=ax.transAxes)
 
-    print_text(0.03, 1.02, "$\mathbf{CMS}$ {\\huge{\\textit{Preliminary}}", 28)
-    print_text(0.65, 1.02, "%.1f\,$\mathrm{fb}^{-1}$ (13\,TeV)"% (35.9))
+    print_text(0.03, 1.02, "$\mathbf{CMS}$ {\\huge{\\textit{Preliminary}}", 28, addbackground=False)
+    print_text(0.65, 1.02, "%.1f\,$\mathrm{fb}^{-1}$ (13\,TeV)"% (35.9), addbackground=False)
 
     print_text(0.06, 0.92, "$\mathrm{pp}\\to\mathrm{tH}+\mathrm{t\\bar{t}H}$")
     print_text(0.06, 0.86, ("$\mathrm{H}\\to\mathrm{W}\mathrm{W}/\mathrm{Z}\mathrm{Z}"
@@ -148,25 +151,25 @@ def makePlot(inputfile='limits_1.dat',
 
     # Cosmetics
     import matplotlib.patches as mpatches
-    errorpatch = mpatches.Patch(color='lightgrey', label='$\pm1$ std. dev.')
+    errorpatch = mpatches.Patch(color='lightgrey', label='$\pm1$ standard dev.')
     fitline = mpl.lines.Line2D([], [], color='black', linestyle='-',
-                               label='Fit result', marker='.',
+                               label='Measured $\sigma_{\mathrm{tH+t\\bar{t}H}}$', marker='.',
                                markersize=14, linewidth=2)
     if not split_cv_xsecs:
         xsline = mpl.lines.Line2D([], [], color='black', lw=1.5, linestyle='-.',
-                               label='$\sigma_{\mathrm{tH+t\\bar{t}H}}\\times \mathrm{BR}$ ($\kappa_V=1.0$)')
+                               label='$\sigma^\\text{theo.}_{\mathrm{tH+t\\bar{t}H}}\\times \mathrm{BR}$ ($\kappa_V=1.0$)')
     if split_xsecs:
         tthxsline = mpl.lines.Line2D([], [], color='black', lw=1, linestyle='dashed',
-                               label='$\sigma_{\mathrm{t\\bar{t}H}}\\times \mathrm{BR}$ ($\kappa_V=1.0$)')
+                               label='$\sigma^\\text{theo.}_{\mathrm{t\\bar{t}H}}\\times \mathrm{BR}$ ($\kappa_V=1.0$)')
         thxsline = mpl.lines.Line2D([], [], color='black', lw=1, linestyle='dotted',
-                               label='$\sigma_{\mathrm{tH}}\\times \mathrm{BR}$ ($\kappa_V=1.0$)')
+                               label='$\sigma^\\text{theo.}_{\mathrm{tH}}\\times \mathrm{BR}$ ($\kappa_V=1.0$)')
     if split_cv_xsecs:
         xsline = mpl.lines.Line2D([], [], color='black', lw=1.0, linestyle='-.',
-                               label='$\sigma_{\mathrm{tH+t\\bar{t}H}}\\times \mathrm{BR}$ ($\kappa_V=1.0$)')
+                               label='$\sigma^\\text{theo.}_{\mathrm{tH+t\\bar{t}H}}\\times \mathrm{BR}$ ($\kappa_V=1.0$)')
         tthxsline = mpl.lines.Line2D([], [], color='black', lw=1.0, linestyle='dashed',
-                               label='$\sigma_{\mathrm{tH+t\\bar{t}H}}\\times \mathrm{BR}$ ($\kappa_V=0.5$)')
+                               label='$\sigma^\\text{theo.}_{\mathrm{tH+t\\bar{t}H}}\\times \mathrm{BR}$ ($\kappa_V=0.5$)')
         thxsline = mpl.lines.Line2D([], [], color='black', lw=1.0, linestyle='dotted',
-                               label='$\sigma_{\mathrm{tH+t\\bar{t}H}}\\times \mathrm{BR}$ ($\kappa_V=1.5$)')
+                               label='$\sigma^\\text{theo.}_{\mathrm{tH+t\\bar{t}H}}\\times \mathrm{BR}$ ($\kappa_V=1.5$)')
 
     # Legend
     legentries = [fitline,errorpatch]

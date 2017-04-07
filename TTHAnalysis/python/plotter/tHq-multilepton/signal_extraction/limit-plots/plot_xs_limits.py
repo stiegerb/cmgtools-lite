@@ -134,12 +134,15 @@ def makePlot(inputfile='limits_1.dat',
     # ax.set_ylabel('95\% C.L. limit on $\sigma_{\mathrm{tH+t\\bar{t}H}}\\times$ BR [pb]',fontsize=24,labelpad=20)
     ax.set_ylabel('$\sigma\\times$ BR [pb]',fontsize=24,labelpad=20)
 
-    def print_text(x, y, text, fontsize=24):
-        ptext = plt.text(x, y, text, fontsize=fontsize, transform=ax.transAxes, backgroundcolor='white')
-        ptext.set_bbox(dict(alpha=0.8, color='white'))
+    def print_text(x, y, text, fontsize=24, addbackground=True):
+        if addbackground:
+            ptext = plt.text(x, y, text, fontsize=fontsize, transform=ax.transAxes, backgroundcolor='white')
+            ptext.set_bbox(dict(alpha=0.8, color='white'))
+        else:
+            ptext = plt.text(x, y, text, fontsize=fontsize, transform=ax.transAxes)
 
-    print_text(0.03, 1.02, "$\mathbf{CMS}$ {\\huge{\\textit{Preliminary}}", 28)
-    print_text(0.65, 1.02, "%.1f\,$\mathrm{fb}^{-1}$ (13\,TeV)"% (35.9))
+    print_text(0.03, 1.02, "$\mathbf{CMS}$ {\\huge{\\textit{Preliminary}}", 28, addbackground=False)
+    print_text(0.65, 1.02, "%.1f\,$\mathrm{fb}^{-1}$ (13\,TeV)"% (35.9), addbackground=False)
 
     print_text(0.06, 0.92, "$\mathrm{pp}\\to\mathrm{tH}+\mathrm{t\\bar{t}H}$")
     print_text(0.06, 0.86, ("$\mathrm{H}\\to\mathrm{W}\mathrm{W}/\mathrm{Z}\mathrm{Z}"
@@ -150,28 +153,28 @@ def makePlot(inputfile='limits_1.dat',
 
     # Cosmetics
     import matplotlib.patches as mpatches
-    twosigpatch = mpatches.Patch(color='yellow',     label='$\pm2$ std. dev.')
-    onesigpatch = mpatches.Patch(color='chartreuse', label='$\pm1$ std. dev.')
+    twosigpatch = mpatches.Patch(color='yellow',     label='$\pm2$ standard dev.')
+    onesigpatch = mpatches.Patch(color='chartreuse', label='$\pm1$ standard dev.')
     obsline = mpl.lines.Line2D([], [], color='black', linestyle='-',
-                               label='Observed limit', marker='.',
+                               label='Observed 95\% C.L. limit ($\sigma\\times\mathrm{BR}$)', marker='.',
                                markersize=14, linewidth=2)
     expline = mpl.lines.Line2D([], [], color='black', linestyle='--',
-                               label='Med. exp. limit 95\% C.L. ($\sigma\\times\mathrm{BR}$)', linewidth=2.0)
+                               label='Med. exp. 95\% C.L. limit ($\sigma\\times\mathrm{BR}$)', linewidth=2.0)
     if not split_cv_xsecs:
         xsline = mpl.lines.Line2D([], [], color='black', lw=1.5, linestyle='-.',
-                               label='$\sigma_{\mathrm{tH+t\\bar{t}H}}\\times \mathrm{BR}$ ($\kappa_V=1.0$)')
+                               label='$\sigma^\\text{theo.}_{\mathrm{tH+t\\bar{t}H}}\\times \mathrm{BR}$ ($\kappa_V=1.0$)')
     if split_xsecs:
         tthxsline = mpl.lines.Line2D([], [], color='black', lw=1, linestyle='dashed',
-                               label='$\sigma_{\mathrm{t\\bar{t}H}}\\times \mathrm{BR}$ ($\kappa_V=1.0$)')
+                               label='$\sigma^\\text{theo.}_{\mathrm{t\\bar{t}H}}\\times \mathrm{BR}$ ($\kappa_V=1.0$)')
         thxsline = mpl.lines.Line2D([], [], color='black', lw=1, linestyle='dotted',
-                               label='$\sigma_{\mathrm{tH}}\\times \mathrm{BR}$ ($\kappa_V=1.0$)')
+                               label='$\sigma^\\text{theo.}_{\mathrm{tH}}\\times \mathrm{BR}$ ($\kappa_V=1.0$)')
     if split_cv_xsecs:
         xsline = mpl.lines.Line2D([], [], color='black', lw=1.0, linestyle='-.',
-                               label='$\sigma_{\mathrm{tH+t\\bar{t}H}}\\times \mathrm{BR}$ ($\kappa_V=1.0$)')
+                               label='$\sigma^\\text{theo.}_{\mathrm{tH+t\\bar{t}H}}\\times \mathrm{BR}$ ($\kappa_V=1.0$)')
         tthxsline = mpl.lines.Line2D([], [], color='black', lw=1.0, linestyle='dashed',
-                               label='$\sigma_{\mathrm{tH+t\\bar{t}H}}\\times \mathrm{BR}$ ($\kappa_V=0.5$)')
+                               label='$\sigma^\\text{theo.}_{\mathrm{tH+t\\bar{t}H}}\\times \mathrm{BR}$ ($\kappa_V=0.5$)')
         thxsline = mpl.lines.Line2D([], [], color='black', lw=1.0, linestyle='dotted',
-                               label='$\sigma_{\mathrm{tH+t\\bar{t}H}}\\times \mathrm{BR}$ ($\kappa_V=1.5$)')
+                               label='$\sigma^\\text{theo.}_{\mathrm{tH+t\\bar{t}H}}\\times \mathrm{BR}$ ($\kappa_V=1.5$)')
 
     # Legend
     legentries = [expline,onesigpatch,twosigpatch]
