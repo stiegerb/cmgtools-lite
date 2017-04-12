@@ -24,8 +24,8 @@ Set it up like so:
 
 ```
 cd $CMSSW_BASE/src
-git remote add peruzzim https://github.com/peruzzim/cmg-cmssw.git -t 80X_M17  -f
-git checkout -b heppy_80X peruzzim/heppy_80X
+git remote add peruzzim https://github.com/peruzzim/cmg-cmssw.git -t heppy_80X_M17  -f
+git checkout -b heppy_80X_M17 peruzzim/heppy_80X_M17
 # Clean and recompile
 scram b clean
 scram b -j 9
