@@ -71,46 +71,171 @@ YAXIS_RANGE = {
 REBINMAP_3l = {7:9, 2:5, 9:7, 5:2}
 REBINMAP_2l = {3:2, 2:4, 5:3, 4:8, 6:5, 9:6, 8:10, 10:9}
 
-def doTinyCmsPrelimCustom(textLeft="_default_",textRight="_default_",hasExpo=False,textSize=0.04,lumi=None, xoffs=0):
-    from mcPlots import doSpam
-    global options
-    if textLeft  == "_default_": textLeft  = options.lspam
-    if textRight == "_default_": textRight = options.rspam
-    if lumi      == None       : lumi      = options.lumi
-    if textLeft not in ['', None]:
-        if textLeft.startswith('CMS Preliminary'):
-            textLeftRight = textLeft[len('CMS Preliminary'):]
-            ## new CMS Prelim style
-            doSpam('CMS',         (.28 if hasExpo else .17)+xoffs,      .953, .60+xoffs,       .995, align=12, textSize=textSize, textFont=62)
-            doSpam('Preliminary', (.28 if hasExpo else .17)+xoffs+0.071,.945, .60+xoffs+0.071, .995, align=12, textSize=textSize, textFont=52)
-            # doSpam(textLeftRight, (.28 if hasExpo else .17)+xoffs+0.24, .953, .60+xoffs+0.28,  .995, align=12, textSize=textSize, textFont=42)
-            doSpam(textLeftRight, .22, .85, .50, .89, align=12, textSize=0.05, textFont=42)
+def doRatioHistsCustom(pspec, pmap, total, totalSyst, maxRange,
+                       fixRange=False,
+                       fitRatio=None,
+                       errorsOnRef=True,
+                       ratioNums="signal",
+                       ratioDen="background",
+                       ylabel="Data/pred.",
+                       doWide=False,
+                       showStatTotLegend=False):
+    numkeys = [ "data" ]
+    if "data" not in pmap: 
+        if len(pmap) >= 4 and ratioDen in pmap:
+            numkeys = []
+            for p in pmap.iterkeys():
+                for s in ratioNums.split(","):
+                    if re.match(s,p): 
+                        numkeys.append(p)
+                        break
+            if len(numkeys) == 0:
+                return (None,None,None,None)
+            # do this first
+            total.GetXaxis().SetLabelOffset(999) ## send them away
+            total.GetXaxis().SetTitleOffset(999) ## in outer space
+            total.GetYaxis().SetTitleSize(0.06)
+            total.GetYaxis().SetTitleOffset(0.75 if doWide else 1.48)
+            total.GetYaxis().SetLabelSize(0.05)
+            total.GetYaxis().SetLabelOffset(0.007)
+            # then we can overwrite total with background
+            numkey = 'signal'
+            total     = pmap[ratioDen]
+            totalSyst = pmap[ratioDen]
+        else:    
+            return (None,None,None,None)
+    ratios = [] #None
+    for numkey in numkeys:
+        if hasattr(pmap[numkey], 'poissonGraph'):
+            ratio = pmap[numkey].poissonGraph.Clone("data_div"); 
+            for i in xrange(ratio.GetN()):
+                x    = ratio.GetX()[i]
+                div  = total.GetBinContent(total.GetXaxis().FindBin(x))
+                ratio.SetPoint(i, x, ratio.GetY()[i]/div if div > 0 else 0)
+                ratio.SetPointError(i, ratio.GetErrorXlow(i), ratio.GetErrorXhigh(i), 
+                                       ratio.GetErrorYlow(i)/div  if div > 0 else 0, 
+                                       ratio.GetErrorYhigh(i)/div if div > 0 else 0) 
         else:
-            doSpam(textLeft, (.28 if hasExpo else .17)+xoffs, .955, .60+xoffs, .995, align=12, textSize=textSize)
-    if textRight not in ['', None]:
-        if "%(lumi)" in textRight:
-            textRight = textRight % { 'lumi':lumi }
-        doSpam(textRight,.68+xoffs+0.015, .953, .99+xoffs+0.015, .995, align=32, textSize=textSize)
-
-def doTinyCmsCustom(textLeft="_default_",textRight="_default_",hasExpo=False,textSize=0.04,lumi=None, xoffs=0):
-    from mcPlots import doSpam
-    global options
-    if textLeft  == "_default_": textLeft  = options.lspam
-    if textRight == "_default_": textRight = options.rspam
-    if lumi      == None       : lumi      = options.lumi
-    if textLeft not in ['', None]:
-        if textLeft.startswith('CMS'):
-            textLeftRight = textLeft[len('CMS'):]
-            ## new CMS Prelim style
-            doSpam('CMS',         (.28 if hasExpo else .17)+xoffs,      .953, .60+xoffs,       .995, align=12, textSize=textSize, textFont=62)
-            # doSpam(textLeftRight, (.28 if hasExpo else .17)+xoffs+0.24, .953, .60+xoffs+0.28,  .995, align=12, textSize=textSize, textFont=42)
-            doSpam(textLeftRight, .22, .85, .50, .89, align=12, textSize=0.05, textFont=42)
+            ratio = pmap[numkey].Clone("data_div"); 
+            ratio.Divide(total)
+        ratios.append(ratio)
+    unity  = totalSyst.Clone("sim_div");
+    unity0 = total.Clone("sim_div");
+    rmin, rmax =  1,1
+    for b in xrange(1,unity.GetNbinsX()+1):
+        e,e0,n = unity.GetBinError(b), unity0.GetBinError(b), unity.GetBinContent(b)
+        unity.SetBinContent(b, 1 if n > 0 else 0)
+        unity0.SetBinContent(b,  1 if n > 0 else 0)
+        if errorsOnRef:
+            unity.SetBinError(b, e/n if n > 0 else 0)
+            unity0.SetBinError(b, e0/n if n > 0 else 0)
         else:
-            doSpam(textLeft, (.28 if hasExpo else .17)+xoffs, .955, .60+xoffs, .995, align=12, textSize=textSize)
-    if textRight not in ['', None]:
-        if "%(lumi)" in textRight:
-            textRight = textRight % { 'lumi':lumi }
-        doSpam(textRight,.68+xoffs+0.015, .953, .99+xoffs+0.015, .995, align=32, textSize=textSize)
+            unity.SetBinError(b, 0)
+            unity0.SetBinError(b, 0)
+        rmin = min([ rmin, 1-2*e/n if n > 0 else 1])
+        rmax = max([ rmax, 1+2*e/n if n > 0 else 1])
+    for ratio in ratios:
+        if ratio.ClassName() != "TGraphAsymmErrors":
+            for b in xrange(1,unity.GetNbinsX()+1):
+                if ratio.GetBinContent(b) == 0: continue
+                rmin = min([ rmin, ratio.GetBinContent(b) - 2*ratio.GetBinError(b) ]) 
+                rmax = max([ rmax, ratio.GetBinContent(b) + 2*ratio.GetBinError(b) ])  
+        else:
+            for i in xrange(ratio.GetN()):
+                rmin = min([ rmin, ratio.GetY()[i] - 2*ratio.GetErrorYlow(i)  ]) 
+                rmax = max([ rmax, ratio.GetY()[i] + 2*ratio.GetErrorYhigh(i) ])  
+    if rmin < maxRange[0] or fixRange: rmin = maxRange[0]; 
+    if rmax > maxRange[1] or fixRange: rmax = maxRange[1];
+    if (rmax > 3 and rmax <= 3.4): rmax = 3.4
+    if (rmax > 2 and rmax <= 2.4): rmax = 2.4
+    unity.SetFillStyle(1001);
+    unity.SetFillColor(ROOT.kCyan);
+    unity.SetMarkerStyle(1);
+    unity.SetMarkerColor(ROOT.kCyan);
+    unity0.SetFillStyle(1001);
+    unity0.SetFillColor(ROOT.kBlue-7);
+    unity0.SetMarkerStyle(1);
+    unity0.SetMarkerColor(ROOT.kBlue-7);
+    ROOT.gStyle.SetErrorX(0.5);
+    if errorsOnRef:
+        unity.Draw("E2");
+    else:
+        unity.Draw("AXIS");
+    if fitRatio != None and len(ratios) == 1:
+        from CMGTools.TTHAnalysis.tools.plotDecorations import fitTGraph
+        fitTGraph(ratio,order=fitRatio)
+        unity.SetFillStyle(3013);
+        unity0.SetFillStyle(3013);
+        if errorsOnRef:
+            unity.Draw("AXIS SAME");
+            # unity0.Draw("E2 SAME");
+    # else:
+    #     if total != totalSyst and errorsOnRef:
+    #         unity0.Draw("E2 SAME");
+    rmin = float(pspec.getOption("RMin",rmin))
+    rmax = float(pspec.getOption("RMax",rmax))
+    unity.GetYaxis().SetRangeUser(rmin,rmax);
+    unity.GetXaxis().SetTitleFont(42)
+    unity.GetXaxis().SetTitleSize(0.14)
+    unity.GetXaxis().SetTitleOffset(0.9)
+    unity.GetXaxis().SetLabelFont(42)
+    unity.GetXaxis().SetLabelSize(0.1)
+    unity.GetXaxis().SetLabelOffset(0.007)
+    unity.GetYaxis().SetNdivisions(505)
+    unity.GetYaxis().SetTitleFont(42)
+    unity.GetYaxis().SetTitleSize(0.14)
+    offset = 0.32 if doWide else 0.62
+    unity.GetYaxis().SetTitleOffset(offset)
+    unity.GetYaxis().SetLabelFont(42)
+    unity.GetYaxis().SetLabelSize(0.11)
+    unity.GetYaxis().SetLabelOffset(0.007)
+    unity.GetYaxis().SetDecimals(True) 
+    unity.GetYaxis().SetTitle(ylabel)
+    total.GetXaxis().SetLabelOffset(999) ## send them away
+    total.GetXaxis().SetTitleOffset(999) ## in outer space
+    total.GetYaxis().SetTitleSize(0.06)
+    total.GetYaxis().SetTitleOffset(0.75 if doWide else 1.48)
+    total.GetYaxis().SetLabelSize(0.05)
+    total.GetYaxis().SetLabelOffset(0.007)
+    binlabels = pspec.getOption("xBinLabels","")
+    if binlabels != "" and len(binlabels.split(",")) == unity.GetNbinsX():
+        blist = binlabels.split(",")
+        for i in range(1,unity.GetNbinsX()+1): 
+            unity.GetXaxis().SetBinLabel(i,blist[i-1]) 
+        unity.GetXaxis().SetLabelSize(0.15)
+    #ratio.SetMarkerSize(0.7*ratio.GetMarkerSize()) # no it is confusing
+    binlabels = pspec.getOption("xBinLabels","")
+    if binlabels != "" and len(binlabels.split(",")) == unity.GetNbinsX():
+        blist = binlabels.split(",")
+        for i in range(1,unity.GetNbinsX()+1): 
+            unity.GetXaxis().SetBinLabel(i,blist[i-1]) 
+    #$ROOT.gStyle.SetErrorX(0.0);
+    line = ROOT.TLine(unity.GetXaxis().GetXmin(),1,unity.GetXaxis().GetXmax(),1)
+    line.SetLineWidth(1);
+    line.SetLineColor(1);
+    line.Draw("L")
+    for ratio in ratios:
+        ratio.Draw("E SAME" if ratio.ClassName() != "TGraphAsymmErrors" else "PZ SAME");
+    leg0 = ROOT.TLegend(0.12 if doWide else 0.2, 0.8, 0.25 if doWide else 0.45, 0.9)
+    leg0.SetFillColor(0)
+    leg0.SetShadowColor(0)
+    leg0.SetLineColor(0)
+    leg0.SetTextFont(42)
+    leg0.SetTextSize(0.035*0.7/0.3)
+    leg0.AddEntry(unity0, "stat. bkg. unc.", "F")
+    if showStatTotLegend: leg0.Draw()
+    leg1 = ROOT.TLegend(0.25 if doWide else 0.45, 0.8, 0.38 if doWide else 0.7, 0.9)
+    leg1.SetFillColor(0)
+    leg1.SetShadowColor(0)
+    leg1.SetLineColor(0)
+    leg1.SetTextFont(42)
+    leg1.SetTextSize(0.035*0.7/0.3)
+    leg1.AddEntry(unity, "total bkg. unc.", "F")
+    if showStatTotLegend: leg1.Draw()
+    global legendratio0_, legendratio1_
+    legendratio0_ = leg0
+    legendratio1_ = leg1
+    return (ratios, unity, unity0, line)
 
 AXISLABEL = 'BDT bin'
 
@@ -256,7 +381,6 @@ if __name__ == "__main__":
             htot.GetYaxis().SetRangeUser(YAXIS_RANGE.get(channel, (0.5, 100))[0],
                                          YAXIS_RANGE.get(channel, (0.5, 100))[1])
 
-
         ## Cosmetics
         htot.GetXaxis().SetTitle(AXISLABEL)
         htot.GetXaxis().SetNdivisions(510)
@@ -283,16 +407,28 @@ if __name__ == "__main__":
         ## Draw absolute prediction in top frame
         htot.Draw("HIST")
         stack.Draw("HIST F SAME")
+        totalError = mcP.doShadedUncertainty(htot)
 
         hdata.poissonGraph.Draw("PZ")
         htot.Draw("AXIS SAME")
 
         ## Do the legend
+        leg = None
         if options.doLog:
-            mcP.doLegend(plots, mca_merged, textSize=0.042, cutoff=0.0, legWidth=0.28, corner='BL')
+            leg = mcP.doLegend(plots, mca_merged,
+                               textSize=0.042,
+                               totalError=None,
+                               cutoff=0.0,
+                               legWidth=0.28,
+                               corner='BL')
         else:
-            mcP.doLegend(plots, mca_merged, textSize=0.042, cutoff=0.01, legWidth=0.28)
-
+            leg = mcP.doLegend(plots, mca_merged,
+                               textSize=0.042,
+                               totalError=None,
+                               cutoff=0.01,
+                               legWidth=0.28)
+        leg.AddEntry(totalError, "Total uncert.","F") 
+        
         lspam = options.lspam
         if channel == 'em':
             lspam += r"e^{#pm}#mu^{#pm} channel"
@@ -312,16 +448,18 @@ if __name__ == "__main__":
         ## Do the ratio plot
         ## Draw relative prediction in the bottom frame
         p2.cd()
-        rdata,rnorm,rnorm2,rline = mcP.doRatioHists(PlotSpec(var,var,"",{}),plots,
-                                                    htot, htot,
-                                                    maxRange=options.maxRatioRange,
-                                                    fitRatio=options.fitRatio,
-                                                    errorsOnRef=options.errorBandOnRatio,
-                                                    ratioNums=options.ratioNums,
-                                                    ratioDen=options.ratioDen,
-                                                    ylabel="Data/pred.",
-                                                    doWide=options.wideplot,
-                                                    showStatTotLegend=False)
+        rdata,rnorm,rnorm2,rline = doRatioHistsCustom(PlotSpec(var,var,"",{}),
+                                                      plots, htot, htot,
+                                                      maxRange=options.maxRatioRange,
+                                                      fixRange=options.fixRatioRange,
+                                                      fitRatio=options.fitRatio,
+                                                      errorsOnRef=options.errorBandOnRatio,
+                                                      ratioNums=options.ratioNums,
+                                                      ratioDen=options.ratioDen,
+                                                      ylabel="Data/pred.",
+                                                      doWide=options.wideplot,
+                                                      showStatTotLegend=False)
+        rnorm2.Delete()
 
         ## Save the plots
         c1.cd()
@@ -346,25 +484,24 @@ if __name__ == "__main__":
         argset =  mlfile.Get("norm_"+MLD)
 
         for proc in processes:
-            # pout = mergeMap[proc] if proc in mergeMap else proc
-            pout = proc
+            pout = mergeMap.get(proc, proc)
             if pout not in pyields:
-                pyields[pout] = [0,0]
+                pyields[pout] = (0,0)
             rvar = argset.find("%s/%s" % (channel,proc))
             if not rvar:
                 print 'Did not find rvar for %s/%s' % (channel, proc)
                 continue
-            pyields[pout][0] += rvar.getVal()
-            pyields[pout][1] += rvar.getError()**2
+            pyields[pout] = ( pyields[pout][0] + rvar.getVal(),
+                              pyields[pout][1] + rvar.getError()**2 ) 
             if pout.startswith('tHq') or pout.startswith('tHW') or pout.startswith('ttH'):
-                pyields["signal"][0] += rvar.getVal()
-                pyields["signal"][1] += rvar.getError()**2
+                pyields["signal"] = ( pyields[pout][0] + rvar.getVal(),
+                                      pyields[pout][1] + rvar.getError()**2 ) 
             else:
-                pyields["background"][0] += rvar.getVal()
-                pyields["background"][1] += rvar.getError()**2
+                pyields["background"] = ( pyields[pout][0] + rvar.getVal(),
+                                          pyields[pout][1] + rvar.getError()**2 ) 
 
         for p in pyields.iterkeys():
-            pyields[p][1] = sqrt(pyields[p][1])
+            pyields[p] = (pyields[p][0], sqrt(pyields[p][1]))
 
         maxlen = max([len(mca_indivi.getProcessOption(p,'Label',p))
                       for p in mca_indivi.listSignals(allProcs=True) +
@@ -375,14 +512,15 @@ if __name__ == "__main__":
         all_processes += mca_indivi.listBackgrounds(allProcs=True)
         all_processes += ["background","signal","data"]
 
-        for p in sorted(all_processes, key=lambda x:rank.get(x,-1)):
+        for p in sorted(all_processes+list(set(mergeMap.values())), key=lambda x:rank.get(x,-1)):
             if p not in pyields: continue
-            if p in ["background","data"]:
+            if p in ["background", "data"]:
                 dump.write(("-"*(maxlen+45))+"\n");
-            dump.write(fmt % ( mca_indivi.getProcessOption(p,'Label',p)
-                                 if p not in ["background","signal","data"] else p.upper(),
-                               pyields[p][0],
-                               pyields[p][1]))
+            label = p.upper()
+            try:
+                label = mca_indivi.getProcessOption(p,'Label',p)
+            except RuntimeError: pass
+            dump.write(fmt % ( label, pyields[p][0], pyields[p][1]))
 
         dump.close()
 
