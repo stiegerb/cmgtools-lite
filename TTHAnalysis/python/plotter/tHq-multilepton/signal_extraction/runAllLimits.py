@@ -22,7 +22,7 @@ def getLimits(card, model='K6', unblind=False):
     if not unblind:
         combinecmd += " --run blind"
     combinecmd += " -m 125 --verbose 0 -n cvct%s"%tag
-    if model in ['K4', 'K5', 'K6']:
+    if model in ['K4', 'K5', 'K6', 'K7']:
         if model == 'K6':
             # Rescale to cv = 1, we only care about the ct/cv ratio
             combinecmd += " --setPhysicsModelParameters kappa_t=%.2f,kappa_V=%.2f" % (ct/cv, 1.0)
@@ -84,6 +84,7 @@ def getFitValues(card, model='K6', unblind=False):
             combinecmd += " --setPhysicsModelParameters kappa_t=%.2f,kappa_V=%.2f" % (ct,cv)
         combinecmd += " --freezeNuisances kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam"
         combinecmd += " --redefineSignalPOIs r"
+#        combinecmd += " --systematics 0"
         if abs(ct/cv) > 3:        
             combinecmd += " --robustFit 1 --setPhysicsModelParameterRanges r=0,1"
         else:
@@ -98,7 +99,6 @@ def getFitValues(card, model='K6', unblind=False):
     fitinfo = {}
     for line in comboutput.split('\n'):
         if line.startswith('Best'):
-            print(line)
             fitinfo['median'] = float((line.split(': ')[1]).split('  ')[0])
             fitinfo['downerror'] = float((line.split('  ')[1]).split('/')[0])
             fitinfo['uperror'] = float((line.split('+')[1]).split('  (')[0])
@@ -106,7 +106,49 @@ def getFitValues(card, model='K6', unblind=False):
     print "\033[92m%5.2f\033[0m, %5.2f, %5.2f" %( fitinfo['median'], fitinfo['downerror'], fitinfo['uperror'])
     return cv, ct, fitinfo
 
-def main(args, options, limit=False, fit=True):
+def getSignificance(card, model='K6', unblind=False):
+    """
+    Run combine on a single card, return significance
+    """
+    # Turn the tag into floats:
+    tag = re.match(r'.*\_([\dpm]+\_[\dpm]+).*\.card\.(txt|root)', os.path.basename(card))
+    if tag == None:
+        print "Couldn't figure out this one: %s" % card
+        return
+
+    tag = tag.groups()[0]
+    tagf = tag.replace('p', '.').replace('m','-')
+    cv,ct = tuple(map(float, tagf.split('_')))
+    print "%-40s CV=%5.2f, Ct=%5.2f : " % (os.path.basename(card), cv, ct),
+
+    combinecmd =  "combine -M ProfileLikelihood --signif"
+    combinecmd += " -m 125 --verbose 0 -n cvct%s"%tag
+    if model in ['K4', 'K5', 'K6']:
+        if model == 'K6':
+            # Rescale to cv = 1, we only care about the ct/cv ratio
+            combinecmd += " --setPhysicsModelParameters kappa_t=%.2f,kappa_V=%.2f" % (ct/cv, 1.0)
+        else:
+            combinecmd += " --setPhysicsModelParameters kappa_t=%.2f,kappa_V=%.2f" % (ct,cv)
+        combinecmd += " --freezeNuisances kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam"
+        combinecmd += " --redefineSignalPOIs r"
+#        combinecmd += " --systematics 0"
+    try:
+        p = Popen(shlex.split(combinecmd) + [card] , stdout=PIPE, stderr=PIPE)
+        comboutput = p.communicate()[0]
+    except OSError:
+        print "combine command not known. Try this: cd /afs/cern.ch/user/s/stiegerb/combine/ ; cmsenv ; cd -"
+        return
+
+    significance = {}
+    for line in comboutput.split('\n'):
+        if line.startswith('Significance'):
+            print(line)
+            significance['value'] = float(line.rsplit(':', 1)[1].strip())
+
+    print "\033[92m%5.2f\033[0m" %( significance['value'])
+    return cv, ct, significance
+
+def main(args, options, limit=False, fit=False, sig=True):
 
     cards = []
     if os.path.isdir(args[0]):
@@ -181,6 +223,27 @@ def main(args, options, limit=False, fit=True):
             fnames.append(csvfname)
     
         print "Wrote limits to: %s" % (" ".join(fnames))
+
+    if sig:
+        sigdata = {}
+        for card in cards:
+            cv, ct, significance = getSignificance(card, model=options.model, unblind=options.unblind)
+            sigdata[(cv,ct)] = significance
+
+        fnames = []
+        for cv_ in [0.5, 1.0, 1.5]:
+            if not cv_ in [v for v,_ in sigdata.keys()]: continue
+            csvfname = 'significance%s_cv_%s.csv' % (tag, str(cv_).replace('.','p'))
+            with open(csvfname, 'w') as csvfile:
+                csvfile.write('cv,cf,significance\n')
+                for cv,ct in sorted(sigdata.keys()):
+                    if not cv == cv_: continue
+                    values = [cv, ct]
+                    values += [sigdata[(cv,ct)][x] for x in ['value']]
+                    csvfile.write(','.join(map(str, values)) + '\n')
+            fnames.append(csvfname)
+
+        print "Wrote significance to: %s" % (" ".join(fnames))
     return 0
 
 if __name__ == '__main__':
