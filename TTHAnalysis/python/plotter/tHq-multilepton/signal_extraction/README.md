@@ -200,7 +200,6 @@ make_workspaces.sh K6 *.card.root
 ```
 
 ### Run the unblinded fit
-
 To run the final fit on the unblinded data:
 
 ```
@@ -213,3 +212,44 @@ ws_tHq_1_m1_K6.card.root
 ```
 
 This will produce the `mlfit.root` file needed to produce post-fit plots (using `postFitPlotsTHQ.py`).
+
+
+### Produce expected numbers with SM-like Asimov data
+Instead of producing expected limits using a background-only (i.e. non-Higgs) dataset, we want to show limits and significances with a dataset containing also the SM-like tH and ttH processes.
+
+We already have a datacard/workspace for the SM point, and we can use it to generate toys with a signal strength of 1, e.g. like so:
+
+```
+combine -M GenerateOnly -m 125 --verbose 3 -n _SMtoys \
+--setPhysicsModelParameters kappa_t=1.0,kappa_V=1.0 \
+--freezeNuisances kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam --redefineSignalPOIs r \
+--expectSignal=1 \
+-t 100 -s 123456 --saveToys \
+ws_tHq_1_1_K6.card.root
+```
+
+This produces a file `higgsCombine_SMtoys.GenerateOnly.mH125.123456.root` that can now be read when running the Asymptotic limits:
+
+```
+combine -M Asymptotic --run observed  -m 125 --verbose 0 \
+--setPhysicsModelParameters kappa_t=-1.0,kappa_V=1.0 \
+--freezeNuisances kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam --redefineSignalPOIs r \
+-t 100 --toysFile higgsCombine_SMtoys.GenerateOnly.mH125.123456.root \
+workspacesK6/ws_tHq_1_m1_K6.card.root
+```
+
+Which in turn will use the observed limits from those Asimov toys to generate the median and the 68%/95% bands.
+
+This is now automatized in `runAllLimits.py` with option `--run smexpected`.
+
+Note that it pairs each card with a file from the directory specified by the `--toysDir` option, which should contain enough files with the necessary number of toys generated previously. Run first with `--batch/-b` to run the limits on the toys on the lxbatch system (it's rather slow):
+
+```
+python runAllLimits.py -r smexpected --toysFile SMlike_toys/ -t K6_SM_expected workspacesK6/ws_tHq_*.root --batch
+```
+
+Then run the same command on the output log files to extract the results and store it in csv files:
+
+```
+python runAllLimits.py -r smexpected -t K6_SM_expected job_tHq_*.log
+```

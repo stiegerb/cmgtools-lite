@@ -2,11 +2,25 @@
 import sys, os, re, shlex
 from subprocess import Popen, PIPE
 
-def getLimits(card, model='K6', unblind=False):
-    """
-    Run combine on a single card, return a tuple of 
-    (cv,ct,twosigdown,onesigdown,exp,onesigup,twosigup)
-    """
+def runCombineCommand(combinecmd, card, verbose=False, submitBatch=False, submitName=None):
+    if submitBatch:
+        combinecmd = combinecmd.replace('combine', 'combineTool.py')
+        combinecmd += ' --job-mode lxbatch --sub-opts="-q 8nh"'
+        combinecmd += ' --task-name tHq_%s' % submitName
+        # combinecmd += ' --dry-run'
+    if verbose: 
+        print 40*'-'
+        print "%s %s" % (combinecmd, card)
+        print 40*'-'
+    try:
+        p = Popen(shlex.split(combinecmd) + [card] , stdout=PIPE, stderr=PIPE)
+        comboutput = p.communicate()[0]
+    except OSError:
+        print "combine command not known. Try this: cd /afs/cern.ch/user/s/stiegerb/combine/ ; cmsenv ; cd -"
+        comboutput = None
+    return comboutput
+
+def parseName(card, printout=True):
     # Turn the tag into floats:
     tag = re.match(r'.*\_([\dpm]+\_[\dpm]+).*\.card\.(txt|root)', os.path.basename(card))
     if tag == None:
@@ -16,26 +30,34 @@ def getLimits(card, model='K6', unblind=False):
     tag = tag.groups()[0]
     tagf = tag.replace('p', '.').replace('m','-')
     cv,ct = tuple(map(float, tagf.split('_')))
-    print "%-40s CV=%5.2f, Ct=%5.2f : " % (os.path.basename(card), cv, ct),
+    if printout:
+        print "%-40s CV=%5.2f, Ct=%5.2f : " % (os.path.basename(card), cv, ct),
+    return cv, ct, tag
+
+def setParamatersFreezeAll(ct,cv):
+    addoptions = " --setPhysicsModelParameters kappa_t=%.2f,kappa_V=%.2f" % (ct,cv)
+    addoptions += " --freezeNuisances kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam"
+    addoptions += " --redefineSignalPOIs r"
+    return addoptions
+
+def getLimits(card, model='K6', unblind=False):
+    """
+    Run combine on a single card, return a tuple of 
+    (cv,ct,twosigdown,onesigdown,exp,onesigup,twosigup)
+    """
+    cv,ct,tag = parseName(card)
 
     combinecmd =  "combine -M Asymptotic"
     if not unblind:
         combinecmd += " --run blind"
     combinecmd += " -m 125 --verbose 0 -n cvct%s"%tag
     if model in ['K4', 'K5', 'K6', 'K7']:
-        if model == 'K6':
-            # Rescale to cv = 1, we only care about the ct/cv ratio
-            combinecmd += " --setPhysicsModelParameters kappa_t=%.2f,kappa_V=%.2f" % (ct/cv, 1.0)
+        if model == 'K6': # Rescale to cv = 1, we only care about the ct/cv ratio
+            combinecmd += setParamatersFreezeAll(ct/cv,1.0)
         else:
-            combinecmd += " --setPhysicsModelParameters kappa_t=%.2f,kappa_V=%.2f" % (ct,cv)
-        combinecmd += " --freezeNuisances kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam"
-        combinecmd += " --redefineSignalPOIs r"
-    try:
-        p = Popen(shlex.split(combinecmd) + [card] , stdout=PIPE, stderr=PIPE)
-        comboutput = p.communicate()[0]
-    except OSError:
-        print "combine command not known. Try this: cd /afs/cern.ch/user/s/stiegerb/combine/ ; cmsenv ; cd -"
-        return
+            combinecmd += setParamatersFreezeAll(ct, cv)
+
+    comboutput = runCombineCommand(combinecmd, card)
 
     liminfo = {}
     for line in comboutput.split('\n'):
@@ -58,43 +80,65 @@ def getLimits(card, model='K6', unblind=False):
         print ""
     return cv, ct, liminfo
 
+def runSMExpectedLimits(card, ntoys=100, toysfile="higgsCombine_SMtoys.GenerateOnly.mH125.123456.root",
+                        submitBatch=False):
+    """
+    Run combine on a single card, return a tuple of 
+    (cv,ct,twosigdown,onesigdown,exp,onesigup,twosigup)
+    """
+    cv,ct,tag = parseName(card)
+    if submitBatch:
+        print toysfile
+    combinecmd =  "combine -M Asymptotic --run observed"
+    combinecmd += " -m 125 --verbose 0 -n cvct%s_SM"%tag
+    combinecmd += setParamatersFreezeAll(ct/cv,1.0)
+    combinecmd += " -t %d" % ntoys
+    combinecmd += " --toysFile %s" % toysfile
+
+    comboutput = runCombineCommand(combinecmd, card, submitBatch=submitBatch, submitName=tag)
+    return comboutput
+
+def getSMExpectedLimits(output):
+    liminfo = {}
+    for line in output.split('\n'):
+        try: header, body = line.split(':', 1)
+        except ValueError: continue
+        if header == 'median expected limit':
+            liminfo['exp'] = float(body.rsplit('<', 1)[1].rsplit('@',1)[0].strip())
+        if 'expected band' in header:
+            down, up = body.split(' < r < ')
+            if '68%' in header:
+                liminfo['onesigup']   = float(up)
+                liminfo['onesigdown'] = float(down)
+            elif '95%' in header:
+                liminfo['twosigup']   = float(up)
+                liminfo['twosigdown'] = float(down)
+
+    print "%5.2f, %5.2f, \033[92m%5.2f\033[0m, %5.2f, %5.2f" %(
+        liminfo['twosigdown'], liminfo['onesigdown'], liminfo['exp'],
+        liminfo['onesigup'], liminfo['twosigup'])
+    return liminfo
+
 def getFitValues(card, model='K6', unblind=False):
     """
     Run combine on a single card, return a tuple of fitvalues
     (cv,ct,median,downerror,uperror)
     """
-    # Turn the tag into floats:
-    tag = re.match(r'.*\_([\dpm]+\_[\dpm]+).*\.card\.(txt|root)', os.path.basename(card))
-    if tag == None:
-        print "Couldn't figure out this one: %s" % card
-        return
-
-    tag = tag.groups()[0]
-    tagf = tag.replace('p', '.').replace('m','-')
-    cv,ct = tuple(map(float, tagf.split('_')))
-    print "%-40s CV=%5.2f, Ct=%5.2f : " % (os.path.basename(card), cv, ct),
+    cv,ct,tag = parseName(card)
 
     combinecmd =  "combine -M MaxLikelihoodFit"
     combinecmd += " -m 125 --verbose 0 -n cvct%s"%tag
-    if model in ['K4', 'K5', 'K6']:
-        if model == 'K6':
-            # Rescale to cv = 1, we only care about the ct/cv ratio
-            combinecmd += " --setPhysicsModelParameters kappa_t=%.2f,kappa_V=%.2f" % (ct/cv, 1.0)
+    if model in ['K4', 'K5', 'K6', 'K7']:
+        if model == 'K6': # Rescale to cv = 1, we only care about the ct/cv ratio
+            combinecmd += setParamatersFreezeAll(ct/cv,1.0)
         else:
-            combinecmd += " --setPhysicsModelParameters kappa_t=%.2f,kappa_V=%.2f" % (ct,cv)
-        combinecmd += " --freezeNuisances kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam"
-        combinecmd += " --redefineSignalPOIs r"
-#        combinecmd += " --systematics 0"
+            combinecmd += setParamatersFreezeAll(ct, cv)
+
         if abs(ct/cv) > 3:        
             combinecmd += " --robustFit 1 --setPhysicsModelParameterRanges r=0,1"
         else:
             combinecmd += " --robustFit 1 --setPhysicsModelParameterRanges r=0,10"
-    try:
-        p = Popen(shlex.split(combinecmd) + [card] , stdout=PIPE, stderr=PIPE)
-        comboutput = p.communicate()[0]
-    except OSError:
-        print "combine command not known. Try this: cd /afs/cern.ch/user/s/stiegerb/combine/ ; cmsenv ; cd -"
-        return
+    comboutput = runCombineCommand(combinecmd, card)
 
     fitinfo = {}
     for line in comboutput.split('\n'):
@@ -110,34 +154,16 @@ def getSignificance(card, model='K6', unblind=False):
     """
     Run combine on a single card, return significance
     """
-    # Turn the tag into floats:
-    tag = re.match(r'.*\_([\dpm]+\_[\dpm]+).*\.card\.(txt|root)', os.path.basename(card))
-    if tag == None:
-        print "Couldn't figure out this one: %s" % card
-        return
-
-    tag = tag.groups()[0]
-    tagf = tag.replace('p', '.').replace('m','-')
-    cv,ct = tuple(map(float, tagf.split('_')))
-    print "%-40s CV=%5.2f, Ct=%5.2f : " % (os.path.basename(card), cv, ct),
+    cv,ct,tag = parseName(card)
 
     combinecmd =  "combine -M ProfileLikelihood --signif"
     combinecmd += " -m 125 --verbose 0 -n cvct%s"%tag
-    if model in ['K4', 'K5', 'K6']:
-        if model == 'K6':
-            # Rescale to cv = 1, we only care about the ct/cv ratio
-            combinecmd += " --setPhysicsModelParameters kappa_t=%.2f,kappa_V=%.2f" % (ct/cv, 1.0)
+    if model in ['K4', 'K5', 'K6', 'K7']:
+        if model == 'K6': # Rescale to cv = 1, we only care about the ct/cv ratio
+            combinecmd += setParamatersFreezeAll(ct/cv,1.0)
         else:
-            combinecmd += " --setPhysicsModelParameters kappa_t=%.2f,kappa_V=%.2f" % (ct,cv)
-        combinecmd += " --freezeNuisances kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam"
-        combinecmd += " --redefineSignalPOIs r"
-#        combinecmd += " --systematics 0"
-    try:
-        p = Popen(shlex.split(combinecmd) + [card] , stdout=PIPE, stderr=PIPE)
-        comboutput = p.communicate()[0]
-    except OSError:
-        print "combine command not known. Try this: cd /afs/cern.ch/user/s/stiegerb/combine/ ; cmsenv ; cd -"
-        return
+            combinecmd += setParamatersFreezeAll(ct, cv)
+    comboutput = runCombineCommand(combinecmd, card)
 
     significance = {}
     for line in comboutput.split('\n'):
@@ -148,7 +174,7 @@ def getSignificance(card, model='K6', unblind=False):
     print "\033[92m%5.2f\033[0m" %( significance['value'])
     return cv, ct, significance
 
-def main(args, options, limit=False, fit=False, sig=True):
+def main(args, options):
 
     cards = []
     if os.path.isdir(args[0]):
@@ -164,18 +190,18 @@ def main(args, options, limit=False, fit=False, sig=True):
             tag = "_"+os.path.basename(inputdir)
             assert( '/' not in tag )
 
-        cards = sorted([os.path.join(inputdir, c) for c in
-                    os.listdir(inputdir) if c.endswith('card.txt') or c.endswith('card.root')])
+        cards = [os.path.join(inputdir, c) for c in os.listdir(inputdir)]
 
     elif os.path.exists(args[0]):
         tag = options.tag or ""
         if len(tag): tag = '_'+tag
-        cards = sorted([c for c in args if os.path.exists(c) and (c.endswith('card.txt') or c.endswith('card.root'))])
+        cards = [c for c in args if os.path.exists(c)]
 
+    cards = [c for c in cards if any([c.endswith(ext) for ext in ['card.txt', 'card.root', '.log']])]
+    cards = sorted(cards)
     print "Found %d cards to run" % len(cards)
 
-
-    if limit:
+    if options.runmode.lower() == 'limits':
         limdata = {} # (cv,ct) -> (2sd, 1sd, lim, 1su, 2su, [obs])
         for card in cards:
             cv, ct, liminfo = getLimits(card, model=options.model, unblind=options.unblind)
@@ -200,7 +226,52 @@ def main(args, options, limit=False, fit=False, sig=True):
             fnames.append(csvfname)
         print "All done. Wrote limits to: %s" % (" ".join(fnames))
 
-    if fit:
+    if options.runmode.lower() == 'smexpected':
+        if options.batch: # produce the limits on the batch system
+            # pair each card with a file containing 100 toys
+            # in the directory given by options.toysDir
+            # assert(len(cards) <= len(os.listdir(options.toysDir)))
+            # for card, tname in zip(cards, os.listdir(options.toysDir)):
+            for card in cards:
+                # toysfile = os.path.join(options.toysDir, tname)
+                runSMExpectedLimits(card, ntoys=options.ntoys,
+                                          toysfile=options.toysDir,
+                                          # toysfile=toysfile,
+                                          submitBatch=options.batch) 
+            return 0
+
+        limdata = {} # (cv,ct) -> (2sd, 1sd, lim, 1su, 2su, [obs])
+        for logfile in cards: # process the logfiles from the batch jobs
+            # Recover the point first
+            match = re.match(r'.*\_([\dpm]+\_[\dpm]+)\_0_[0-9]{8}\.log', os.path.basename(logfile))
+            if match == None:
+                raise RuntimeError("Error parsing filename %s" % logfile)
+
+            match = match.groups()[0]
+            matchf = match.replace('p', '.').replace('m','-')
+            cv,ct = tuple(map(float, matchf.split('_')))
+
+            print "%-40s CV=%5.2f, Ct=%5.2f : " % (os.path.basename(logfile), cv, ct),
+            with open(logfile, 'r') as output:
+                limdata[(cv,ct)] = getSMExpectedLimits(output.read())
+
+        fnames = []
+        for cv_ in [0.5, 1.0, 1.5]:
+            if not cv_ in [v for v,_ in limdata.keys()]: continue
+            csvfname = 'limits%s_cv_%s.csv' % (tag, str(cv_).replace('.','p'))
+            with open(csvfname, 'w') as csvfile:
+                csvfile.write('cv,cf,twosigdown,onesigdown,exp,onesigup,twosigup\n')
+                for cv,ct in sorted(limdata.keys()):
+                    if not cv == cv_: continue
+                    values = [cv, ct]
+                    values += [limdata[(cv,ct)][x] for x in ['twosigdown','onesigdown','exp','onesigup','twosigup']]
+                    if options.unblind:
+                        values += [limdata[(cv,ct)]['obs']]
+                    csvfile.write(','.join(map(str, values)) + '\n')
+            fnames.append(csvfname)
+        print "All done. Wrote limits to: %s" % (" ".join(fnames))
+
+    if options.runmode.lower() == 'fit':
         fitdata = {} # (cv,ct) -> (fit, down, up)
         for card in cards:
             cv, ct, fitinfo = getFitValues(card, model=options.model, unblind=options.unblind)
@@ -224,7 +295,7 @@ def main(args, options, limit=False, fit=False, sig=True):
     
         print "Wrote limits to: %s" % (" ".join(fnames))
 
-    if sig:
+    if options.runmode.lower() == 'sig':
         sigdata = {}
         for card in cards:
             cv, ct, significance = getSignificance(card, model=options.model, unblind=options.unblind)
@@ -244,6 +315,7 @@ def main(args, options, limit=False, fit=False, sig=True):
             fnames.append(csvfname)
 
         print "Wrote significance to: %s" % (" ".join(fnames))
+
     return 0
 
 if __name__ == '__main__':
@@ -256,18 +328,25 @@ if __name__ == '__main__':
     them together with the cv and ct values (extracted from the filename)
     in a .csv file.
 
-    Note that you need to have 'combineCards.py' in your path. Try:
+    Note that you need to have 'combine' in your path. Try:
     cd /afs/cern.ch/user/s/stiegerb/combine/ ; cmsenv ; cd -
     """
     parser = OptionParser(usage=usage)
-    # parser.add_option("-o","--outdir", dest="outdir",
-    #                   type="string", default="combined/")
-    parser.add_option("-t","--tag", dest="tag",
-                      type="string", default=None)
-    parser.add_option("-m","--model", dest="model",
-                      type="string", default="K6")
-    parser.add_option("-u","--unblind", dest="unblind",
-                      action='store_true')
+    parser.add_option("-r","--run", dest="runmode", type="string", default="limit",
+                      help="What to run (limits|fit|sig|smexpected)")
+    parser.add_option("--toysDir", dest="toysDir",
+                      type="string", default="SMlike_toys",
+                      help="For smexpected mode: input directory for toys")
+    parser.add_option("--ntoys", dest="ntoys", type="int", default=100,
+                      help="For smexpected mode: number of toys to read")
+    parser.add_option("-t","--tag", dest="tag", type="string", default=None,
+                      help="Tag to put in name of output csv files")
+    parser.add_option("-m","--model", dest="model", type="string", default="K6",
+                      help="Toggle to configure combine commands")
+    parser.add_option("-u","--unblind", dest="unblind", action='store_true',
+                      help="For limits mode: add the observed limit")
+    parser.add_option("-b","--batch", dest="batch", action='store_true',
+                      help="For smexpected mode: submit jobs to lxbatch")
     (options, args) = parser.parse_args()
 
     sys.exit(main(args, options))

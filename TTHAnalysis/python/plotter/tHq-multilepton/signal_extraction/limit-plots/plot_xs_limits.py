@@ -34,6 +34,7 @@ def makePlot(inputfile='limits_1.dat',
              split_xsecs=True,
              split_cv_xsecs=False,
              alpha=False,
+             smexpected=False,
              observed=False):
     print "...reading limits from %s" % inputfile
     if split_cv_xsecs: split_xsecs = False
@@ -66,11 +67,18 @@ def makePlot(inputfile='limits_1.dat',
     y2_xsec_tth = splev(x2, spline_xsec_tth)
     y2_xsec_th  = splev(x2, spline_xsec_th)
 
-    spline_twosigdown = splrep(x,df.twosigdown, s=smoothing, k=3)
-    spline_onesigdown = splrep(x,df.onesigdown, s=smoothing, k=3)
-    spline_exp        = splrep(x,df.exp,        s=smoothing, k=3)
-    spline_onesigup   = splrep(x,df.onesigup,   s=smoothing, k=3)
-    spline_twosigup   = splrep(x,df.twosigup,   s=smoothing, k=3)
+    if not smexpected:
+        spline_twosigdown = splrep(x,df.twosigdown, s=smoothing, k=3)
+        spline_onesigdown = splrep(x,df.onesigdown, s=smoothing, k=3)
+        spline_exp        = splrep(x,df.exp,        s=smoothing, k=3)
+        spline_onesigup   = splrep(x,df.onesigup,   s=smoothing, k=3)
+        spline_twosigup   = splrep(x,df.twosigup,   s=smoothing, k=3)
+    else:
+        spline_twosigdown = splrep(x,df.twosigdownSM, s=smoothing, k=3)
+        spline_onesigdown = splrep(x,df.onesigdownSM, s=smoothing, k=3)
+        spline_exp        = splrep(x,df.expSM,        s=smoothing, k=3)
+        spline_onesigup   = splrep(x,df.onesigupSM,   s=smoothing, k=3)
+        spline_twosigup   = splrep(x,df.twosigupSM,   s=smoothing, k=3)
 
     y_twosigdown      = splev(x2, spline_twosigdown  )
     y_onesigdown      = splev(x2, spline_onesigdown  )
@@ -99,9 +107,15 @@ def makePlot(inputfile='limits_1.dat',
 
     # Plot limits with sigma error bands
     ax.plot(x2, y_exp, "--", lw=2, color='black',zorder=4)
-    ax.fill_between(x2, y_onesigdown, y_onesigup,   facecolor='chartreuse', alpha=0.8,zorder=0)
-    ax.fill_between(x2, y_twosigdown, y_onesigdown, facecolor='yellow', alpha=0.8,zorder=0)
-    ax.fill_between(x2, y_twosigup,   y_onesigup,   facecolor='yellow', alpha=0.8,zorder=0)
+    if not smexpected:
+        ax.fill_between(x2, y_onesigdown, y_onesigup,   facecolor='chartreuse', alpha=0.8,zorder=0)
+        ax.fill_between(x2, y_twosigdown, y_onesigdown, facecolor='yellow', alpha=0.8,zorder=0)
+        ax.fill_between(x2, y_twosigup,   y_onesigup,   facecolor='yellow', alpha=0.8,zorder=0)
+    else:
+        ax.fill_between(x2, y_onesigdown, y_onesigup,   facecolor='DeepSkyBlue', alpha=0.8,zorder=0)
+        ax.fill_between(x2, y_twosigdown, y_onesigdown, facecolor='SkyBlue', alpha=0.8,zorder=0)
+        ax.fill_between(x2, y_twosigup,   y_onesigup,   facecolor='SkyBlue', alpha=0.8,zorder=0)
+
 
     if observed:
         if alpha:
@@ -153,13 +167,21 @@ def makePlot(inputfile='limits_1.dat',
 
     # Cosmetics
     import matplotlib.patches as mpatches
-    twosigpatch = mpatches.Patch(color='yellow',     label='$\pm2$ standard dev.')
-    onesigpatch = mpatches.Patch(color='chartreuse', label='$\pm1$ standard dev.')
+    if not smexpected:
+        twosigpatch = mpatches.Patch(color='yellow',     label='$\pm2$ standard dev.')
+        onesigpatch = mpatches.Patch(color='chartreuse', label='$\pm1$ standard dev.')
+    else:
+        twosigpatch = mpatches.Patch(color='SkyBlue',     label='$\pm2$ standard dev.')
+        onesigpatch = mpatches.Patch(color='DeepSkyBlue', label='$\pm1$ standard dev.')
     obsline = mpl.lines.Line2D([], [], color='black', linestyle='-',
-                               label='Observed 95\% C.L. limit ($\sigma\\times\mathrm{BR}$)', marker='.',
+                               label='Observed limit ($\sigma\\times\mathrm{BR}$)', marker='.',
                                markersize=14, linewidth=2)
-    expline = mpl.lines.Line2D([], [], color='black', linestyle='--',
-                               label='Med. exp. 95\% C.L. limit ($\sigma\\times\mathrm{BR}$)', linewidth=2.0)
+    if not smexpected:
+        explabel = 'Expected limit ($\sigma\\times\mathrm{BR}$)'
+    else:
+        explabel = 'SM Higgs exp. limit ($\sigma\\times\mathrm{BR}$)'
+    expline = mpl.lines.Line2D([], [], color='black', linestyle='--', label=explabel, linewidth=2.0)
+
     if not split_cv_xsecs:
         xsline = mpl.lines.Line2D([], [], color='black', lw=1.5, linestyle='-.',
                                label='$\sigma^\\text{theo.}_{\mathrm{tH+t\\bar{t}H}}\\times \mathrm{BR}$ ($\kappa_V=1.0$)')
@@ -193,6 +215,7 @@ def makePlot(inputfile='limits_1.dat',
     # Save to pdf/png
     outfile = os.path.join(outdir, os.path.splitext(os.path.basename(inputfile))[0])
     if alpha: outfile += '_alpha'
+    if smexpected: outfile += '_smexp'
     if split_cv_xsecs: outfile += '_split_cv'
     plt.savefig("%s.pdf"%outfile, bbox_inches='tight')
     plt.savefig("%s.png"%outfile, bbox_inches='tight', dpi=300)
@@ -208,6 +231,8 @@ if __name__ == '__main__':
                       type="string", default="plots/")
     parser.add_option("--alpha", dest="alpha", action="store_true",
                       help="Plot alpha on x-axis instead of ratio")
+    parser.add_option("--smexp", dest="smexp", action="store_true",
+                      help="Plot the SM expected limit")
     parser.add_option("--split_xsecs", dest="split_xsecs", action="store_true",
                       help="Show split xsections for ttH and tH")
     parser.add_option("--split_cv_xsecs", dest="split_cv_xsecs", action="store_true",
@@ -233,6 +258,7 @@ if __name__ == '__main__':
                         split_xsecs=options.split_xsecs,
                         split_cv_xsecs=options.split_cv_xsecs,
                         alpha=options.alpha,
+                        smexpected=options.smexp,
                         observed=options.observed)
 
     sys.exit(0)
