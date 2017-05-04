@@ -1,0 +1,47 @@
+# Format (use '#' to comment lines):
+# name of sample : name as in input directory : cross section : selection/event weight ; optional configurations
+# '+' after name declares as signal sample
+# 'xsec' as cross section will read the cross section as stored in the trees
+#
+# Some of the smaller samples are commented out for now to speed things up
+
+# Signal sample (with flipped yukawa sign!)
+tHq_hww+     : THQ : 3495799.0/0.705305*0.07096*0.324 : LHEweight_wgt[457]*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ; FillColor=ROOT.kOrange+10, Label='tHq (SM)'
+tHW_hww+     : THW : 1499200.0/0.273617*0.01561       : LHEweight_wgt[457]*(LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge) ; FillColor=ROOT.kOrange+6, Label='tHW (SM)'
+tHq_hww_ITC+ : THQ : 0.79270*0.324                    :                     LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge  ; FillColor=ROOT.kOrange+10, Label='tHq (\#kappa_{t}=-1.0)', SkipMe=True
+tHW_hww_ITC+ : THW : 0.14720                          :                     LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge  ; FillColor=ROOT.kOrange+6, Label='tHW (\#kappa_{t}=-1.0)', SkipMe=True
+ttH+ : TTHnobb_mWCutfix_ext_LHE : 0.5071*0.418 : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kOrange+2, Label='t\#bar{t}H'
+
+ttW     : TTWToLNu_ext_LHE+TTWToLNu_ext2_LHE                          : 0.196        : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kGreen-5,   Label='t\#bar{t}W'
+ttZ     : TTZToLLNuNu_LHE                                             : 0.2728       : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kSpring+2,  Label='t\#bar{t}Z'
+ttZ     : TTZToLLNuNu_m1to10_LHE                                      : xsec         : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kSpring+2,  Label='t\#bar{t}Z'
+ttZ	    : TTJets_DiLepton                                             : xsec         : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kSpring+2,  Label='t\#bar{t}Z'
+ttZ     : TTJets_SingleLeptonFromT+TTJets_SingleLeptonFromT_ext       : xsec         : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kSpring+2,  Label='t\#bar{t}Z'
+ttZ     : TTJets_SingleLeptonFromTbar+TTJets_SingleLeptonFromTbar_ext : xsec         : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kSpring+2,  Label='t\#bar{t}Z'
+
+# WZ      : WJetsToLNu_LO : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ;  FillColor=ROOT.kViolet-4
+WZ 	    : WZTo3LNu : 1.1*xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ;  FillColor=ROOT.kViolet-4
+ZZ      : ZZTo4L   :     xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ;  FillColor=ROOT.kAzure-9
+
+Gstar   : DYJetsToLL_M10to50_LO       : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kCyan+1
+Gstar   : DYJetsToLL_M50_LO_ext_part1 : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kCyan+1
+Gstar   : DYJetsToLL_M50_LO_ext_part2 : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kCyan+1
+Gstar   : DYJetsToLL_M50_LO_ext_part3 : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kCyan+1
+
+
+WWss  : WpWpJJ              : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kMagenta-10, Label='W^{\#pm}W^{\#pm}qq'
+WWDPS : WWDouble            : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kMagenta-11, Label='W^{\#pm}W^{\#pm} (DPS)'
+VVV   : WWW                 : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kMagenta-6, Label='VVV'
+VVV   : WWZ                 : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kMagenta-6, Label='VVV'
+VVV   : WZZ                 : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kMagenta-6, Label='VVV'
+VVV   : ZZZ                 : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kMagenta-6, Label='VVV'
+tttt  : TTTT                : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kMagenta-7, Label='t\#bar{t}t\#bar{t}'
+tZq   : tZq_ll_ext_highstat : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kMagenta-8, Label='tZq'
+tZW   : tWll                : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge ; FillColor=ROOT.kMagenta-9, Label='tZW'
+
+incl_convs     : + ; IncludeMca="ttH-multilepton/mca-includes/mca-2lss-convs.txt", Label="Conversions"
+
+incl_data : + ; IncludeMca="ttH-multilepton/mca-includes/mca-data.txt"
+
+incl_datafakes  : + ; IncludeMca="ttH-multilepton/mca-includes/mca-data.txt", FakeRate="ttH-multilepton/fakeRate-2lss-frdata.txt", Label="Fakes", FillColor=ROOT.kBlack, FillStyle=3005, NormSystematic=0.35, PostFix='_fakes'
+incl_dataflips  : + ; IncludeMca="ttH-multilepton/mca-includes/mca-data-forFlips.txt", FakeRate="ttH-multilepton/flipRate-2lss-frdata.txt", Label="Flips", FillColor=ROOT.kBlack, FillStyle=3006, NormSystematic=0.3, PostFix='_flips'

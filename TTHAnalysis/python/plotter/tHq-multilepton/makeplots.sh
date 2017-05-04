@@ -54,9 +54,49 @@ MCA=""
 CUTS=""
 PLOTS=""
 case "$PLOTTAG" in
+    "PAS" )
+        # Note: to produce the input file, run the -PAS.txt mca's with --AP option
+        # 3L
+        MCA="tHq-multilepton/mca-thq-3l-mcdata-frdata-PAS.txt"
+        CUTS="tHq-multilepton/cuts-thq-3l.txt"
+        PLOTS="tHq-multilepton/plots-thq-3l-kinMVA.txt"
+        INPUTFILE="/afs/cern.ch/user/s/stiegerb/www/tHq13TeV/May4/3l/plots-thq-3l-kinMVA.root"
+        SELECTPLOTS="--sP dPhiHighestPtSSPair --sP maxEtaJet25_40 --sP nJet25 --sP thqMVA_tt_3l_40 --sP thqMVA_ttv_3l_40 --sP finalBins_40 --sP finalBins_log_40"
+        OPTIONS="--outDir ${OUTDIR} ${DRAWOPTIONS} ${SELECTPLOTS}"
+
+        ARGUMENTS="${MCA} ${PLOTS} ${INPUTFILE}"
+        OPTIONS="${TREEINPUTS} ${FRIENDTREES} ${BASEOPTIONS} ${OPTIONS}"
+        python tHq-multilepton/plotTHQ.py ${ARGUMENTS} ${OPTIONS}
+
+        # 2LSS
+        MCA="tHq-multilepton/mca-thq-2lss-mcdata-frdata-PAS.txt"
+        CUTS="tHq-multilepton/cuts-thq-2lss.txt"
+        PLOTS="tHq-multilepton/plots-thq-2lss-kinMVA.txt"
+        SELECTPLOTS="--sP dPhiHighestPtSSPair --sP maxEtaJet25_40 --sP nJet25 --sP thqMVA_tt_2lss_40 --sP thqMVA_ttv_2lss_40 --sP finalBins_40"
+
+        # mumu
+        INPUTFILE="/afs/cern.ch/user/s/stiegerb/www/tHq13TeV/May4/2lss-mm/plots-thq-2lss-kinMVA.root"
+        OPTIONS="--outDir ${OUTDIR} ${DRAWOPTIONS} --xp data_flips"
+        OPTIONS="${OPTIONS} ${SELECTPLOTS} --sP finalBins_log_mm_40 --E mm_chan"
+
+        ARGUMENTS="${MCA} ${PLOTS} ${INPUTFILE}"
+        OPTIONS="${TREEINPUTS} ${FRIENDTREES} ${BASEOPTIONS} ${OPTIONS}"
+        python tHq-multilepton/plotTHQ.py ${ARGUMENTS} ${OPTIONS}
+
+        # emu
+        INPUTFILE="/afs/cern.ch/user/s/stiegerb/www/tHq13TeV/May4/2lss-mm/plots-thq-2lss-kinMVA.root"
+        OPTIONS="--outDir ${OUTDIR} ${DRAWOPTIONS}"
+        OPTIONS="${OPTIONS} ${SELECTPLOTS} --sP finalBins_log_em_40 --E em_chan"
+
+        ARGUMENTS="${MCA} ${PLOTS} ${INPUTFILE}"
+        OPTIONS="${TREEINPUTS} ${FRIENDTREES} ${BASEOPTIONS} ${OPTIONS}"
+        python tHq-multilepton/plotTHQ.py ${ARGUMENTS} ${OPTIONS}
+
+        DONE
+        ;;
     "3l" )
-        OPTIONS="${OPTIONS} ${DRAWOPTIONS} ${OPT3L} --sP finalBins_40 --sP finalBins_log_40"
-        MCA="tHq-multilepton/mca-thq-3l-mcdata-frdata.txt"
+        OPTIONS="${OPTIONS} ${DRAWOPTIONS} ${OPT3L}"
+        MCA="tHq-multilepton/mca-thq-3l-mcdata-frdata-PAS.txt"
         CUTS="tHq-multilepton/cuts-thq-3l.txt"
         PLOTS="tHq-multilepton/plots-thq-3l-kinMVA.txt"
         ;;
@@ -119,9 +159,9 @@ case "$PLOTTAG" in
         ;;
     "2lss-mm" )
         OPTIONS="${OPTIONS} ${DRAWOPTIONS} ${OPT2L} -E mm_chan --xp data_flips"
-        # OPTIONS="${OPTIONS} --xP finalBins_log_em_40 --xP finalBins_log_ee_40"
-        OPTIONS="${OPTIONS} --sP finalBins_40 --sP finalBins_log_mm_40 "
-        MCA="tHq-multilepton/mca-thq-2lss-mcdata-frdata.txt"
+        OPTIONS="${OPTIONS} --xP finalBins_log_em_40 --xP finalBins_log_ee_40"
+        # OPTIONS="${OPTIONS} --sP finalBins_40 --sP finalBins_log_mm_40 "
+        MCA="tHq-multilepton/mca-thq-2lss-mcdata-frdata-PAS.txt"
         CUTS="tHq-multilepton/cuts-thq-2lss.txt"
         PLOTS="tHq-multilepton/plots-thq-2lss-kinMVA.txt"
         ;;
@@ -140,9 +180,9 @@ case "$PLOTTAG" in
         ;;
     "2lss-em" )
         OPTIONS="${OPTIONS} ${DRAWOPTIONS} ${OPT2L} -E em_chan"
-        # OPTIONS="${OPTIONS} --xP finalBins_log_mm_40 --xP finalBins_log_ee_40"
-        OPTIONS="${OPTIONS} --sP finalBins_log_em_40"
-        MCA="tHq-multilepton/mca-thq-2lss-mcdata-frdata.txt"
+        OPTIONS="${OPTIONS} --xP finalBins_log_mm_40 --xP finalBins_log_ee_40"
+        # OPTIONS="${OPTIONS} --sP finalBins_40 --sP finalBins_log_em_40"
+        MCA="tHq-multilepton/mca-thq-2lss-mcdata-frdata-PAS.txt"
         CUTS="tHq-multilepton/cuts-thq-2lss.txt"
         PLOTS="tHq-multilepton/plots-thq-2lss-kinMVA.txt"
         ;;
@@ -161,8 +201,8 @@ case "$PLOTTAG" in
         ;;
     "2lss-ee" )
         OPTIONS="${OPTIONS} ${DRAWOPTIONS} ${OPT2L} -E ee_chan"
-        # OPTIONS="${OPTIONS} --xP finalBins_log_mm_40 --xP finalBins_log_em_40"
-        OPTIONS="${OPTIONS} --sP finalBins_40 --sP finalBins_log_ee_40"
+        OPTIONS="${OPTIONS} --xP finalBins_log_mm_40 --xP finalBins_log_em_40"
+        # OPTIONS="${OPTIONS} --sP finalBins_40 --sP finalBins_log_ee_40"
         MCA="tHq-multilepton/mca-thq-2lss-mcdata-frdata.txt"
         CUTS="tHq-multilepton/cuts-thq-2lss.txt"
         PLOTS="tHq-multilepton/plots-thq-2lss-kinMVA.txt"
