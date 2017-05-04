@@ -2,10 +2,10 @@
 import sys, os, re, shlex
 from subprocess import Popen, PIPE
 
-def runCombineCommand(combinecmd, card, verbose=False, submitBatch=False, submitName=None):
-    if submitBatch:
+def runCombineCommand(combinecmd, card, verbose=False, queue=None, submitName=None):
+    if queue:
         combinecmd = combinecmd.replace('combine', 'combineTool.py')
-        combinecmd += ' --job-mode lxbatch --sub-opts="-q 8nh"'
+        combinecmd += ' --job-mode lxbatch --sub-opts="-q %s"' % queue
         combinecmd += ' --task-name tHq_%s' % submitName
         # combinecmd += ' --dry-run'
     if verbose: 
@@ -81,13 +81,13 @@ def getLimits(card, model='K6', unblind=False):
     return cv, ct, liminfo
 
 def runSMExpectedLimits(card, ntoys=100, toysfile="higgsCombine_SMtoys.GenerateOnly.mH125.123456.root",
-                        submitBatch=False):
+                        queue=None):
     """
     Run combine on a single card, return a tuple of 
     (cv,ct,twosigdown,onesigdown,exp,onesigup,twosigup)
     """
     cv,ct,tag = parseName(card)
-    if submitBatch:
+    if queue:
         print toysfile
     combinecmd =  "combine -M Asymptotic --run observed"
     combinecmd += " -m 125 --verbose 0 -n cvct%s_SM"%tag
@@ -95,7 +95,7 @@ def runSMExpectedLimits(card, ntoys=100, toysfile="higgsCombine_SMtoys.GenerateO
     combinecmd += " -t %d" % ntoys
     combinecmd += " --toysFile %s" % toysfile
 
-    comboutput = runCombineCommand(combinecmd, card, submitBatch=submitBatch, submitName=tag)
+    comboutput = runCombineCommand(combinecmd, card, submitName=tag, queue=queue)
     return comboutput
 
 def getSMExpectedLimits(output):
@@ -227,7 +227,7 @@ def main(args, options):
         print "All done. Wrote limits to: %s" % (" ".join(fnames))
 
     if options.runmode.lower() == 'smexpected':
-        if options.batch: # produce the limits on the batch system
+        if options.queue: # produce the limits on the batch system
             # pair each card with a file containing 100 toys
             # in the directory given by options.toysDir
             # assert(len(cards) <= len(os.listdir(options.toysDir)))
@@ -237,7 +237,7 @@ def main(args, options):
                 runSMExpectedLimits(card, ntoys=options.ntoys,
                                           toysfile=options.toysDir,
                                           # toysfile=toysfile,
-                                          submitBatch=options.batch) 
+                                          queue=options.queue) 
             return 0
 
         limdata = {} # (cv,ct) -> (2sd, 1sd, lim, 1su, 2su, [obs])
@@ -345,8 +345,8 @@ if __name__ == '__main__':
                       help="Toggle to configure combine commands")
     parser.add_option("-u","--unblind", dest="unblind", action='store_true',
                       help="For limits mode: add the observed limit")
-    parser.add_option("-b","--batch", dest="batch", action='store_true',
-                      help="For smexpected mode: submit jobs to lxbatch")
+    parser.add_option("-q","--queue", dest="queue", type="string", default=None,
+                      help="For smexpected mode: submit jobs to this queue")
     (options, args) = parser.parse_args()
 
     sys.exit(main(args, options))
