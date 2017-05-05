@@ -55,6 +55,8 @@ CUTS=""
 PLOTS=""
 case "$PLOTTAG" in
     "PAS" )
+        DRAWOPTIONS=" --showRatio --maxRatioRange 0 3.2 --fixRatioRange --showMCError"
+
         # Note: to produce the input file, run the -PAS.txt mca's with --AP option
         # 3L
         MCA="tHq-multilepton/mca-thq-3l-mcdata-frdata-PAS.txt"
@@ -77,16 +79,16 @@ case "$PLOTTAG" in
         # mumu
         INPUTFILE="/afs/cern.ch/user/s/stiegerb/www/tHq13TeV/May4/2lss-mm/plots-thq-2lss-kinMVA.root"
         OPTIONS="--outDir ${OUTDIR} ${DRAWOPTIONS} --xp data_flips"
-        OPTIONS="${OPTIONS} ${SELECTPLOTS} --sP finalBins_log_mm_40 --E mm_chan"
+        OPTIONS="${OPTIONS} ${SELECTPLOTS} --sP finalBins_log_mm_40"
 
         ARGUMENTS="${MCA} ${PLOTS} ${INPUTFILE}"
         OPTIONS="${TREEINPUTS} ${FRIENDTREES} ${BASEOPTIONS} ${OPTIONS}"
         python tHq-multilepton/plotTHQ.py ${ARGUMENTS} ${OPTIONS}
 
         # emu
-        INPUTFILE="/afs/cern.ch/user/s/stiegerb/www/tHq13TeV/May4/2lss-mm/plots-thq-2lss-kinMVA.root"
+        INPUTFILE="/afs/cern.ch/user/s/stiegerb/www/tHq13TeV/May4/2lss-em/plots-thq-2lss-kinMVA.root"
         OPTIONS="--outDir ${OUTDIR} ${DRAWOPTIONS}"
-        OPTIONS="${OPTIONS} ${SELECTPLOTS} --sP finalBins_log_em_40 --E em_chan"
+        OPTIONS="${OPTIONS} ${SELECTPLOTS} --sP finalBins_log_em_40"
 
         ARGUMENTS="${MCA} ${PLOTS} ${INPUTFILE}"
         OPTIONS="${TREEINPUTS} ${FRIENDTREES} ${BASEOPTIONS} ${OPTIONS}"
@@ -288,7 +290,7 @@ case "$PLOTTAG" in
         echo "outfiles: ${OUTFILE}"
         python mcNtuple.py ${MCA} ${CUTS} ${PLOTS} ${OUTFILE} ${OPTIONS}
         DONE
-        ;;
+        ;; 
     "all" )
         ./$0 ${OUTDIR}/3l 3l
         ./$0 ${OUTDIR}/2lss-mm 2lss-mm
