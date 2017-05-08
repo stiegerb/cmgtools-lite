@@ -33,14 +33,58 @@ PLOTRANGES = {
     ('thqMVA_tt_2lss_40', 'em')   : (0.0, 120.),
     ('thqMVA_tt_2lss_40', 'mm')   : (0.0, 56.),
     ('thqMVA_ttv_2lss_40', 'em')  : (0.0, 91.),
+    ('thqMVA_ttv_2lss_40', 'mm')  : (0.0, 61.),
+    ('thqMVA_ttv_3l_40', '3l')    : (0.0, 41.),
 }
 
+def doTinyCmsPrelim(textLeft="_default_",
+                    textRight="_default_",
+                    hasExpo=False,
+                    textSize=0.033,
+                    lumi=None,
+                    xoffs=0,
+                    options=None,
+                    doWide=False,
+                    ypos=0.955):
+    if textLeft  == "_default_": textLeft  = options.lspam
+    if textRight == "_default_": textRight = options.rspam
+    if lumi      == None       : lumi      = options.lumi
+    if   lumi > 3.54e+1: lumitext = "%.0f fb^{-1}" % lumi
+    elif lumi > 3.54e+0: lumitext = "%.1f fb^{-1}" % lumi
+    elif lumi > 3.54e-1: lumitext = "%.2f fb^{-1}" % lumi
+    elif lumi > 3.54e-2: lumitext = "%.0f pb^{-1}" % (lumi*1000)
+    elif lumi > 3.54e-3: lumitext = "%.1f pb^{-1}" % (lumi*1000)
+    else               : lumitext = "%.2f pb^{-1}" % (lumi*1000)
+    lumitext = "%.1f fb^{-1}" % lumi
+    textLeft = textLeft.replace("%(lumi)",lumitext)
+    textRight = textRight.replace("%(lumi)",lumitext)
+    if textLeft not in ['', None]:
+        mcP.doSpam(textLeft, (.28 if hasExpo else 0.07 if doWide else .17)+xoffs,
+                   ypos, .60+xoffs, ypos+0.04, align=12, textSize=textSize)
+    if textRight not in ['', None]:
+        mcP.doSpam(textRight, (0.6 if doWide else .68)+xoffs,
+                   ypos, .99+xoffs, ypos+0.04, align=32, textSize=textSize)
+
+
 def getRatioTGraph(graph, tothist):
+    """Calculate graph/tot"""
     ratio = graph.Clone("%s_%s"%(graph.GetName(), tothist.GetName()))
     for i in xrange(ratio.GetN()):
         x    = ratio.GetX()[i]
         div  = tothist.GetBinContent(tothist.GetXaxis().FindBin(x))
         ratio.SetPoint(i, x, ratio.GetY()[i]/div if div > 0 else 0)
+        ratio.SetPointError(i, ratio.GetErrorXlow(i), ratio.GetErrorXhigh(i), 
+                               ratio.GetErrorYlow(i)/div  if div > 0 else 0, 
+                               ratio.GetErrorYhigh(i)/div if div > 0 else 0) 
+    return ratio
+
+def getRatioTGraph2(graph, tothist):
+    """Calculate (graph-tot)/tot"""
+    ratio = graph.Clone("%s_%s"%(graph.GetName(), tothist.GetName()))
+    for i in xrange(ratio.GetN()):
+        x    = ratio.GetX()[i]
+        div  = tothist.GetBinContent(tothist.GetXaxis().FindBin(x))
+        ratio.SetPoint(i, x,   (ratio.GetY()[i]-div)/div if div > 0 else 0)
         ratio.SetPointError(i, ratio.GetErrorXlow(i), ratio.GetErrorXhigh(i), 
                                ratio.GetErrorYlow(i)/div  if div > 0 else 0, 
                                ratio.GetErrorYhigh(i)/div if div > 0 else 0) 
@@ -129,8 +173,8 @@ if __name__ == "__main__":
                       help="Output directory for postfit plots");
     parser.add_option("--doLog", dest="doLog", action="store_true",
                       help="Do logarithmic scale plots");
-    parser.add_option("--bkgSub", dest="bkgSub", action="store_true",
-                      help="Subtract backgrounds");
+    parser.add_option("--subPredInRatios", dest="subPredInRatios", action="store_true",
+                      help="Subtract prediction in ratios");
     parser.add_option("--doRebinning", dest="doRebinning", action="store_true",
                       help="Remap the bins according to PR#18");
     (options, args) = parser.parse_args()
@@ -202,7 +246,7 @@ if __name__ == "__main__":
         c1.Draw()
         c1.SetWindowSize(600 + (600 - c1.GetWw()), (750 + (750 - c1.GetWh())))
         p1 = ROOT.TPad("pad1","pad1",0,0.29,1,0.99)
-        p1.SetTopMargin(0.06)
+        p1.SetTopMargin(0.08)
         p1.SetBottomMargin(0.06)
         p1.Draw()
         p2 = ROOT.TPad("pad2","pad2",0,0,1,0.32)
@@ -222,15 +266,11 @@ if __name__ == "__main__":
 
         if options.poisson:
             pdata = mcP.getDataPoissonErrors(hists['data'], True, True)
+            pdata.SetMarkerSize(1.3)
             pdata.Draw("PZ SAME")
             hists['data'].poissonGraph = pdata ## attach it so it doesn't get deleted
         else:
             hists['data'].Draw("E SAME")
-
-        if (pspec.name, channel) in PLOTRANGES:
-            htot.GetYaxis().SetRangeUser(PLOTRANGES[(pspec.name, channel)][0],
-                                         PLOTRANGES[(pspec.name, channel)][1])
-
 
         # Re-adjust yaxis range
         mcP.reMax(htot, hists['data'],
@@ -238,6 +278,12 @@ if __name__ == "__main__":
                   factorLin=1.3,
                   factorLog=2.0,
                   doWide=False)
+
+        if (pspec.name, channel) in PLOTRANGES:
+            htot.GetYaxis().SetRangeUser(PLOTRANGES[(pspec.name, channel)][0],
+                                         PLOTRANGES[(pspec.name, channel)][1])
+
+
         htot.Draw("AXIS SAME")
 
         # Do the legend
@@ -261,11 +307,18 @@ if __name__ == "__main__":
         # if channel == '3l':
         #     lspam += "3-lepton channel"
 
-        mcP.doTinyCmsPrelim(hasExpo = False,
-                            textSize=(0.055), xoffs=-0.03,
-                            textLeft = "#bf{CMS} #it{Preliminary}",
-                            textRight = "%(lumi) (13 TeV)",
-                            lumi = options.lumi)
+        doTinyCmsPrelim(hasExpo = False,
+                        textSize=(0.055), xoffs=-0.03,
+                        textLeft = "#bf{CMS} #it{Preliminary}",
+                        textRight = "%(lumi) (13 TeV)",
+                        lumi = options.lumi,
+                        ypos=0.935)
+
+        # mcP.doTinyCmsPrelim(hasExpo = False,
+        #                     textSize=(0.055), xoffs=-0.03,
+        #                     textLeft = "#bf{CMS} #it{Preliminary}",
+        #                     textRight = "%(lumi) (13 TeV)",
+        #                     lumi = options.lumi)
 
         if pspec.hasOption('Logy'):
             p1.SetLogy(True)
@@ -273,22 +326,19 @@ if __name__ == "__main__":
         # Make the ratios
         p2.cd()
 
-        maxRange=options.maxRatioRange
-        fixRange=options.fixRatioRange
-        fitRatio=options.fitRatio
-        errorsOnRef=options.errorBandOnRatio
-        ratioNums=options.ratioNums
-        ratioDen=options.ratioDen
-        doWide=options.wideplot
-        showStatTotLegend=False
+        if not options.subPredInRatios:
+            nomratio = getRatioTGraph(hists['data'].poissonGraph, htot)
+        else:
+            nomratio = getRatioTGraph2(hists['data'].poissonGraph, htot)
 
-        nomratio = getRatioTGraph(hists['data'].poissonGraph, htot)
         thqratio = hists['data'].Clone("thqratio")
+        if options.subPredInRatios: thqratio.Add(htot_itc, -1.0)
         thqratio.Divide(htot_itc)
         thqratio.SetLineWidth(2)
         thqratio.SetLineColor(htot_itc.GetLineColor())
 
         bgratio = hists['data'].Clone("bgratio")
+        if options.subPredInRatios: bgratio.Add(hbkg, -1.0)
         bgratio.Divide(hbkg)
         bgratio.SetLineWidth(2)
         bgratio.SetLineColor(ROOT.kBlack)
@@ -298,8 +348,11 @@ if __name__ == "__main__":
         for ibin in xrange(1, unity.GetNbinsX()+1):
             cont = unity.GetBinContent(ibin)
             err  = unity.GetBinError(ibin)
-            unity.SetBinContent(ibin, 1 if cont > 0 else 0)
-            if errorsOnRef:
+            if not options.subPredInRatios:
+                unity.SetBinContent(ibin, 1 if cont > 0 else 0)
+            else:
+                unity.SetBinContent(ibin, 0)
+            if options.errorBandOnRatio:
                 unity.SetBinError(ibin, err/cont if cont > 0 else 0)
             else:
                 unity.SetBinError(ibin, 0)
@@ -310,26 +363,26 @@ if __name__ == "__main__":
         unity.SetMarkerColor(ROOT.kCyan);
         ROOT.gStyle.SetErrorX(0.5);
 
-        if errorsOnRef:
+        if options.errorBandOnRatio:
             unity.Draw("E2");
         else:
             unity.Draw("AXIS");
 
-        if fitRatio != None:
+        if options.fitRatio != None:
             from CMGTools.TTHAnalysis.tools.plotDecorations import fitTGraph
-            fitTGraph(nomratio, order=fitRatio)
+            fitTGraph(nomratio, order=options.fitRatio)
             unity.SetFillStyle(3013);
-            if errorsOnRef:
+            if options.errorBandOnRatio:
                 unity.Draw("AXIS SAME");
 
-        rmin = maxRange[0]
-        rmax = maxRange[1]
+        rmin = options.maxRatioRange[0]
+        rmax = options.maxRatioRange[1]
         rmin = float(pspec.getOption("RMin", rmin))
         rmax = float(pspec.getOption("RMax", rmax))
         unity.GetYaxis().SetRangeUser(rmin, rmax)
         unity.GetXaxis().SetTitleFont(43)
         unity.GetXaxis().SetTitleSize(26)
-        unity.GetXaxis().SetTitleOffset(2.3)
+        unity.GetXaxis().SetTitleOffset(2.5)
         unity.GetXaxis().SetLabelFont(43)
         unity.GetXaxis().SetLabelSize(22)
         unity.GetXaxis().SetLabelOffset(0.007)
@@ -341,7 +394,10 @@ if __name__ == "__main__":
         unity.GetYaxis().SetLabelSize(22)
         unity.GetYaxis().SetLabelOffset(0.007)
         unity.GetYaxis().SetDecimals(True) 
-        unity.GetYaxis().SetTitle("Data/Pred.")
+        if not options.subPredInRatios:
+            unity.GetYaxis().SetTitle("Data/Pred.")
+        else:
+            unity.GetYaxis().SetTitle("#frac{Data-Pred}{Pred.}")
 
         htot.GetXaxis().SetLabelOffset(999) ## send them away
         htot.GetXaxis().SetTitleOffset(999) ## in outer space
@@ -364,7 +420,8 @@ if __name__ == "__main__":
             for i in range(1,unity.GetNbinsX()+1): 
                 unity.GetXaxis().SetBinLabel(i,blist[i-1]) 
         #$ROOT.gStyle.SetErrorX(0.0);
-        line = ROOT.TLine(unity.GetXaxis().GetXmin(),1,unity.GetXaxis().GetXmax(),1)
+        liney = 1 if not options.subPredInRatios else 0
+        line = ROOT.TLine(unity.GetXaxis().GetXmin(),liney,unity.GetXaxis().GetXmax(),liney)
         line.SetLineWidth(2);
         line.SetLineColor(58);
         line.Draw("L")
@@ -381,22 +438,22 @@ if __name__ == "__main__":
         #         ratio.Draw("E SAME")
 
         leg0 = ROOT.TLegend(0.18, 0.82, 0.35, 0.9)
-        leg0.AddEntry(nomratio, "Data/SM", "P")
+        leg0.AddEntry(nomratio, "SM", "P")
 
-        leg1 = ROOT.TLegend(0.32, 0.82, 0.52, 0.9)
-        leg1.AddEntry(thqratio, "Data/SM(#kappa_{t}=-1)", "L")
+        leg1 = ROOT.TLegend(0.28, 0.82, 0.52, 0.9)
+        leg1.AddEntry(thqratio, "SM (#kappa_{t}=-1.0)", "L")
 
-        leg2 = ROOT.TLegend(0.55, 0.82, 0.75, 0.9)
-        leg2.AddEntry(bgratio, "Data/Bkg.", "L")
+        leg2 = ROOT.TLegend(0.52, 0.82, 0.75, 0.9)
+        leg2.AddEntry(bgratio, "Backg.", "L")
 
-        leg3 = ROOT.TLegend(0.75, 0.82, 0.90, 0.9)
+        leg3 = ROOT.TLegend(0.68, 0.82, 0.90, 0.9)
         leg3.AddEntry(unity, "Tot. SM unc.", "F")
         for leg in [leg0, leg1, leg2, leg3]:
             leg.SetFillColor(0)
             leg.SetShadowColor(0)
             leg.SetLineColor(0)
             leg.SetTextFont(43)
-            leg.SetTextSize(16)
+            leg.SetTextSize(18)
             leg.Draw()
 
         # Save the plots
