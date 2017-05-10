@@ -57,9 +57,10 @@ case "$PLOTTAG" in
     "PAS" )
         SELECTPLOTS=" --sP dPhiHighestPtSSPair --sP maxEtaJet25_40 --sP nJet25 --sP finalBins_40"
         # DRAWOPTIONS=" --showRatio --maxRatioRange -1.5 3.2 --fixRatioRange --showMCError --subPredInRatios"
-        DRAWOPTIONS=" --showRatio --maxRatioRange 0 3.2 --fixRatioRange --showMCError"
+        # DRAWOPTIONS=" --showRatio --maxRatioRange 0 3.2 --fixRatioRange --showMCError"
+        DRAWOPTIONS=" --showRatio --maxRatioRange -0.4 4.2 --fixRatioRange --showMCError"
 
-        # Note: to produce the input file, run the -PAS.txt mca's with --AP option
+        # Note: to produce the input file, run the mca...-PAS.txt with --AP option
         # 3L
         MCA="tHq-multilepton/mca-thq-3l-mcdata-frdata-PAS.txt"
         CUTS="tHq-multilepton/cuts-thq-3l.txt"
@@ -79,11 +80,11 @@ case "$PLOTTAG" in
         # mumu
         INPUTFILE="/afs/cern.ch/user/s/stiegerb/www/tHq13TeV/May4/2lss-mm/plots-thq-2lss-kinMVA.root"
         OPTIONS="--outDir ${OUTDIR} ${DRAWOPTIONS} --xp data_flips"
-        OPTIONS="${OPTIONS} ${SELECTPLOTS} --sP thqMVA_tt_2lss_40 --sP thqMVA_ttv_2lss_40"
 
         ARGUMENTS="${MCA} ${PLOTS} ${INPUTFILE}"
         OPTIONS="${TREEINPUTS} ${FRIENDTREES} ${BASEOPTIONS} ${OPTIONS}"
-        python tHq-multilepton/plotTHQ.py ${ARGUMENTS} ${OPTIONS}
+        python tHq-multilepton/plotTHQ.py ${ARGUMENTS} ${OPTIONS} ${SELECTPLOTS}
+        python tHq-multilepton/plotTHQ.py ${ARGUMENTS} ${OPTIONS} --sP finalBins_40 --sP thqMVA_tt_2lss_40 --sP thqMVA_ttv_2lss_40
 
         # emu
         INPUTFILE="/afs/cern.ch/user/s/stiegerb/www/tHq13TeV/May4/2lss-em/plots-thq-2lss-kinMVA.root"

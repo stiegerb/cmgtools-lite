@@ -74,11 +74,11 @@ def makePlot(inputfile='limits_1.dat',
         spline_onesigup   = splrep(x,df.onesigup,   s=smoothing, k=3)
         spline_twosigup   = splrep(x,df.twosigup,   s=smoothing, k=3)
     else:
-        spline_twosigdown = splrep(x,df.twosigdownSM, s=smoothing, k=3)
-        spline_onesigdown = splrep(x,df.onesigdownSM, s=smoothing, k=3)
-        spline_exp        = splrep(x,df.expSM,        s=smoothing, k=3)
-        spline_onesigup   = splrep(x,df.onesigupSM,   s=smoothing, k=3)
-        spline_twosigup   = splrep(x,df.twosigupSM,   s=smoothing, k=3)
+        spline_twosigdown = splrep(x,df.twosigdownSM, s=0.001, k=3) # Note: check the amount of smoothing 
+        spline_onesigdown = splrep(x,df.onesigdownSM, s=0.001, k=3) #       by comparing with 0.
+        spline_exp        = splrep(x,df.expSM,        s=0.001, k=3)
+        spline_onesigup   = splrep(x,df.onesigupSM,   s=0.001, k=3)
+        spline_twosigup   = splrep(x,df.twosigupSM,   s=0.001, k=3)
 
     y_twosigdown      = splev(x2, spline_twosigdown  )
     y_onesigdown      = splev(x2, spline_onesigdown  )

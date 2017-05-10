@@ -37,6 +37,28 @@ PLOTRANGES = {
     ('thqMVA_ttv_3l_40', '3l')    : (0.0, 41.),
 }
 
+AXISLABELS = {
+    'dPhiHighestPtSSPair' : "#Delta#phi of highest p_{T} same-sign lepton pair",
+    'nJet25' : "N(jets, p_{T} > 25 GeV, |#eta| < 2.4)",
+}
+
+MERGEMAP = {
+    "tZq"   : 'tZq',
+    "tZW"   : 'tZq',
+    "WWDPS" : 'tZq',
+    "WWss"  : 'tZq',
+    "Gstar" : 'tZq',
+    "tttt"  : 'tZq',
+    "VVV"   : 'tZq',
+    "ZZ"    : 'tZq',
+}
+
+LABELS = {
+    'tZq' : 'tZ, W^{#pm}W^{#pm}, t#bar{t}t#bar{t}, VVV',
+    'ZZ'  : 'tZ, W^{#pm}W^{#pm}, t#bar{t}t#bar{t}, VVV',
+    'data_flips' : 'Charge flips'
+}
+
 def doTinyCmsPrelim(textLeft="_default_",
                     textRight="_default_",
                     hasExpo=False,
@@ -200,6 +222,11 @@ if __name__ == "__main__":
     if '2lss_em' in args[2] or '2lss-em' in args[2]:
         channel = 'em'
 
+    # Adjust label of merged processes
+    for process,newlabel in LABELS.iteritems():
+        try: mca.setProcessOption(process, 'Label', newlabel)
+        except RuntimeError: pass
+
     for pspec in plots.plots():
         hists = {} # pname -> histogram
         # Check that all histos are there
@@ -208,16 +235,24 @@ if __name__ == "__main__":
             if not h:
                 print "ERROR: missing %s_%s in %s" % (pspec.name, process, infile.GetName())
 
-            if process in mca.listProcesses():
-                h.SetDirectory(0)
-                hists[process] = h
+            if not process in mca.listProcesses(): continue # skip 'SkipMe=True' ones
+
+            h.SetDirectory(0)
+            pout = MERGEMAP.get(process, process)
+            if pout in hists:
+                hists[pout].Add(h)
+            else:
+                hists[pout] = h
 
         stack = ROOT.THStack("%s_stack_SM"%(pspec.name),"")
         for process in list(reversed(mca.listBackgrounds())) + list(reversed(mca.listSignals())):
-            stack.Add(hists[process])
+            if process in hists:
+                stack.Add(hists[process])
 
         hbkg = infile.Get("%s_background" % pspec.name)
         htot = hbkg.Clone("%s_htot" % pspec.name)
+        if pspec.name in AXISLABELS:
+            htot.GetXaxis().SetTitle(AXISLABELS[pspec.name])
 
         for process in mca.listSignals():
             hsig = infile.Get("%s_%s"%(pspec.name, process)).Clone('%s_%s_clone' % (pspec.name, process))
@@ -225,6 +260,7 @@ if __name__ == "__main__":
 
         hthq_itc = infile.Get("%s_%s"%(pspec.name, 'tHq_hww_ITC')).Clone('tHq_ITC')
         hthw_itc = infile.Get("%s_%s"%(pspec.name, 'tHW_hww_ITC')).Clone('tHW_ITC')
+        htth     = infile.Get("%s_%s"%(pspec.name, 'ttH')).Clone('ttH_ITC')
 
         hthq_itc.SetLineWidth(3)
         hthq_itc.SetLineColor(hthq_itc.GetFillColor())
@@ -257,6 +293,11 @@ if __name__ == "__main__":
         p1.cd()
 
         # Draw histograms
+
+        # Remove last bin in maxJetEta histos:
+        if pspec.name == 'maxEtaJet25_40':
+            htot.GetXaxis().SetRangeUser(0.0, 4.7)
+
         htot.Draw("HIST")
         stack.Draw("HIST F SAME")
         totalError = mcP.doShadedUncertainty(htot)
@@ -294,7 +335,7 @@ if __name__ == "__main__":
                        totalError=None,
                        cutoff=0.01,
                        cutoffSignals=True,
-                       legWidth=0.55,
+                       legWidth=0.58,
                        nColumns=2)
         leg.AddEntry(totalError, "Total uncert.","F") 
         leg.AddEntry(hthq_itc, "tHq (#kappa_{t}=-1.0)", "L") 
@@ -326,20 +367,21 @@ if __name__ == "__main__":
         # Make the ratios
         p2.cd()
 
-        if not options.subPredInRatios:
-            nomratio = getRatioTGraph(hists['data'].poissonGraph, htot)
-        else:
-            nomratio = getRatioTGraph2(hists['data'].poissonGraph, htot)
+        # if not options.subPredInRatios:
+        nomratio = getRatioTGraph(hists['data'].poissonGraph, htot)
+        # else:
+        #     nomratio = getRatioTGraph2(hists['data'].poissonGraph, htot)
 
-        thqratio = hists['data'].Clone("thqratio")
-        if options.subPredInRatios: thqratio.Add(htot_itc, -1.0)
-        thqratio.Divide(htot_itc)
+        thqratio = htot_itc.Clone("thqratio")
+        # if options.subPredInRatios: thqratio.Add(htot_itc, -1.0)
+        thqratio.Divide(htot)
         thqratio.SetLineWidth(2)
         thqratio.SetLineColor(htot_itc.GetLineColor())
 
-        bgratio = hists['data'].Clone("bgratio")
-        if options.subPredInRatios: bgratio.Add(hbkg, -1.0)
-        bgratio.Divide(hbkg)
+        bgratio = hbkg.Clone("bgratio")
+        # if options.subPredInRatios: bgratio.Add(hbkg, -1.0)
+        bgratio.SetFillStyle(0)
+        bgratio.Divide(htot)
         bgratio.SetLineWidth(2)
         bgratio.SetLineColor(ROOT.kBlack)
         bgratio.SetLineStyle(2)
@@ -382,7 +424,7 @@ if __name__ == "__main__":
         unity.GetYaxis().SetRangeUser(rmin, rmax)
         unity.GetXaxis().SetTitleFont(43)
         unity.GetXaxis().SetTitleSize(26)
-        unity.GetXaxis().SetTitleOffset(2.5)
+        unity.GetXaxis().SetTitleOffset(2.9)
         unity.GetXaxis().SetLabelFont(43)
         unity.GetXaxis().SetLabelSize(22)
         unity.GetXaxis().SetLabelOffset(0.007)
@@ -395,7 +437,7 @@ if __name__ == "__main__":
         unity.GetYaxis().SetLabelOffset(0.007)
         unity.GetYaxis().SetDecimals(True) 
         if not options.subPredInRatios:
-            unity.GetYaxis().SetTitle("Data/Pred.")
+            unity.GetYaxis().SetTitle("Ratio to SM")
         else:
             unity.GetYaxis().SetTitle("#frac{Data-Pred}{Pred.}")
 
@@ -437,17 +479,23 @@ if __name__ == "__main__":
         #     else:
         #         ratio.Draw("E SAME")
 
-        leg0 = ROOT.TLegend(0.18, 0.82, 0.35, 0.9)
-        leg0.AddEntry(nomratio, "SM", "P")
-
-        leg1 = ROOT.TLegend(0.28, 0.82, 0.52, 0.9)
-        leg1.AddEntry(thqratio, "SM (#kappa_{t}=-1.0)", "L")
-
-        leg2 = ROOT.TLegend(0.52, 0.82, 0.75, 0.9)
-        leg2.AddEntry(bgratio, "Backg.", "L")
-
-        leg3 = ROOT.TLegend(0.68, 0.82, 0.90, 0.9)
+        xoffs = 0.03
+        leg0 = ROOT.TLegend(0.18+xoffs, 0.82, 0.35+xoffs, 0.9)
+        leg0.AddEntry(nomratio, "Data/SM", "P")
+        leg3 = ROOT.TLegend(0.35+xoffs, 0.82, 0.52+xoffs, 0.9)
         leg3.AddEntry(unity, "Tot. SM unc.", "F")
+        leg1 = ROOT.TLegend(0.18+xoffs, 0.33, 0.40+xoffs, 0.41)
+        leg1.AddEntry(thqratio, "(#kappa_{t}=-1.0)/SM", "L")
+        leg2 = ROOT.TLegend(0.40+xoffs, 0.33, 0.60+xoffs, 0.41)
+        leg2.AddEntry(bgratio, "Backg./SM", "L")
+        # leg0 = ROOT.TLegend(0.18, 0.82, 0.35, 0.9)
+        # leg0.AddEntry(nomratio, "SM", "P")
+        # leg1 = ROOT.TLegend(0.28, 0.82, 0.52, 0.9)
+        # leg1.AddEntry(thqratio, "SM (#kappa_{t}=-1.0)", "L")
+        # leg2 = ROOT.TLegend(0.52, 0.82, 0.75, 0.9)
+        # leg2.AddEntry(bgratio, "Backg.", "L")
+        # leg3 = ROOT.TLegend(0.68, 0.82, 0.90, 0.9)
+        # leg3.AddEntry(unity, "Tot. SM unc.", "F")
         for leg in [leg0, leg1, leg2, leg3]:
             leg.SetFillColor(0)
             leg.SetShadowColor(0)

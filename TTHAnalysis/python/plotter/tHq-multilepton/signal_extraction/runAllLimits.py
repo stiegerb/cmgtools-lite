@@ -40,12 +40,13 @@ def setParamatersFreezeAll(ct,cv):
     addoptions += " --redefineSignalPOIs r"
     return addoptions
 
-def getLimits(card, model='K6', unblind=False):
+def getLimits(card, model='K6', unblind=False, printCommand=False):
     """
     Run combine on a single card, return a tuple of 
     (cv,ct,twosigdown,onesigdown,exp,onesigup,twosigup)
     """
     cv,ct,tag = parseName(card)
+    if printCommand: print ""
 
     combinecmd =  "combine -M Asymptotic"
     if not unblind:
@@ -57,7 +58,7 @@ def getLimits(card, model='K6', unblind=False):
         else:
             combinecmd += setParamatersFreezeAll(ct, cv)
 
-    comboutput = runCombineCommand(combinecmd, card)
+    comboutput = runCombineCommand(combinecmd, card, verbose=printCommand)
 
     liminfo = {}
     for line in comboutput.split('\n'):
@@ -81,12 +82,15 @@ def getLimits(card, model='K6', unblind=False):
     return cv, ct, liminfo
 
 def runSMExpectedLimits(card, ntoys=100, toysfile="higgsCombine_SMtoys.GenerateOnly.mH125.123456.root",
-                        queue=None):
+                        queue=None,
+                        printCommand=False):
     """
     Run combine on a single card, return a tuple of 
     (cv,ct,twosigdown,onesigdown,exp,onesigup,twosigup)
     """
     cv,ct,tag = parseName(card)
+    if printCommand: print ""
+
     if queue:
         print toysfile
     combinecmd =  "combine -M Asymptotic --run observed"
@@ -95,10 +99,10 @@ def runSMExpectedLimits(card, ntoys=100, toysfile="higgsCombine_SMtoys.GenerateO
     combinecmd += " -t %d" % ntoys
     combinecmd += " --toysFile %s" % toysfile
 
-    comboutput = runCombineCommand(combinecmd, card, submitName=tag, queue=queue)
+    comboutput = runCombineCommand(combinecmd, card, submitName=tag, queue=queue, verbose=printCommand)
     return comboutput
 
-def getSMExpectedLimits(output):
+def getSMExpectedLimits(output, printCommand=False):
     liminfo = {}
     for line in output.split('\n'):
         try: header, body = line.split(':', 1)
@@ -119,12 +123,13 @@ def getSMExpectedLimits(output):
         liminfo['onesigup'], liminfo['twosigup'])
     return liminfo
 
-def getFitValues(card, model='K6', unblind=False):
+def getFitValues(card, model='K6', unblind=False, printCommand=False):
     """
     Run combine on a single card, return a tuple of fitvalues
     (cv,ct,median,downerror,uperror)
     """
     cv,ct,tag = parseName(card)
+    if printCommand: print ""
 
     combinecmd =  "combine -M MaxLikelihoodFit"
     combinecmd += " -m 125 --verbose 0 -n cvct%s"%tag
@@ -137,8 +142,10 @@ def getFitValues(card, model='K6', unblind=False):
         if abs(ct/cv) > 3:        
             combinecmd += " --robustFit 1 --setPhysicsModelParameterRanges r=0,1"
         else:
-            combinecmd += " --robustFit 1 --setPhysicsModelParameterRanges r=0,10"
-    comboutput = runCombineCommand(combinecmd, card)
+            # Note that these ranges don't work well for some points
+            # e.g.: -3.0/1.0, -1.5/0.5, -1.25/0.5
+            combinecmd += " --robustFit 1 --setPhysicsModelParameterRanges r=-5,10"
+    comboutput = runCombineCommand(combinecmd, card, verbose=printCommand)
 
     fitinfo = {}
     for line in comboutput.split('\n'):
@@ -150,11 +157,12 @@ def getFitValues(card, model='K6', unblind=False):
     print "\033[92m%5.2f\033[0m, %5.2f, %5.2f" %( fitinfo['median'], fitinfo['downerror'], fitinfo['uperror'])
     return cv, ct, fitinfo
 
-def getSignificance(card, model='K6', unblind=False):
+def getSignificance(card, model='K6', unblind=False, printCommand=False):
     """
     Run combine on a single card, return significance
     """
     cv,ct,tag = parseName(card)
+    if printCommand: print ""
 
     combinecmd =  "combine -M ProfileLikelihood --signif"
     combinecmd += " -m 125 --verbose 0 -n cvct%s"%tag
@@ -163,7 +171,7 @@ def getSignificance(card, model='K6', unblind=False):
             combinecmd += setParamatersFreezeAll(ct/cv,1.0)
         else:
             combinecmd += setParamatersFreezeAll(ct, cv)
-    comboutput = runCombineCommand(combinecmd, card)
+    comboutput = runCombineCommand(combinecmd, card, verbose=printCommand)
 
     significance = {}
     for line in comboutput.split('\n'):
@@ -204,7 +212,9 @@ def main(args, options):
     if options.runmode.lower() == 'limits':
         limdata = {} # (cv,ct) -> (2sd, 1sd, lim, 1su, 2su, [obs])
         for card in cards:
-            cv, ct, liminfo = getLimits(card, model=options.model, unblind=options.unblind)
+            cv, ct, liminfo = getLimits(card, model=options.model,
+                                        unblind=options.unblind,
+                                        printCommand=options.printCommand)
             limdata[(cv,ct)] = liminfo
     
         fnames = []
@@ -237,7 +247,8 @@ def main(args, options):
                 runSMExpectedLimits(card, ntoys=options.ntoys,
                                           toysfile=options.toysDir,
                                           # toysfile=toysfile,
-                                          queue=options.queue) 
+                                          queue=options.queue,
+                                          printCommand=options.printCommand) 
             return 0
 
         limdata = {} # (cv,ct) -> (2sd, 1sd, lim, 1su, 2su, [obs])
@@ -274,7 +285,9 @@ def main(args, options):
     if options.runmode.lower() == 'fit':
         fitdata = {} # (cv,ct) -> (fit, down, up)
         for card in cards:
-            cv, ct, fitinfo = getFitValues(card, model=options.model, unblind=options.unblind)
+            cv, ct, fitinfo = getFitValues(card, model=options.model,
+                                           unblind=options.unblind,
+                                           printCommand=options.printCommand)
             fitdata[(cv,ct)] = fitinfo
 
         fnames = []
@@ -298,7 +311,9 @@ def main(args, options):
     if options.runmode.lower() == 'sig':
         sigdata = {}
         for card in cards:
-            cv, ct, significance = getSignificance(card, model=options.model, unblind=options.unblind)
+            cv, ct, significance = getSignificance(card, model=options.model,
+                                                   unblind=options.unblind,
+                                                   printCommand=options.printCommand)
             sigdata[(cv,ct)] = significance
 
         fnames = []
@@ -345,6 +360,8 @@ if __name__ == '__main__':
                       help="Toggle to configure combine commands")
     parser.add_option("-u","--unblind", dest="unblind", action='store_true',
                       help="For limits mode: add the observed limit")
+    parser.add_option("-p","--printCommand", dest="printCommand", action='store_true',
+                      help="Print the combine command that is run")
     parser.add_option("-q","--queue", dest="queue", type="string", default=None,
                       help="For smexpected mode: submit jobs to this queue")
     (options, args) = parser.parse_args()

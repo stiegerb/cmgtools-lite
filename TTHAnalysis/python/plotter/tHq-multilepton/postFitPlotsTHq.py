@@ -9,7 +9,15 @@ import CMGTools.TTHAnalysis.plotter.mcPlots as mcP
 from CMGTools.TTHAnalysis.plotter.mcAnalysis import MCAnalysis
 from CMGTools.TTHAnalysis.plotter.tree2yield import PlotSpec
 
-RARES = ["ZZTo4L","WWW","WWZ","WZZ","ZZZ","TTTT","tZq_ll_ext_highstat","tWll"]
+# RARES = ["ZZTo4L","WWW","WWZ","WZZ","ZZZ","TTTT",
+#          "tZq_ll_ext_highstat","tWll",
+#          "DYJetsToLL_M10to50_LO",
+#          "DYJetsToLL_M50_LO_ext_part1",
+#          "DYJetsToLL_M50_LO_ext_part2",
+#          "DYJetsToLL_M50_LO_ext_part3",
+#          "WpWpJJ", "WWDouble"]
+RARES = [ "Rares", "WWss", "Gstar" ]
+
 mergeMap = {
     "ttH_hww" : "ttH",
     "ttH_htt" : "ttH",
@@ -21,12 +29,13 @@ mergeMap = {
     "tHW_htt" : "tHW_hww",
     "tHW_hzz" : "tHW_hww",
 }
-mergeMap.update({k:'tZq' for k in RARES})
+mergeMap.update({k:'ZZ' for k in RARES})
 
 PROC_TO_PLOTHIST = {
 # processes defined for the fit, but not in the plot should take the
 # colors etc. from these other processes
-    'Rares'   : 'tZq',
+    'Rares'   : 'ZZ',
+    'WWss'    : 'ZZ',
     'tHq_htt' : 'tHq_hww',
     'tHq_hzz' : 'tHq_hww',
     'tHW_htt' : 'tHW_hww',
@@ -62,7 +71,7 @@ rank = {
 }
 
 YAXIS_RANGE = { # For log plots
-    'tHq_3l_13TeV'      : (0.05,150),
+    'tHq_3l_13TeV'      : (0.05,200),
     'tHq_2lss_mm_13TeV' : (0.6, 200),
     'tHq_2lss_em_13TeV' : (0.8, 400),
     'tHq_2lss_ee_13TeV' : (0.5, 70),
@@ -70,6 +79,8 @@ YAXIS_RANGE = { # For log plots
 
 REBINMAP_3l = {7:9, 2:5, 9:7, 5:2}
 REBINMAP_2l = {3:2, 2:4, 5:3, 4:8, 6:5, 9:6, 8:10, 10:9}
+
+from plotTHQ import LABELS
 
 AXISLABEL = 'BDT bin'
 
@@ -114,7 +125,8 @@ def doLegend(pmap, mca,
              totalError=None,
              header="",
              doWide=False,
-             nColumns=1):
+             nColumns=1,
+             xy=None):
         if (corner == None): return
         total = sum([x.Integral() for x in pmap.itervalues()])
         sigEntries = []; bgEntries = []
@@ -137,19 +149,23 @@ def doLegend(pmap, mca,
 
         nentries = nentries/nColumns
 
-        (x1,y1,x2,y2) = (0.97-legWidth if doWide else .90-legWidth, .7 - textSize*max(nentries-3,0), .90, .91)
-        if corner == "TR":
-            (x1,y1,x2,y2) = (0.97-legWidth if doWide else .90-legWidth, .7 - textSize*max(nentries-3,0), .90, .91)
-        elif corner == "TC":
-            (x1,y1,x2,y2) = (.5, .70 - textSize*max(nentries-3,0), .5+legWidth, .91)
-        elif corner == "TL":
-            (x1,y1,x2,y2) = (.2, .70 - textSize*max(nentries-3,0), .2+legWidth, .91)
-        elif corner == "BR":
-            (x1,y1,x2,y2) = (.85-legWidth, .33 + textSize*max(nentries-3,0), .90, .15)
-        elif corner == "BC":
-            (x1,y1,x2,y2) = (.5, .33 + textSize*max(nentries-3,0), .5+legWidth, .15)
-        elif corner == "BL":
-            (x1,y1,x2,y2) = (.2, .27 + textSize*max(nentries-3,0), .2+legWidth, .09)
+        if xy:
+            (x1, y1, x2, y2) = xy
+        else:
+            (x1, y1, x2, y2) = (0.97-legWidth if doWide else .90-legWidth,
+                                  .7-textSize*max(nentries-3,0), .90, .91)
+            if corner == "TR":
+                (x1,y1,x2,y2) = (0.97-legWidth if doWide else .90-legWidth, .7 - textSize*max(nentries-3,0), .90, .91)
+            elif corner == "TC":
+                (x1,y1,x2,y2) = (.5, .70 - textSize*max(nentries-3,0), .5+legWidth, .91)
+            elif corner == "TL":
+                (x1,y1,x2,y2) = (.2, .70 - textSize*max(nentries-3,0), .2+legWidth, .91)
+            elif corner == "BR":
+                (x1,y1,x2,y2) = (.85-legWidth, .33 + textSize*max(nentries-3,0), .90, .15)
+            elif corner == "BC":
+                (x1,y1,x2,y2) = (.5, .33 + textSize*max(nentries-3,0), .5+legWidth, .15)
+            elif corner == "BL":
+                (x1,y1,x2,y2) = (.2, .27 + textSize*max(nentries-3,0), .2+legWidth, .09)
 
         leg = ROOT.TLegend(x1,y1,x2,y2)
         leg.SetNColumns(nColumns)
@@ -279,7 +295,7 @@ def doRatioHistsCustom(pspec, pmap, total, totalSyst, maxRange,
     unity.GetYaxis().SetRangeUser(rmin,rmax);
     unity.GetXaxis().SetTitleFont(43)
     unity.GetXaxis().SetTitleSize(26)
-    unity.GetXaxis().SetTitleOffset(2.5)
+    unity.GetXaxis().SetTitleOffset(2.9)
     unity.GetXaxis().SetLabelFont(43)
     unity.GetXaxis().SetLabelSize(22)
     unity.GetXaxis().SetLabelOffset(0.007)
@@ -365,7 +381,7 @@ if __name__ == "__main__":
     try: os.makedirs(options.outDir)
     except OSError: pass
 
-    os.system("cp /afs/cern.ch/user/s/stiegerb/www/index.php "+os.path.dirname(options.outDir))
+    os.system("cp /afs/cern.ch/user/s/stiegerb/www/index.php "+options.outDir)
 
     mca_merged = MCAnalysis(args[0], options) # for the merged processes (plots)
     mca_indivi = MCAnalysis(args[1], options) # for the individual processes (fit)
@@ -402,6 +418,11 @@ if __name__ == "__main__":
     ROOT.gStyle.SetErrorX(0.5)
     ROOT.gStyle.SetOptStat(0)
     ROOT.gStyle.SetPaperSize(20.,25.)
+
+    # Adjust label of merged processes
+    for process,newlabel in LABELS.iteritems():
+        try: mca_merged.setProcessOption(process, 'Label', newlabel)
+        except RuntimeError: pass
 
     ymax = -1
     for MLD in ["prefit", "fit_b", "fit_s"]:
@@ -567,10 +588,11 @@ if __name__ == "__main__":
                            totalError=None,
                            cutoff=0.01,
                            cutoffSignals=True,
-                           legWidth=0.45,
+                           legWidth=0.58,
                            legBorder=False,
                            corner='TR',
-                           nColumns=2)
+                           nColumns=2,
+                           xy=(.41, .658, .955, .91))
         else:
             leg = doLegend(plots, mca_merged,
                            textSize=0.042,

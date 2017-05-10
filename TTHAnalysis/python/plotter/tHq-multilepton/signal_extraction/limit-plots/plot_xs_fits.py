@@ -30,6 +30,7 @@ plt.rcParams["figure.figsize"] = [10.0, 9.0]
 def makePlot(inputfile='limits_1.dat',
              outdir='plots/',
              ymax=1.0,
+             ymin=0.0,
              smoothing=0.0,
              split_xsecs=True,
              split_cv_xsecs=False,
@@ -84,7 +85,7 @@ def makePlot(inputfile='limits_1.dat',
         ax.get_xaxis().set_minor_locator(mpl.ticker.MultipleLocator(0.05))
         ax.set_xlim(-1.0, 1.0)
 
-    ax.set_ylim(0., ymax)
+    ax.set_ylim(ymin, ymax)
     ax.set_yscale("linear", nonposy='clip')
     ax.get_yaxis().set_tick_params(which='both', direction='in')
     ax.get_yaxis().set_major_locator(mpl.ticker.MultipleLocator(0.2))
@@ -213,6 +214,8 @@ if __name__ == '__main__':
                       help="Plot also the observed limit")
     parser.add_option("--ymax", dest="ymax", type="float",
                       default=1.5, help="Y axis maximum")
+    parser.add_option("--ymin", dest="ymin", type="float",
+                      default=0.0, help="Y axis maximum")
     (options, args) = parser.parse_args()
 
     try:
@@ -223,6 +226,7 @@ if __name__ == '__main__':
     for ifile in args:
         if not os.path.exists(ifile): continue
         makePlot(ifile, outdir=options.outdir,
+                        ymin=options.ymin,
                         ymax=options.ymax,
                         smoothing=options.smoothing,
                         split_xsecs=options.split_xsecs,
