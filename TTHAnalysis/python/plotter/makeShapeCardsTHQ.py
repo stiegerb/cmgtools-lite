@@ -157,7 +157,7 @@ class ShapeCardMaker:
         self.report.update(report)
         self.updateAllYields()
 
-    def produceReportFromNTuples(self, processes=None, inputfolder=None):
+    def produceReportFromNTuples(self, processes=None, inputfolder=None, cp=None):
         report = {}
         def getVariationsFromNtuple(filename, weight, histname):
             tfile = ROOT.TFile.Open(filename, "read")
@@ -181,10 +181,16 @@ class ShapeCardMaker:
 
             weight = weight.format(pdgid={"hww":24, "hzz":23, "htt":15}.get(dec))
 
-            if proc in ['tHq', 'tHW']:
-                p1,p2,syst = re.match(r'([mp012357]{1,})_([mp012357]{1,})_?([\w]*)', rest).groups()
-                point = '_'.join([p1,p2])
-                filename = "ntuple_{proc}_{point}.root".format(proc=proc, point=point)
+            if proc in ['tHq', 'tHW']: 
+
+                if cp == None:
+                    p1,p2,syst = re.match(r'([mp012357]{1,})_([mp012357]{1,})_?([\w]*)', rest).groups()
+                    point = '_'.join([p1,p2])
+                    filename = "ntuple_{proc}_{point}.root".format(proc=proc, point=point)
+
+                if cp != None:
+                    p1,syst = re.match(r'([mp0123456789]{1,})_?([\w]*)', rest).groups()
+                    filename = "ntuple_{proc}_{point}.root".format(proc=proc, point=p1)
 
             else:
                 filename = "ntuple_{proc}.root".format(proc=proc)
@@ -749,6 +755,8 @@ if __name__ == '__main__':
                       default=None, help="File to save histos to")
     parser.add_option("--ntuple_folder", dest="ntuple_folder", type="string",
                       default=None, help="Read signal trees from ntuples in this directory")
+    parser.add_option("--cp", dest="cp", type="string",
+                      default=None, help="run for cp phase angles")
 
     (options, args) = parser.parse_args()
     options.weight = True
@@ -778,7 +786,7 @@ if __name__ == '__main__':
         backgrounds    = [p for p in all_processes if not p in sigs_and_systs]
 
         if options.ntuple_folder != None:
-            cardMaker.produceReportFromNTuples(processes=sigs_and_systs, inputfolder=options.ntuple_folder)
+            cardMaker.produceReportFromNTuples(processes=sigs_and_systs, inputfolder=options.ntuple_folder, cp=options.cp)
             cardMaker.produceReportFromMCA(processes=backgrounds)
         else:
             cardMaker.produceReportFromMCA(processes=all_processes)

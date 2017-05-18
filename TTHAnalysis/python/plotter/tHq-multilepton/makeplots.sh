@@ -8,6 +8,8 @@ Where plottag is one of:
  2lss-em, 2lss-em-ttcontrol
  2lss-ee, 2lss-ee-ttcontrol
 
+ ntuple_3l, ntuple_3l_cp, ntuple_2lss
+
 And the plots will be stored in outdir/
 "
 function DONE {
@@ -55,18 +57,14 @@ CUTS=""
 PLOTS=""
 case "$PLOTTAG" in
     "PAS" )
-        SELECTPLOTS=" --sP dPhiHighestPtSSPair --sP maxEtaJet25_40 --sP nJet25 --sP finalBins_40"
-        # DRAWOPTIONS=" --showRatio --maxRatioRange -1.5 3.2 --fixRatioRange --showMCError --subPredInRatios"
-        # DRAWOPTIONS=" --showRatio --maxRatioRange 0 3.2 --fixRatioRange --showMCError"
-        DRAWOPTIONS=" --showRatio --maxRatioRange -0.4 4.2 --fixRatioRange --showMCError"
-
-        # Note: to produce the input file, run the mca...-PAS.txt with --AP option
+        # Note: to produce the input file, run the -PAS.txt mca's with --AP option
         # 3L
         MCA="tHq-multilepton/mca-thq-3l-mcdata-frdata-PAS.txt"
         CUTS="tHq-multilepton/cuts-thq-3l.txt"
         PLOTS="tHq-multilepton/plots-thq-3l-kinMVA.txt"
         INPUTFILE="/afs/cern.ch/user/s/stiegerb/www/tHq13TeV/May4/3l/plots-thq-3l-kinMVA.root"
-        OPTIONS="--outDir ${OUTDIR} ${DRAWOPTIONS} ${SELECTPLOTS} --sP thqMVA_tt_3l_40 --sP thqMVA_ttv_3l_40"
+        SELECTPLOTS="--sP dPhiHighestPtSSPair --sP maxEtaJet25_40 --sP nJet25 --sP thqMVA_tt_3l_40 --sP thqMVA_ttv_3l_40 --sP finalBins_40 --sP finalBins_log_40"
+        OPTIONS="--outDir ${OUTDIR} ${DRAWOPTIONS} ${SELECTPLOTS}"
 
         ARGUMENTS="${MCA} ${PLOTS} ${INPUTFILE}"
         OPTIONS="${TREEINPUTS} ${FRIENDTREES} ${BASEOPTIONS} ${OPTIONS}"
@@ -76,20 +74,21 @@ case "$PLOTTAG" in
         MCA="tHq-multilepton/mca-thq-2lss-mcdata-frdata-PAS.txt"
         CUTS="tHq-multilepton/cuts-thq-2lss.txt"
         PLOTS="tHq-multilepton/plots-thq-2lss-kinMVA.txt"
+        SELECTPLOTS="--sP dPhiHighestPtSSPair --sP maxEtaJet25_40 --sP nJet25 --sP thqMVA_tt_2lss_40 --sP thqMVA_ttv_2lss_40 --sP finalBins_40"
 
         # mumu
         INPUTFILE="/afs/cern.ch/user/s/stiegerb/www/tHq13TeV/May4/2lss-mm/plots-thq-2lss-kinMVA.root"
         OPTIONS="--outDir ${OUTDIR} ${DRAWOPTIONS} --xp data_flips"
+        OPTIONS="${OPTIONS} ${SELECTPLOTS} --sP finalBins_log_mm_40 --E mm_chan"
 
         ARGUMENTS="${MCA} ${PLOTS} ${INPUTFILE}"
         OPTIONS="${TREEINPUTS} ${FRIENDTREES} ${BASEOPTIONS} ${OPTIONS}"
-        python tHq-multilepton/plotTHQ.py ${ARGUMENTS} ${OPTIONS} ${SELECTPLOTS}
-        python tHq-multilepton/plotTHQ.py ${ARGUMENTS} ${OPTIONS} --sP finalBins_40 --sP thqMVA_tt_2lss_40 --sP thqMVA_ttv_2lss_40
+        python tHq-multilepton/plotTHQ.py ${ARGUMENTS} ${OPTIONS}
 
         # emu
-        INPUTFILE="/afs/cern.ch/user/s/stiegerb/www/tHq13TeV/May4/2lss-em/plots-thq-2lss-kinMVA.root"
+        INPUTFILE="/afs/cern.ch/user/s/stiegerb/www/tHq13TeV/May4/2lss-mm/plots-thq-2lss-kinMVA.root"
         OPTIONS="--outDir ${OUTDIR} ${DRAWOPTIONS}"
-        OPTIONS="${OPTIONS} ${SELECTPLOTS} --sP thqMVA_tt_2lss_40 --sP thqMVA_ttv_2lss_40"
+        OPTIONS="${OPTIONS} ${SELECTPLOTS} --sP finalBins_log_em_40 --E em_chan"
 
         ARGUMENTS="${MCA} ${PLOTS} ${INPUTFILE}"
         OPTIONS="${TREEINPUTS} ${FRIENDTREES} ${BASEOPTIONS} ${OPTIONS}"
@@ -256,6 +255,7 @@ case "$PLOTTAG" in
         OPTIONS="${OPTIONS} ${OPT3L}"
         # MCA="tHq-multilepton/signal_extraction/mca-thq-3l-tontuple.txt"
         MCA="tHq-multilepton/signal_extraction/mca-thq-3l-tontuple-allSM.txt"
+        #MCA="tHq-multilepton/signal_extraction/mca-thq-3l-tontuple-allSM-cp.txt"
         CUTS="tHq-multilepton/cuts-thq-3l.txt"
         PLOTS="tHq-multilepton/plots-ntuplecontent.txt"
         SELECTPLOT=""
@@ -272,6 +272,28 @@ case "$PLOTTAG" in
         python mcNtuple.py ${MCA} ${CUTS} ${PLOTS} ${OUTFILE} ${OPTIONS}
         DONE
         ;;
+
+    "ntuple_3l_cp" )
+        OPTIONS="${OPTIONS} ${OPT3L}"
+        # MCA="tHq-multilepton/signal_extraction/mca-thq-3l-tontuple.txt"                                                                                                                                  
+        MCA="tHq-multilepton/signal_extraction/mca-thq-3l-tontuple-allSM-cp.txt"
+        CUTS="tHq-multilepton/cuts-thq-3l.txt"
+        PLOTS="tHq-multilepton/plots-ntuplecontent.txt"
+        SELECTPLOT=""
+        SELECTPROCESS=""
+        OUTFILE="${OUTDIR}/ntuple_{name}.root"
+        test -d ${OUTDIR} || mkdir -p ${OUTDIR}
+
+        ARGUMENTS="${MCA} ${CUTS} ${PLOTS}"
+        OPTIONS="${TREEINPUTS} ${FRIENDTREES} ${BASEOPTIONS} ${OPTIONS} ${SELECTPLOT} ${SELECTPROCESS}"
+        echo "mca    : ${MCA}"
+        echo "cuts   : ${CUTS}"
+        echo "plots  : ${PLOTS}"
+        echo "outfile: ${OUTFILE}"
+        python mcNtuple.py ${MCA} ${CUTS} ${PLOTS} ${OUTFILE} ${OPTIONS}
+        DONE
+        ;;
+
     "ntuple_2lss" )
         OPTIONS="${OPTIONS} ${OPT2L}"
         # MCA="tHq-multilepton/signal_extraction/mca-thq-2lss-tontuple.txt"
@@ -291,7 +313,7 @@ case "$PLOTTAG" in
         echo "outfiles: ${OUTFILE}"
         python mcNtuple.py ${MCA} ${CUTS} ${PLOTS} ${OUTFILE} ${OPTIONS}
         DONE
-        ;; 
+        ;;
     "all" )
         ./$0 ${OUTDIR}/3l 3l
         ./$0 ${OUTDIR}/2lss-mm 2lss-mm
@@ -310,32 +332,29 @@ case "$PLOTTAG" in
         ;;
     "ntuples" )
         ./$0 ${OUTDIR}/3l ntuple_3l
+        ./$0 ${OUTDIR}/3l_cp ntuple_3l_cp
         ./$0 ${OUTDIR}/2lss ntuple_2lss
         DONE
         ;;
     "postfit" )
-        # FITRESULT="tHq-multilepton/signal_extraction/cards_Mar28_unblinded/comb3/mlfit_1_m1.root"
-        FITRESULT="tHq-multilepton/signal_extraction/cards_Mar28_unblinded/comb3/mlfit_1_1.root"
+        FITRESULT="tHq-multilepton/signal_extraction/cards_Mar28_unblinded/comb3/mlfit.root"
         DRAWOPTIONS="--maxRatioRange 0 3.2 --fixRatioRange"
-        # DRAWOPTIONS="--maxRatioRange -5.2 10.8 --fixRatioRange --bkgSub"
 
-        # MCA1="tHq-multilepton/mca-thq-3l-mcdata-frdata.txt"
-        MCA1="tHq-multilepton/mca-thq-3l-mcdata-frdata-PAS.txt"
+        MCA1="tHq-multilepton/mca-thq-3l-mcdata-frdata.txt"
         MCA2="tHq-multilepton/signal_extraction/mca-thq-3l-mcdata-frdata_limits.txt"
         PLOTINPUT="www/Mar28_unblinding/3l/plots-thq-3l-kinMVA.root"
-        python tHq-multilepton/postFitPlotsTHq.py ${MCA1} ${MCA2} ${PLOTINPUT} ${FITRESULT} 3l --outDir ${OUTDIR} ${DRAWOPTIONS} --doLog 
-        python tHq-multilepton/postFitPlotsTHq.py ${MCA1} ${MCA2} ${PLOTINPUT} ${FITRESULT} 3l --outDir ${OUTDIR} ${DRAWOPTIONS}
+        ./postFitPlotsTHq.py ${MCA1} ${MCA2} ${PLOTINPUT} ${FITRESULT} 3l --outDir ${OUTDIR}/3l/ ${DRAWOPTIONS} --doLog 
+        ./postFitPlotsTHq.py ${MCA1} ${MCA2} ${PLOTINPUT} ${FITRESULT} 3l --outDir ${OUTDIR}/3l/ ${DRAWOPTIONS}
 
-        # MCA1="tHq-multilepton/mca-thq-2lss-mcdata-frdata.txt"
-        MCA1="tHq-multilepton/mca-thq-2lss-mcdata-frdata-PAS.txt"
+        MCA1="tHq-multilepton/mca-thq-2lss-mcdata-frdata.txt"
         MCA2="tHq-multilepton/signal_extraction/mca-thq-2lss-mcdata-frdata_limits.txt"
         PLOTINPUT="www/Mar28_unblinding/2lss-mm/plots-thq-2lss-kinMVA.root"
-        python tHq-multilepton/postFitPlotsTHq.py ${MCA1} ${MCA2} ${PLOTINPUT} ${FITRESULT} 2lss_mm --outDir ${OUTDIR} ${DRAWOPTIONS} --doLog 
-        python tHq-multilepton/postFitPlotsTHq.py ${MCA1} ${MCA2} ${PLOTINPUT} ${FITRESULT} 2lss_mm --outDir ${OUTDIR} ${DRAWOPTIONS}
+        ./postFitPlotsTHq.py ${MCA1} ${MCA2} ${PLOTINPUT} ${FITRESULT} 2lss_mm --outDir ${OUTDIR}/2lss_mm/ ${DRAWOPTIONS} --doLog 
+        ./postFitPlotsTHq.py ${MCA1} ${MCA2} ${PLOTINPUT} ${FITRESULT} 2lss_mm --outDir ${OUTDIR}/2lss_mm/ ${DRAWOPTIONS}
 
         PLOTINPUT="www/Mar28_unblinding/2lss-em/plots-thq-2lss-kinMVA.root"
-        python tHq-multilepton/postFitPlotsTHq.py ${MCA1} ${MCA2} ${PLOTINPUT} ${FITRESULT} 2lss_em --outDir ${OUTDIR} ${DRAWOPTIONS} --doLog 
-        python tHq-multilepton/postFitPlotsTHq.py ${MCA1} ${MCA2} ${PLOTINPUT} ${FITRESULT} 2lss_em --outDir ${OUTDIR} ${DRAWOPTIONS}
+        ./postFitPlotsTHq.py ${MCA1} ${MCA2} ${PLOTINPUT} ${FITRESULT} 2lss_em --outDir ${OUTDIR}/2lss_em/ ${DRAWOPTIONS} --doLog 
+        ./postFitPlotsTHq.py ${MCA1} ${MCA2} ${PLOTINPUT} ${FITRESULT} 2lss_em --outDir ${OUTDIR}/2lss_em/ ${DRAWOPTIONS}
 
         DONE
         ;;

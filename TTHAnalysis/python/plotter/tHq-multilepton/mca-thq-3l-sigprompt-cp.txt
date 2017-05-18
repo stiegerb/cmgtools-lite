@@ -1,0 +1,32 @@
+# signals: + ; IncludeMca="tHq-multilepton/mca-thq-3l-signal_reweightings.txt"
+#signals: + ; IncludeMca="tHq-multilepton/mca-thq-3l-signal_reweightings-allSM.txt"
+signals: + ; IncludeMca="tHq-multilepton/mca-thq-3l-signal_reweightings-allSM-alpha.txt"
+
+ttW     : TTWToLNu_ext_LHE+TTWToLNu_ext2_LHE                          : 0.196        : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kGreen-5,   Label='t\#bar{t}W'
+ttZ     : TTZToLLNuNu_LHE                                             : 0.2728       : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+2,  Label='t\#bar{t}Z'
+ttZ     : TTZToLLNuNu_m1to10_LHE                                      : xsec         : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+2,  Label='t\#bar{t}Z'
+ttZ	: TTJets_DiLepton                                             : xsec         : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+2,  Label='t\#bar{t}Z'
+ttZ     : TTJets_SingleLeptonFromT+TTJets_SingleLeptonFromT_ext       : xsec         : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+2,  Label='t\#bar{t}Z'
+ttZ     : TTJets_SingleLeptonFromTbar+TTJets_SingleLeptonFromTbar_ext : xsec         : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+2,  Label='t\#bar{t}Z'
+# ttH     : TTHnobb_mWCutfix_ext_LHE                                  : 0.5071*0.418 : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kSpring+10, Label='t\#bar{t}H'
+
+WZ      : WJetsToLNu_LO : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ;  FillColor=ROOT.kViolet-4
+WZ 	    : WZTo3LNu : 1.1*xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ;  FillColor=ROOT.kViolet-4
+Rares   : ZZTo4L   :     xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ;  FillColor=ROOT.kAzure-9
+
+# Gstar   : DYJetsToLL_M10to50_LO       : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kCyan+1
+# Gstar   : DYJetsToLL_M50_LO_ext_part1 : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kCyan+1
+# Gstar   : DYJetsToLL_M50_LO_ext_part2 : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kCyan+1
+# Gstar   : DYJetsToLL_M50_LO_ext_part3 : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kCyan+1
+
+
+# WWss  : WpWpJJ     : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kMagenta-10, Label='W^{\#pm}W^{\#pm}qq'
+# WWss  : WWDouble   : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kMagenta-11, Label='W^{\#pm}W^{\#pm} (DPS)'
+Rares : WWW                 : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kMagenta-6, Label='VVV'
+Rares : WWZ                 : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kMagenta-6, Label='VVV'
+Rares : WZZ                 : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kMagenta-6, Label='VVV'
+Rares : ZZZ                 : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kMagenta-6, Label='VVV'
+Rares : TTTT                : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kMagenta-7, Label='t\#bar{t}t\#bar{t}'
+Rares : tZq_ll_ext_highstat : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kMagenta-8, Label='tZq'
+Rares : tWll                : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 && LepGood3_mcMatchId!=0 ; FillColor=ROOT.kMagenta-9, Label='tZW'
+
