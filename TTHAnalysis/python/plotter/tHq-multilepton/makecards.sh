@@ -3,7 +3,7 @@ USAGE="
 makecards.sh outdir channel
 
 Where channel is one of:
- 3l, 2lss_mm, 2lss_em, 2lss_ee
+ 3l, 3l_cp, 2lss_mm, 2lss_em, 2lss_ee
 
 And the cards will be stored in outdir/channel
 "
@@ -21,7 +21,6 @@ CHANNEL=$1; shift;
 LUMI=35.9
 # Note: tthtrees is a symlink to /afs/cern.ch/work/p/peruzzi/tthtrees/
 #       thqtrees is a symlink to /afs/cern.ch/work/s/stiegerb/TTHTrees/13TeV/
-
 
 TREEINPUTS="-P thqtrees/TREES_TTH_250117_Summer16_JECV3_noClean_qgV2_tHqsoup_v2/"
 FRIENDTREES=" -F sf/t thqtrees/tHq_production_Jan25/1_thq_recleaner_240217/evVarFriend_{cname}.root"\
@@ -55,7 +54,7 @@ SYSTFILE="tHq-multilepton/signal_extraction/systsEnv.txt"
 FUNCTION="--2d-binning-function 10:tHq_MVAto1D_2lss_10"
 # FUNCTION="--2d-binning-function 10:tHq_MVAto1D_2lss_sbratio"
 # FUNCTION="--2d-binning-function 11:tHq_MVAto1D_2lss_kmeans"
-NTUPLEFOLDER="thqtrees/finaltrees_Mar17/2lss/"
+NTUPLEFOLDER="finaltrees_Apr21/2lss/"
 
 case "$CHANNEL" in
     "3l" )
@@ -64,10 +63,22 @@ case "$CHANNEL" in
         CUTS="tHq-multilepton/cuts-thq-3l.txt"
         BINNING="thqMVA_ttv_3l_40:thqMVA_tt_3l_40 40,-1,1,40,-1,1"
         FUNCTION="--2d-binning-function 10:tHq_MVAto1D_3l_10"
-        NTUPLEFOLDER="thqtrees/finaltrees_Mar17/3l/"
+        NTUPLEFOLDER="finaltrees_Apr21/3l/"
         # FUNCTION="--2d-binning-function 10:tHq_MVAto1D_3l_sbratio"
         # FUNCTION="--2d-binning-function 5:tHq_MVAto1D_3l_kmeans"
         ;;
+
+    "3l_cp" )
+        OPTIONS="${OPTIONS} ${OPT3L} --xp Gstar --cp cp"
+        MCA="tHq-multilepton/signal_extraction/mca-thq-3l-mcdata-frdata_limits-cp.txt"
+        CUTS="tHq-multilepton/cuts-thq-3l.txt"
+        BINNING="thqMVA_ttv_3l_40:thqMVA_tt_3l_40 40,-1,1,40,-1,1"
+        FUNCTION="--2d-binning-function 10:tHq_MVAto1D_3l_10"
+        NTUPLEFOLDER="finaltrees_Apr21/3l_cp/"
+        # FUNCTION="--2d-binning-function 10:tHq_MVAto1D_3l_sbratio"
+        # FUNCTION="--2d-binning-function 5:tHq_MVAto1D_3l_kmeans"
+        ;;
+
     "2lss_mm" )
         OPTIONS="${OPTIONS} ${OPT2L} -E mm_chan --xp Convs --xp Gstar --xp data_flips" # remove conversions for mm channel
         ;;
@@ -79,6 +90,7 @@ case "$CHANNEL" in
         ;;
     "all" )
         ./$0 ${OUTNAME} 3l
+	./$0 ${OUTNAME} 3l_cp
         ./$0 ${OUTNAME} 2lss_mm
         ./$0 ${OUTNAME} 2lss_em
         ./$0 ${OUTNAME} 2lss_ee
