@@ -57,6 +57,19 @@ def run((infile, outfile, options)):
     fb = TFile.Open(infile)
     tree = fb.Get("tree")
 
+    friendtree = 0
+    if options.frienddir:
+        pname = infile.split('/')[-1]
+        pname = pname.replace('_treeProducerSusyMultilepton_tree', '').replace('.root', '')
+        for friendloc in os.listdir(options.frienddir):
+            if friendloc.endswith("evVarFriend_%s.root"%pname):
+                ffb = TFile.Open(os.path.join(options.frienddir, friendloc))
+                friendtree = ffb.Get("sf/t")
+                print "... adding tree from %s as friend." % friendloc
+
+        if not friendtree:
+            print "Warning: Friend directory specified, but no friend found for this tree."
+
     try: tree.GetName()
     except ReferenceError:
         print "Error: tree not found in %s" % infile
@@ -73,12 +86,12 @@ def run((infile, outfile, options)):
     ## Load it into PyROOT (this is where the magic happens)
     from ROOT import lepTnPFriendTreeMaker
 
-    ana = lepTnPFriendTreeMaker(tree)
+    ana = lepTnPFriendTreeMaker(tree, friendtree)
     if options.maxEntries > 0:
         ana.setMaxEvents(options.maxEntries)
 
     ## Check if it's data or MC
-    isdata = '2016' in osp.basename(infile)
+    isdata = '2017' in osp.basename(infile)
 
     ## Run the loop
     ana.RunJob(outfile, isdata)
@@ -110,8 +123,11 @@ if __name__ == '__main__':
                       action="store", type="string", dest="queue",
                       help=("Run on lxbatch in this queue "
                             "[default: run locally]"))
+    parser.add_option("--frienddir", default="",
+                      action="store", type="string", dest="frienddir",
+                      help=("Add pu weight friend from this directory"))
     parser.add_option("-f", "--filter",
-                      default='2016,-DCSonly,-MuonEG,-Single,DYJetsToLL_M50',
+                      default='2017,-DCSonly,-MuonEG,-Single,DYJetsToLL_M50_LO_part',
                       type="string", dest="filter",
                       help=("Comma separated list of filters to apply. "
                             "Use '-' at beginning to veto files. "

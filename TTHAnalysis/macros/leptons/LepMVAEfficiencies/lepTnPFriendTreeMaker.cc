@@ -49,50 +49,50 @@ public :
    Int_t           HLT_DoubleMuNoIso;
    Int_t           HLT_DoubleMuSS;
    Int_t           HLT_SingleEl;
-   Int_t           HLT_TripleMuA;
+   // Int_t           HLT_TripleMuA; // ??
    Int_t           HLT_MuEG;
    Int_t           HLT_DoubleMuHT;
    Int_t           HLT_DoubleEl;
    Int_t           HLT_DoubleMu;
 
    Int_t           nLepGood;
-   Float_t         LepGood_mvaIdSpring16GP[4];   //[nLepGood]
-   Float_t         LepGood_mvaTTH[4];   //[nLepGood]
-   Float_t         LepGood_jetPtRatiov2[4];   //[nLepGood]
-   Float_t         LepGood_jetPtRelv2[4];   //[nLepGood]
-   Float_t         LepGood_jetBTagCSV[4];   //[nLepGood]
-   Int_t           LepGood_tightId[4];   //[nLepGood]
-   Float_t         LepGood_dxy[4];   //[nLepGood]
-   Float_t         LepGood_dz[4];   //[nLepGood]
-   Float_t         LepGood_ip3d[4];   //[nLepGood]
-   Float_t         LepGood_sip3d[4];   //[nLepGood]
-   Int_t           LepGood_convVeto[4];   //[nLepGood]
-   Int_t           LepGood_lostHits[4];   //[nLepGood]
-   Float_t         LepGood_relIso03[4];   //[nLepGood]
-   Float_t         LepGood_relIso04[4];   //[nLepGood]
-   Float_t         LepGood_miniRelIso[4];   //[nLepGood]
-   Float_t         LepGood_relIsoAn04[4];   //[nLepGood]
-   Int_t           LepGood_tightCharge[4];   //[nLepGood]
-   Int_t           LepGood_mcMatchId[4];   //[nLepGood]
-   Int_t           LepGood_mediumMuonId[4];   //[nLepGood]
-   Float_t         LepGood_innerTrackValidHitFraction[4];   //[nLepGood]
-   Float_t         LepGood_segmentCompatibility[4];   //[nLepGood]
-   Float_t         LepGood_globalTrackChi2[4];   //[nLepGood]
-   Float_t         LepGood_chi2LocalPosition[4];   //[nLepGood]
-   Float_t         LepGood_trkKink[4];   //[nLepGood]
-   Int_t           LepGood_isGlobalMuon[4];   //[nLepGood]
-   Int_t           LepGood_pdgId[4];   //[nLepGood]
-   Float_t         LepGood_pt[4];   //[nLepGood]
-   Float_t         LepGood_eta[4];   //[nLepGood]
-   Float_t         LepGood_phi[4];   //[nLepGood]
-   Float_t         LepGood_mass[4];   //[nLepGood]
+   Float_t         LepGood_mvaIdSpring16GP[7];   //[nLepGood]
+   Float_t         LepGood_mvaTTH[7];   //[nLepGood]
+   Float_t         LepGood_jetPtRatiov2[7];   //[nLepGood]
+   Float_t         LepGood_jetPtRelv2[7];   //[nLepGood]
+   Float_t         LepGood_jetBTagCSV[7];   //[nLepGood]
+   Int_t           LepGood_tightId[7];   //[nLepGood]
+   Float_t         LepGood_dxy[7];   //[nLepGood]
+   Float_t         LepGood_dz[7];   //[nLepGood]
+   Float_t         LepGood_ip3d[7];   //[nLepGood]
+   Float_t         LepGood_sip3d[7];   //[nLepGood]
+   Int_t           LepGood_convVeto[7];   //[nLepGood]
+   Int_t           LepGood_lostHits[7];   //[nLepGood]
+   Float_t         LepGood_relIso03[7];   //[nLepGood]
+   Float_t         LepGood_relIso04[7];   //[nLepGood]
+   Float_t         LepGood_miniRelIso[7];   //[nLepGood]
+   Float_t         LepGood_relIsoAn04[7];   //[nLepGood]
+   Int_t           LepGood_tightCharge[7];   //[nLepGood]
+   Int_t           LepGood_mcMatchId[7];   //[nLepGood]
+   Int_t           LepGood_mediumMuonId[7];   //[nLepGood]
+   Float_t         LepGood_innerTrackValidHitFraction[7];   //[nLepGood]
+   Float_t         LepGood_segmentCompatibility[7];   //[nLepGood]
+   Float_t         LepGood_globalTrackChi2[7];   //[nLepGood]
+   Float_t         LepGood_chi2LocalPosition[7];   //[nLepGood]
+   Float_t         LepGood_trkKink[7];   //[nLepGood]
+   Int_t           LepGood_isGlobalMuon[7];   //[nLepGood]
+   Int_t           LepGood_pdgId[7];   //[nLepGood]
+   Float_t         LepGood_pt[7];   //[nLepGood]
+   Float_t         LepGood_eta[7];   //[nLepGood]
+   Float_t         LepGood_phi[7];   //[nLepGood]
+   Float_t         LepGood_mass[7];   //[nLepGood]
 
-   Float_t         LepGood_hadronicOverEm[4];   //[nLepGood]
-   Float_t         LepGood_dEtaScTrkIn[4];   //[nLepGood]
-   Float_t         LepGood_dPhiScTrkIn[4];   //[nLepGood]
-   Float_t         LepGood_etaSc[4];   //[nLepGood]
-   Float_t         LepGood_eInvMinusPInv[4]; //[nLepGood]
-   Float_t         LepGood_sigmaIEtaIEta[4]; //[nLepGood]
+   Float_t         LepGood_hadronicOverEm[7];   //[nLepGood]
+   Float_t         LepGood_dEtaScTrkIn[7];   //[nLepGood]
+   Float_t         LepGood_dPhiScTrkIn[7];   //[nLepGood]
+   Float_t         LepGood_etaSc[7];   //[nLepGood]
+   Float_t         LepGood_eInvMinusPInv[7]; //[nLepGood]
+   Float_t         LepGood_sigmaIEtaIEta[7]; //[nLepGood]
 
    // List of branches
    TBranch *b_run;
@@ -118,7 +118,7 @@ public :
    TBranch *b_HLT_DoubleMuNoIso;
    TBranch *b_HLT_DoubleMuSS;
    TBranch *b_HLT_SingleEl;
-   TBranch *b_HLT_TripleMuA;
+   // TBranch *b_HLT_TripleMuA;
    TBranch *b_HLT_MuEG;
    TBranch *b_HLT_DoubleMuHT;
    TBranch *b_HLT_DoubleEl;
@@ -163,11 +163,11 @@ public :
 
 
 
-   lepTnPFriendTreeMaker(TTree *tree=0);
+   lepTnPFriendTreeMaker(TTree *tree=0, TTree *weightfriend=0);
    virtual ~lepTnPFriendTreeMaker();
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
-   virtual void     Init(TTree *tree);
+   virtual void     Init(TTree *tree, TTree *weightfriend=0);
    virtual void     Loop();
    virtual Bool_t   Notify();
 
@@ -398,8 +398,8 @@ public :
    Int_t   fT_tag_mcMatchId;
 };
 
-lepTnPFriendTreeMaker::lepTnPFriendTreeMaker(TTree *tree) : fChain(0){
-   Init(tree);
+lepTnPFriendTreeMaker::lepTnPFriendTreeMaker(TTree *tree, TTree *weightfriend) : fChain(0){
+   Init(tree, weightfriend);
    fTnPTree = 0;
    fMaxEvents = -1;
    fHCutFlow = new TH1I("CutFlow", "CutFlow", 14, 0, 14);
@@ -441,7 +441,7 @@ Long64_t lepTnPFriendTreeMaker::LoadTree(Long64_t entry){
    return centry;
 }
 
-void lepTnPFriendTreeMaker::Init(TTree *tree){
+void lepTnPFriendTreeMaker::Init(TTree *tree, TTree *weightfriend){
    // Set branch addresses and branch pointers
    if (!tree) return;
    fChain = tree;
@@ -449,6 +449,17 @@ void lepTnPFriendTreeMaker::Init(TTree *tree){
    fChain->SetMakeClass(1);
 
    fChain->SetBranchStatus("*", 0);
+
+   if (weightfriend){
+      fChain->AddFriend(weightfriend);
+      fChain->SetBranchStatus("vtxWeight2017", 1);
+      fChain->SetBranchStatus("puWeight", 0);
+      fChain->SetBranchAddress("vtxWeight2017", &puWeight, &b_puWeight);
+   }
+   else{
+      fChain->SetBranchStatus("puWeight", 1);
+      fChain->SetBranchAddress("puWeight", &puWeight, &b_puWeight);
+   }
 
    fChain->SetBranchStatus("run"                    , 1);
    fChain->SetBranchStatus("lumi"                   , 1);
@@ -459,7 +470,6 @@ void lepTnPFriendTreeMaker::Init(TTree *tree){
    fChain->SetBranchStatus("nVert"                  , 1);
    fChain->SetBranchStatus("nTrueInt"               , 1);
    fChain->SetBranchStatus("met_pt"                 , 1);
-   fChain->SetBranchStatus("puWeight"               , 1);
    fChain->SetBranchStatus("nJet25"                 , 1);
    fChain->SetBranchStatus("nBJetLoose25"           , 1);
    fChain->SetBranchStatus("nBJetMedium25"          , 1);
@@ -472,7 +482,7 @@ void lepTnPFriendTreeMaker::Init(TTree *tree){
    fChain->SetBranchStatus("HLT_DoubleMuNoIso"      , 1);
    fChain->SetBranchStatus("HLT_DoubleMuSS"         , 1);
    fChain->SetBranchStatus("HLT_SingleEl"           , 1);
-   fChain->SetBranchStatus("HLT_TripleMuA"          , 1);
+   // fChain->SetBranchStatus("HLT_TripleMuA"          , 1);
    fChain->SetBranchStatus("HLT_MuEG"               , 1);
    fChain->SetBranchStatus("HLT_DoubleMuHT"         , 1);
    fChain->SetBranchStatus("HLT_DoubleEl"           , 1);
@@ -524,7 +534,6 @@ void lepTnPFriendTreeMaker::Init(TTree *tree){
    fChain->SetBranchAddress("nVert"                  , &nVert                 , &b_nVert);
    fChain->SetBranchAddress("nTrueInt"               , &nTrueInt              , &b_nTrueInt);
    fChain->SetBranchAddress("met_pt"                 , &met_pt                , &b_met_pt);
-   fChain->SetBranchAddress("puWeight"               , &puWeight              , &b_puWeight);
    fChain->SetBranchAddress("nJet25"                 , &nJet25                , &b_nJet25);
    fChain->SetBranchAddress("nBJetLoose25"           , &nBJetLoose25          , &b_nBJetLoose25);
    fChain->SetBranchAddress("nBJetMedium25"          , &nBJetMedium25         , &b_nBJetMedium25);
@@ -537,7 +546,7 @@ void lepTnPFriendTreeMaker::Init(TTree *tree){
    fChain->SetBranchAddress("HLT_DoubleMuNoIso"      , &HLT_DoubleMuNoIso     , &b_HLT_DoubleMuNoIso);
    fChain->SetBranchAddress("HLT_DoubleMuSS"         , &HLT_DoubleMuSS        , &b_HLT_DoubleMuSS);
    fChain->SetBranchAddress("HLT_SingleEl"           , &HLT_SingleEl          , &b_HLT_SingleEl);
-   fChain->SetBranchAddress("HLT_TripleMuA"          , &HLT_TripleMuA         , &b_HLT_TripleMuA);
+   // fChain->SetBranchAddress("HLT_TripleMuA"          , &HLT_TripleMuA         , &b_HLT_TripleMuA);
    fChain->SetBranchAddress("HLT_MuEG"               , &HLT_MuEG              , &b_HLT_MuEG);
    fChain->SetBranchAddress("HLT_DoubleMuHT"         , &HLT_DoubleMuHT        , &b_HLT_DoubleMuHT);
    fChain->SetBranchAddress("HLT_DoubleEl"           , &HLT_DoubleEl          , &b_HLT_DoubleEl);
@@ -722,8 +731,12 @@ bool lepTnPFriendTreeMaker::PassSingleTriggers(){
 bool lepTnPFriendTreeMaker::PassDoubleTriggers(){
    return ( HLT_DoubleElHT || HLT_TripleEl   || HLT_DoubleMuEl ||
             HLT_TripleMu   || HLT_DoubleElMu || HLT_DoubleMuNoIso ||
-            HLT_DoubleMuSS || HLT_TripleMuA  || HLT_MuEG || HLT_DoubleMuHT ||
+            HLT_DoubleMuSS || HLT_MuEG || HLT_DoubleMuHT ||
             HLT_DoubleEl   || HLT_DoubleMu );
+   // return ( HLT_DoubleElHT || HLT_TripleEl   || HLT_DoubleMuEl ||
+   //          HLT_TripleMu   || HLT_DoubleElMu || HLT_DoubleMuNoIso ||
+   //          HLT_DoubleMuSS || HLT_TripleMuA  || HLT_MuEG || HLT_DoubleMuHT ||
+   //          HLT_DoubleEl   || HLT_DoubleMu );
 }
 
 bool lepTnPFriendTreeMaker::SelectEvent(){
@@ -789,14 +802,22 @@ float lepTnPFriendTreeMaker::ConePt(int i){
 float lepTnPFriendTreeMaker::PuWeight(){
    if( fIsData ) return 1.0;
 
+   return puWeight;
+
    // For json up to 276811 (12.9/fb)
    // int nTrueInt_int = int(nTrueInt);
    // if( nTrueInt_int < 60 ) return fPUw2016_vtx_13fb[nTrueInt_int];
 
    // For full ICHEP dataset
-   int nTrueInt_int = int(nTrueInt);
-   if( nTrueInt_int < 100 ) return fPUw2016_nTrueInt_36fb[nTrueInt_int];
-   else return 0;
+   // int nTrueInt_int = int(nTrueInt);
+
+   ///////////////////////////////////////////////////////////////////////
+   // FIXME new pileup weights; weird nTrueInt numbers of -X x 10^29? ////
+   // if( nTrueInt < 0) return 0;
+   ///////////////////////////////////////////////////////////////////////
+
+   // if( nTrueInt_int < 100) return fPUw2016_nTrueInt_36fb[nTrueInt_int];
+   // else return 0;
 }
 
 bool lepTnPFriendTreeMaker::_ttH_idEmu_cuts_E2(int i){

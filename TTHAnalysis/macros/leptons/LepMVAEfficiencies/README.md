@@ -10,6 +10,8 @@
 
 - `makeXSecWeights.py`: Use the sample definition file (by `default samples_13TeV_RunIISpring16MiniAODv2.py`) to find cross sections and the `SkimReport.pck` pickle files to find number of processed events, and generate sample weights. These are used to weight MC samples when running `makeLepTnPFriends.py`.
 
+- `singleFit.py`: Just run a single fit (for testing).
+
 ------------
 
 #### Instructions to run
@@ -19,19 +21,19 @@ First, compile the tree class: ```root -l -b -q -n lepTnPFriendTreeMaker.cc+```
 Produce the tag and probe trees:
 
 ```
-python runLepTnPFriendMaker.py /store/cmst3/group/tthlep/peruzzi/TREES_TTH_180117_Summer16_JEC_mc25nsV5_data23SepV2_noClean_lepMVAretr_qgV1/ -q 8nh
+python runLepTnPFriendMaker.py /eos/cms/store/cmst3/group/tthlep/peruzzi/TREES_TTH_050218_Fall17_JECV1NoRes/ --frienddir /path/to/8_vtxWeight2017_v1/ -q 8nh
 ```
 
-This will process all files in that directory containing `2016` or `DYJetsToLL_M50` strings. For debugging, you can use the `-f/--filter` option to restrict to individual samples and the `-m` option to process only a certain number of events. To run in parallel, use the `-j/--jobs` option. To submit to batch, use the `-q/--queue` option.
+By default, this will process all files in that directory containing `2017` or `DYJetsToLL_M50_LO_part` strings. For debugging, you can use the `-f/--filter` option to restrict to individual samples and the `-m` option to process only a certain number of events. To run in parallel, use the `-j/--jobs` option. To submit to batch, use the `-q/--queue` option.
 
 By default, the output is stored in a directory called `tnptrees/`. You can change this with the `-o/--outDir` option.
 
-Note that samples are checked to be data or not depending on whether their name contains the string `2016`.
+Note that samples are checked to be data or not depending on whether their file name contains the string `2017`.
 
 Merge the data trees:
 
 ```
-hadd tnptrees/Run2016.root tnptrees/*2016*.root
+hadd tnptrees/Run2017.root tnptrees/*2017*.root
 ```
 
 Generate the cross section weights (stored in `.xsecweights.pck` by default):
@@ -40,16 +42,13 @@ Generate the cross section weights (stored in `.xsecweights.pck` by default):
 python makeXSecWeights.py treeDir/
 ```
 
-Finally, run the fits and make the plots using `makeLepTnPFriends.py`. Modify the global variables at the top of the script to configure the binnings, pair selections, event selections, probe selections, and input files. The script caches the passed and total histograms in a pickle file (`tnppassedtotal.pck` by default).
+(Note that without this, MC samples will just be used unweighted, so this is only necessary when mixing MC processes.)
+
+Finally, run the fits and make the plots using `makeLepTnPFriends.py`. Modify the global variables at the top of the script to configure the binnings, pair selections, event selections, probe selections, and input files. Beware that the script caches the mass histograms and the passed and total histograms in pickle files (`masshistos.pck` and `tnppassedtotal.pck` by default) after the first run.
 
 ```
 python makeLepTnPFriends.py tnptrees/ -j 8
 ```
 
 Note: when running in parallel mode, a warning message (`*** Break *** write on a pipe with no one to read it`) is normal.
-
-
-
-
-
 

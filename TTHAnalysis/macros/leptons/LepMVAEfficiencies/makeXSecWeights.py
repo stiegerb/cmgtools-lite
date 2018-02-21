@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import sys, os, pickle, re
+import os, pickle, re
 import os.path as osp
 
 xsections = None
@@ -10,7 +10,7 @@ def fillXSecsFromSamplesFile(filename):
 
     print "Filling cross sections from %s" % filename
 
-    pattern = re.compile(r'.*?makeMCComponent\s*\(\s*\"([\w]*?)\"')
+    pattern = re.compile(r'.*?makeMCComponent\s*\((\s*\"([\w]*?)\".*)\)')
     with open(filename, 'r') as infile:
         for line in infile:
             line = line.strip()
@@ -22,10 +22,12 @@ def fillXSecsFromSamplesFile(filename):
 
             match = pattern.match(line)
             if not match: continue
-            sample_name = match.group(1)
+
+            sample_name = match.group(2)
 
             # Get the cross section
-            xsec_string = line.rsplit(',',1)[1][:-1].strip()
+            xsec_string = match.group(1).split(',')[4].strip()
+
             if re.match(r'[A-Za-z]', xsec_string):
                 raise RuntimeError('Warning: invalid xsec_string: %s' % xsec_string)
 
