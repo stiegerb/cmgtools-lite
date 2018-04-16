@@ -1,22 +1,19 @@
 #!/usr/bin/env python
-import sys, os, re, shutil, shlex
-from subprocess import Popen, PIPE
+import os
+import re
+import shutil
+import shlex
+import time
+
+from subprocess import Popen
+from subprocess import PIPE
+
 
 def combineCards(cards, chans, oname):
-    try:
-        assert( all(['2lss' in c for c in cards[:-1]]) )	
-        assert( '2lss_mm' in cards[0] )
-        assert( '2lss_em' in cards[:-1][1] )
-        assert( '2lss_ee' in cards[:-1][2] )
-        assert( '3l' in cards[-1] )
-    except AssertionError:
-        if len(cards) > 1:
-            print "Warning, cards out of order? Assuming mm, em, ee, 3l"
-    except IndexError: pass
-    assert( len(cards) == len(chans) )
+    assert(len(cards) == len(chans))
 
-    chanargs = ' '.join(['%s_13TeV=%s' % (chn,cn) for chn,cn in zip(chans, cards)])
-    combinecmd = shlex.split('combineCards.py %s'%chanargs)
+    chanargs = ' '.join(['%s_13TeV=%s' % (chn, cn) for chn,cn in zip(chans, cards)])
+    combinecmd = shlex.split('combineCards.py %s' % chanargs)
 
     try:
         p = Popen(combinecmd, stdout=PIPE)
@@ -31,58 +28,67 @@ def combineCards(cards, chans, oname):
     for dirname in inputdirs:
         try:
             os.system('mkdir -p %s' % os.path.join(odir, dirname))
-        except OSError: pass
-
+        except OSError:
+            pass
 
     with open(oname, 'w') as cfile:
         cfile.write(ccard)
 
-    # Copy the root files (and make a copy of the card while 
+    # Copy the root files (and make a copy of the card while
     # we're at it, because why not):
-    for card,cdir in zip(cards,inputdirs):
+    for card, cdir in zip(cards, inputdirs):
         shutil.copy(card, os.path.join(odir, cdir))
-        shutil.copy(card.replace('card.txt', 'input.root'),
-                          os.path.join(odir, cdir))
+        file = get_filepath_from_card(card)
+        shutil.copy(file, os.path.join(odir, cdir))
+
+
+def get_filepath_from_card(card):
+    with open(card, "r") as cardfile:
+        line = (l for l in cardfile if l.startswith("shapes")).next()
+        path = line.split()[3]
+        filepath = os.path.join(os.path.dirname(card), path)
+        if not os.path.exists(filepath):
+            print "file %s from card %s not found?" % (filepath, card)
+        return filepath
+
 
 def main(args, options):
     inputdirs = args
-    assert( all([os.path.isdir(d) for d in inputdirs]) )
+    assert(all([os.path.isdir(d) for d in inputdirs])), "inputs are not directories"
 
-    dn2cards = {} # dirname -> cards
-    dn2files = {} # dirname -> files
+    dn2cards = {}  # dirname -> cards
     for dname in inputdirs:
-        dn2cards[dname] = [os.path.join(dname,c) for c in
-                                     os.listdir(dname) if c.endswith('card.txt')]
-        dn2files[dname] = [os.path.join(dname,c) for c in
-                                     os.listdir(dname) if c.endswith('input.root')]
+        dn2cards[dname] = sorted([os.path.join(dname, c) for c in
+                                  os.listdir(dname) if c.endswith('card.txt')])
 
-    ncards = len(dn2cards.values()[0])
-    nfiles = len(dn2files.values()[0])
-    assert( ncards == nfiles )
-    assert( all([len(c) == ncards for c in dn2cards.values()]) )
-    assert( all([len(c) == nfiles for c in dn2files.values()]) )
+    npoints = len(dn2cards.values()[0])
+    assert(all([len(c) == npoints for c in dn2cards.values()])), "too many card files?"
 
-    print ("Input directories OK, found %d cards to combine "
-           "from %d directories" % (ncards, len(inputdirs)))
+    print ("Input directories OK, found %d points to combine "
+           "from %d directories" % (npoints, len(inputdirs)))
 
-    chans = {
-        1 : None,
-        2 : ['tHq_2lss_mm','tHq_3l'],
-        3 : ['tHq_2lss_mm','tHq_2lss_em','tHq_3l'],
-        4 : ['tHq_2lss_mm','tHq_2lss_em','tHq_2lss_ee','tHq_3l'],
-    }[len(inputdirs)]
-    if chans == None:
-        chans = ['tHq_'+os.path.basename(inputdirs[0].strip('/'))]
+    chans = ["tHq_" + b.strip() for b in options.binnames.split(',')]
+    assert(len(chans) == len(inputdirs)), "unequal number of inputdirs and channel names"
 
+    # Make sure channel names and order of input directories is the same
+    assert(all([b in d for b,d in zip(options.binnames.split(','), inputdirs)])),\
+        "Inconsistent order between channel names and input directories"
 
-    for cards in zip(*tuple([dn2cards[d] for d in inputdirs])):
+    print "Using channel names:", chans
+
+    for cards in [[dn2cards[d][n] for d in inputdirs] for n in range(npoints)]:
         print "combining %s" % ' '.join([os.path.basename(c) for c in cards]),
+
+        # Check consistency of cards
         tagpat = re.compile(r'.*\_([\dpm]+\_[\dpm]+)\.card\.txt')
         tags = list(set([re.match(tagpat, c).groups()[0] for c in cards]))
-        assert(len(tags) == 1)
+        if len(tags) > 1:
+            print ">>> Warning, mismatching cards?", tags
+            time.sleep(2)
 
         oname = os.path.join(options.outdir, 'tHq_%s.card.txt' % tags[0])
         print "to %s" % oname
+
         combineCards(cards, chans, oname)
 
 
@@ -95,13 +101,20 @@ if __name__ == '__main__':
     input directories and store the output in combined/
     Copy also the input.root files to the output directory.
 
+    Assumes the input directories (channels) are ordered as follows:
+    2lss_mm, 2lss_em, 3l, bb_3m, bb_4m, bb_dilep
+
+    Change this order (and the output bin names) by using -c/--binnames
+
     Note that you need to have 'combineCards.py' in your path. Try:
-    cd /afs/cern.ch/user/s/stiegerb/combine/ ; cmsenv ; cd -
+    cd /afs/cern.ch/user/s/stiegerb/combine707/ ; cmsenv ; cd -
     """
     parser = OptionParser(usage=usage)
-    parser.add_option("-o","--outdir", dest="outdir",
+    parser.add_option("-o", "--outdir", dest="outdir",
                       type="string", default="combined/")
+    parser.add_option("-c", "--binnames", dest="binnames",
+                      type="string", default="2lss_mm,2lss_em,3l,bb_3m,bb_4m,bb_dilep",
+                      help="Comma separated list of bin names ('tHq_' will be prepended)")
     (options, args) = parser.parse_args()
-
 
     main(args, options)

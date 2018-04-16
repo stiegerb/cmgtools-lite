@@ -39,43 +39,64 @@ Check some of the datacards using `HiggsAnalysis/CombinedLimit/test/systematicsA
 systematicsAnalyzer.py data.card.txt --all -f html > www/systanalysis.html
 ```
 
-### Run the limit calculation:
+### Run single limit calculations:
 
 You'll need to set your environment to a release area with `combine` available, e.g. like so:
 
 ```
-cd ~stiegerb/combine/; cmsenv ; cd -;
+cd ~stiegerb/combine707/; cmsenv ; cd -;
 ```
 
 Run on a single datacard you can use combine directly:
 
 ```
-combine -M Asymptotic --run blind --rAbsAcc 0.0005 --rRelAcc 0.0005 ttH_3l.card.txt
+combine -M AsymptoticLimits --run blind --rAbsAcc 0.0005 --rRelAcc 0.0005 ttH_3l.card.txt
 ```
 
-or use `make_limit.sh cards/ttH_3l.card.txt` to do everything in one go.
+or use `runAllLimits.py cards/ttH_3l.card.txt` to do everything in one go.
 
 In case of several datacards, combine them first with `combineCards.py *card.txt > combined.txt`.
 
 Then the "Expected 50.0%" is the number to be quoted.
 
-### Processing several Ct/CV points
 
-Use `runAllLimits.py` to run on all the cards in one directory and produce a .csv file with the Ct/CV points, the expected limit, and the one and two sigma bands.
+### Combining several channels
 
-Use `combineChannels.py` to combine the corresponding cards for each point in a list of input directories. Typically you'd run something like this:
+Use `combineChannels.py` to consistently combine cards for several points from different channels. The script looks for matching card files (`*.card.txt`) in the input directories, then calls `combineCards.py` on them, and moves the input root files into the output directory.
 
-```
-python combineAllCards.py cards_Jan31/2lss-mm/ cards_Jan31/2lss-em/ cards_Jan31/2lss-ee/ cards_Jan31/3l/ -o comb4
-```
+Note that it assumes a certain order of the channels (2lss_mm, 2lss_em, 3l, bb_3m, bb_4m, bb_dilep) by default, and will name the output channels accordingly. Change this order with the `-c/--binnames` option.
 
-This will produce combined cards in a new directory (specified with the `-o` option) and also copy the root files and original cards into it.
+Also assumes that cards are named in a certain scheme for the different kt/kV points. They need to match the `.*\_([\dpm]+\_[\dpm]+)\.card\.txt` regular expression, e.g. tHq_2lss_mm_1p5_m1p25.card.txt, etc.
 
-You can then use `runAllLimits.py` to produce the combined limits, e.g.:
+Example command:
 
 ```
-python runAllLimits.py -t 2lss_mm 2lss_mm/
+python combineChannels.py 2lss_mm/ 2lss_em/ 3l/ bb_3m/ bb_4m/ bb_dilep/ -o comb6
 ```
+
+To rename the cards from the bb channel following a different naming scheme, use the `renamebbCards.py` script.
+
+To change the outdated luminosity uncertainty from 1.026 to 1.025, rename btagging uncertainties, and change to the new autoMCStats feature in the multilepton cards, use the `fixNuisancesInMultilepCards.py` script.
+
+Note: there's a little bug in combine (see [here](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/python/NuisanceModifier.py#L100) and [here](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/issues/467)), that causes trouble with the `nuisance edit rename ...` feature and overlapping nuisance names. If you get errors of histograms not found with btagging nuisances, hack that line in `NuisanceModifier.py` in your combine area.
+
+
+### Running limits for several kt/kV points
+
+Generate the workspaces from the cards, using `make_workspaces.sh`, which calls `text2workspace.py`, e.g. for the K6 model:
+
+```
+make_workspaces.sh K6 *.card.root
+```
+
+Then use `runAllLimits.py` to run on all the workspaces (cards) in one directory and produce a .csv file with the kt/kV points, the expected limit, and the one and two sigma bands.
+
+```
+python runAllLimits.py -t comb6 
+```
+
+Run it with `-u/--unblind` to run the limits unblinded and add a column for the observed limit in the csv file.
+
 
 ### Making impact and pull plots
 
@@ -152,16 +173,16 @@ This workspace now contains the proper scaling functions of the higgs processes.
 To run the limit for a given point, we need to specify the kappa values at that point and redefine the parameter of interest as the signal strength. We freeze all the other nuisances.
 
 ```
-combine -M Asymptotic \
+combine -M AsymptoticLimits \
 --run blind \
 --rAbsAcc 0.0005 --rRelAcc 0.0005 \
---setPhysicsModelParameters kappa_t=-1.0,kappa_V=1.0 \
---freezeNuisances kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam \
+--setParameters kappa_t=-1.0,kappa_V=1.0 \
+--freezeParameters kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam \
 --redefineSignalPOIs r \
 tHq_1_m1.root
 ```
 
-Can also redefine the range of a parameter, in case it's necessary, using `--setPhysicsModelParameterRanges kappa_t=-4,4`.
+Can also redefine the range of a parameter, in case it's necessary, using `--setParameterRanges kappa_t=-4,4`.
 See also `runAllLimits.py` for the combine commands to use.
 
 Use -m 125 in text2workspace.py or combine in case you get `<ROOT::Math::GSLInterpolator::Eval>: input domain error` messages.
@@ -193,12 +214,6 @@ text2workspace.py tHq_1p5_m3.card.txt -o ws_tHq_1p5_m3_K6.card.root \
 --PO 'map=.*/tHW.*:r_tHW=expr::r_tHW("(2.909+2.310/(@1*@1)-4.220/(@1))*@0",r_ttH,-2.00)'
 ```
 
-This is now automated in `make_workspaces.sh`, where the ratio is extracted from the card name. We call the new model 'K6':
-
-```
-make_workspaces.sh K6 *.card.root
-```
-
 ### Run the unblinded fit
 To run the final fit on the unblinded data:
 
@@ -221,8 +236,8 @@ We already have a datacard/workspace for the SM point, and we can use it to gene
 
 ```
 combine -M GenerateOnly -m 125 --verbose 3 -n _SMtoys \
---setPhysicsModelParameters kappa_t=1.0,kappa_V=1.0 \
---freezeNuisances kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam --redefineSignalPOIs r \
+--setParameters kappa_t=1.0,kappa_V=1.0 \
+--freezeParameters kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam --redefineSignalPOIs r \
 --expectSignal=1 \
 -t 100 -s 123456 --saveToys \
 ws_tHq_1_1_K6.card.root
@@ -231,25 +246,35 @@ ws_tHq_1_1_K6.card.root
 This produces a file `higgsCombine_SMtoys.GenerateOnly.mH125.123456.root` that can now be read when running the Asymptotic limits:
 
 ```
-combine -M Asymptotic --run observed  -m 125 --verbose 0 \
---setPhysicsModelParameters kappa_t=-1.0,kappa_V=1.0 \
---freezeNuisances kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam --redefineSignalPOIs r \
+combine -M AsymptoticLimits --run observed  -m 125 --verbose 0 \
+--setParameters kappa_t=-1.0,kappa_V=1.0 \
+--freezeParameters kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam --redefineSignalPOIs r \
 -t 100 --toysFile higgsCombine_SMtoys.GenerateOnly.mH125.123456.root \
 workspacesK6/ws_tHq_1_m1_K6.card.root
 ```
 
 Which in turn will use the observed limits from those Asimov toys to generate the median and the 68%/95% bands.
 
-This is now automatized in `runAllLimits.py` with option `--run smexpected`.
+Note that there is an (as yet) undocumented feature of `combineTools.py` that allows to split the jobs by calling the seed option with `-s 1:100:1` when generating, and again when running the limit by using the same seed range option and putting a `%(SEED)s` placeholder in the `--toysFile` option.
 
-Note that it pairs each card with a file from the directory specified by the `--toysDir` option, which should contain enough files with the necessary number of toys generated previously. Run first with `--batch/-b` to run the limits on the toys on the lxbatch system (it's rather slow):
 
-```
-python runAllLimits.py -r smexpected --toysFile SMlike_toys/ -t K6_SM_expected workspacesK6/ws_tHq_*.root --batch
-```
+All of this is automatized in `runSMExpectedLimits.py`.
 
-Then run the same command on the output log files to extract the results and store it in csv files:
+1. Generate 10 times 100 toys with different seeds, from a single workspace:
 
 ```
-python runAllLimits.py -r smexpected -t K6_SM_expected job_tHq_*.log
+runSMExpectedLimits.py workspaces/ws_tHq_1_1_K6.card.root --generate --ntoys 100 --split 10 --queue 8nh --printCommand
 ```
+
+2. Calculate the limits for the models in a bunch of workspaces for each of these 1000 toys, running on lxbatch:
+
+```
+runSMExpectedLimits.py workspaces/ws_*.root --ntoys 100 --split 10 --queue 2nd --printCommand --toysfile "smexp/higgsCombine_SMtoys_100_cvct_1_1.GenerateOnly.mH125.%(SEED)s.root"
+```
+
+3. Gather the statistics from the log files of these jobs, calculate mean, median, and 68%/95% bands, and store in a .csv file ordered by kt/kV ratio:
+
+```
+python limitStatsFromCombineLogs.py *.log
+```
+
