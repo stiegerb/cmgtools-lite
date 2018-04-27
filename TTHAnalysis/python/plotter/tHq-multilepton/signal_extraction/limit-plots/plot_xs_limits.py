@@ -31,6 +31,7 @@ def makePlot(inputfile='limits_1.dat',
              outdir='plots/',
              ymax=1.0,
              smoothing=0.0,
+             xsec='tot',
              split_xsecs=True,
              split_cv_xsecs=False,
              alpha=False,
@@ -40,8 +41,8 @@ def makePlot(inputfile='limits_1.dat',
     if split_cv_xsecs: split_xsecs = False
 
     # Fill dataframes
-    df    = pd.DataFrame.from_csv(inputfile, sep=",", index_col=None)
-    xsecs = pd.DataFrame.from_csv('xsecs_tH_ttH_K6.csv', sep=",", index_col=None)
+    df    = pd.read_csv(inputfile, sep=",", index_col=None)
+    xsecs = pd.read_csv('xsecs/xsecs_tH_ttH_WWZZttbb_K6.csv', sep=",", index_col=None)
     xsecs['alpha'] = np.sign(xsecs.cf)*xsecs.cf**2/(xsecs.cf**2+1.0)
 
     x = sorted(list(set(df.ratio.values.tolist())))
@@ -53,12 +54,12 @@ def makePlot(inputfile='limits_1.dat',
     if alpha:
         x2 = np.linspace(-0.973,0.973,100)
 
-    spline_xsec_tot = splrep(x, xsecs.loc[xsecs.cv==1.0].tot, s=smoothing)
+    spline_xsec_tot = splrep(x, xsecs.loc[xsecs.cv==1.0][xsec], s=smoothing)
     if split_cv_xsecs:
-        spline_xsec_tot_0p5 = splrep(x, xsecs.loc[xsecs.cv==0.5].tot, s=smoothing)
-        spline_xsec_tot_1p5 = splrep(x, xsecs.loc[xsecs.cv==1.5].tot, s=smoothing)
-    spline_xsec_th  = splrep(x, xsecs.loc[xsecs.cv==1.0].thq+xsecs.loc[xsecs.cv==1.0].thw, s=smoothing)
-    spline_xsec_tth = splrep(x, xsecs.loc[xsecs.cv==1.0].tth, s=smoothing)
+        spline_xsec_tot_0p5 = splrep(x, xsecs.loc[xsecs.cv==0.5][xsec], s=smoothing)
+        spline_xsec_tot_1p5 = splrep(x, xsecs.loc[xsecs.cv==1.5][xsec], s=smoothing)
+    spline_xsec_th  = splrep(x, xsecs.loc[xsecs.cv==1.0]['th%s'%xsec], s=smoothing)
+    spline_xsec_tth = splrep(x, xsecs.loc[xsecs.cv==1.0]['tth%s'%xsec], s=smoothing)
 
     y2_xsec_tot = splev(x2, spline_xsec_tot)
     if split_cv_xsecs:
@@ -74,11 +75,11 @@ def makePlot(inputfile='limits_1.dat',
         spline_onesigup   = splrep(x,df.onesigup,   s=smoothing, k=3)
         spline_twosigup   = splrep(x,df.twosigup,   s=smoothing, k=3)
     else:
-        spline_twosigdown = splrep(x,df.twosigdownSM, s=0.001, k=3) # Note: check the amount of smoothing 
-        spline_onesigdown = splrep(x,df.onesigdownSM, s=0.001, k=3) #       by comparing with 0.
-        spline_exp        = splrep(x,df.expSM,        s=0.001, k=3)
-        spline_onesigup   = splrep(x,df.onesigupSM,   s=0.001, k=3)
-        spline_twosigup   = splrep(x,df.twosigupSM,   s=0.001, k=3)
+        spline_twosigdown = splrep(x,df.twosigdown, s=0.200, k=3) # Note: check the amount of smoothing 
+        spline_onesigdown = splrep(x,df.onesigdown, s=0.001, k=3) #       by comparing with 0.
+        spline_exp        = splrep(x,df.exp,        s=0.001, k=3)
+        spline_onesigup   = splrep(x,df.onesigup,   s=0.001, k=3)
+        spline_twosigup   = splrep(x,df.twosigup,   s=0.200, k=3)
 
     y_twosigdown      = splev(x2, spline_twosigdown  )
     y_onesigdown      = splev(x2, spline_onesigdown  )
@@ -104,6 +105,10 @@ def makePlot(inputfile='limits_1.dat',
     ax.get_yaxis().set_tick_params(which='both', direction='in')
     ax.get_yaxis().set_major_locator(mpl.ticker.MultipleLocator(0.2))
     ax.get_yaxis().set_minor_locator(mpl.ticker.MultipleLocator(0.05))
+    if ymax>1.5:
+        ax.get_yaxis().set_major_locator(mpl.ticker.MultipleLocator(ymax/10))
+        ax.get_yaxis().set_minor_locator(mpl.ticker.MultipleLocator(ymax/10/4))
+
 
     # Plot limits with sigma error bands
     ax.plot(x2, y_exp, "--", lw=2, color='black',zorder=4)
@@ -159,10 +164,13 @@ def makePlot(inputfile='limits_1.dat',
     print_text(0.65, 1.02, "%.1f\,$\mathrm{fb}^{-1}$ (13\,TeV)"% (35.9), addbackground=False)
 
     print_text(0.06, 0.92, "$\mathrm{pp}\\to\mathrm{tH}+\mathrm{t\\bar{t}H}$")
-    print_text(0.06, 0.86, ("$\mathrm{H}\\to\mathrm{W}\mathrm{W}/\mathrm{Z}\mathrm{Z}"
-                            "/\mathrm{\\tau}\mathrm{\\tau}$"))
+    if xsec == 'tot':
+        print_text(0.06, 0.86, ("$\mathrm{H}\\to\mathrm{W}\mathrm{W}/\mathrm{Z}\mathrm{Z}"
+                                "/\mathrm{\\tau}\mathrm{\\tau}/\mathrm{b}\mathrm{\overline{b}}$"))
+        print_text(0.06, 0.78, '$\kappa_\\tau=\kappa_{\mathrm{t}}$')
+    elif xsec == 'hbb':
+        print_text(0.06, 0.86, ("$\mathrm{H}\\to\mathrm{b}\mathrm{\overline{b}}$"))
     # print_text(0.06, 0.80,  "$\mathrm{t}\\to\mathrm{b}\\ell\\upnu$")
-    print_text(0.06, 0.78, '$\kappa_\\tau=\kappa_{\mathrm{t}}$')
 
 
     # Cosmetics
@@ -229,6 +237,9 @@ if __name__ == '__main__':
     parser = OptionParser(usage=usage)
     parser.add_option("-o","--outdir", dest="outdir",
                       type="string", default="plots/")
+    parser.add_option("-x","--xsec", dest="xsec",
+                      type="string", default="tot",
+                      help="Which xsec to plot ('tot' or 'hbb')")
     parser.add_option("--alpha", dest="alpha", action="store_true",
                       help="Plot alpha on x-axis instead of ratio")
     parser.add_option("--smexp", dest="smexp", action="store_true",
@@ -255,10 +266,11 @@ if __name__ == '__main__':
         makePlot(ifile, outdir=options.outdir,
                         ymax=options.ymax,
                         smoothing=options.smoothing,
-                        split_xsecs=options.split_xsecs,
+                        xsec=options.xsec,
+                        split_xsecs=(not options.split_cv_xsecs),
                         split_cv_xsecs=options.split_cv_xsecs,
                         alpha=options.alpha,
                         smexpected=options.smexp,
-                        observed=options.observed)
+                        observed=True)
 
     sys.exit(0)
