@@ -30,5 +30,34 @@ Might need to upgrade pip and/or install virtualenv
 [pip install --upgrade pip]
 [pip install virtualenv]
 virtualenv pyplot
-pip install -r requirements --user
+source pyplot/bin/activate
+pip install -r requirements [--user]
+```
+
+One more caveat to run the plotting scripts, as matplotlib doesn't play well with virtual envs we need to run the framework installation of python to call them. Either call it by hand like so:
+
+```
+export PYTHONHOME=$VIRTUAL_ENV
+/usr/local/bin/python2.7 plot_xs_limits.py
+```
+
+Or put a function `fwpython` in your .bashrc like so:
+
+```bash
+function fwpython {
+    if [[ ! -z "$VIRTUAL_ENV" ]]; then
+        PYTHONHOME=$VIRTUAL_ENV /usr/local/bin/python "$@"
+    else
+        /usr/local/bin/python "$@"
+    fi
+}
+```
+
+3. Running the plotting scripts
+
+Once everything is set up, we only need to enter the virtual env and call the fw python:
+
+```
+source pyplot/bin/activate
+fwpython plot_xs_limits.py
 ```
