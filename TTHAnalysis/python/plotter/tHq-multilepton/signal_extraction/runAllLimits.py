@@ -48,7 +48,7 @@ def getLimits(card, model='K6', unblind=False, printCommand=False):
     cv,ct,tag = parseName(card)
     if printCommand: print ""
 
-    combinecmd =  "combine -M AsymptoticLimits --newExpected 0"
+    combinecmd =  "combine -M AsymptoticLimits"
     if not unblind:
         combinecmd += " --run blind"
     combinecmd += " -m 125 --verbose 0 -n cvct%s"%tag

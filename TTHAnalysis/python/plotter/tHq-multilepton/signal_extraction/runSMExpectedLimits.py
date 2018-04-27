@@ -50,7 +50,7 @@ def runSMExpectedLimits(card, ntoys=100, split=1, seed=123456,
     if queue:
         print toysfile
 
-    combinecmd =  "combine -M Asymptotic --run observed"
+    combinecmd =  "combine -M AsymptoticLimits --run observed"
     combinecmd += " -m 125 --verbose 0 -n cvct%s_SM"%tag
     combinecmd += setParamatersFreezeAll(ct/cv,1.0)
     combinecmd += " -t %d" % ntoys

@@ -109,11 +109,11 @@ text2workspace.py -o tHq_cards.root comb3/tHq_1_m1.card.txt
 ```
 
 ```
-combineTool.py -M Impacts -d tHq_1_1.card.root -m 125 --robustFit 1 --rMin -5 --rMax 10 --doInitialFit --setPhysicsModelParameters kappa_t=1.0,kappa_V=1.0 --freezeNuisances kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam --redefineSignalPOIs r
+combineTool.py -M Impacts -d tHq_1_1.card.root -m 125 --robustFit 1 --rMin -5 --rMax 10 --doInitialFit --setParameters kappa_t=1.0,kappa_V=1.0 --freezeParameters kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam --redefineSignalPOIs r
 
-combineTool.py -M Impacts -d tHq_1_1.card.root -m 125 --robustFit 1 --rMin -5 --rMax 10 --doFits --parallel 12 --setPhysicsModelParameters kappa_t=1.0,kappa_V=1.0 --freezeNuisances kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam --redefineSignalPOIs r
+combineTool.py -M Impacts -d tHq_1_1.card.root -m 125 --robustFit 1 --rMin -5 --rMax 10 --doFits --parallel 12 --setParameters kappa_t=1.0,kappa_V=1.0 --freezeParameters kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam --redefineSignalPOIs r
 
-combineTool.py -M Impacts -d tHq_1_1.card.root -m 125 -o impacts.json  --setPhysicsModelParameters kappa_t=1.0,kappa_V=1.0 --freezeNuisances kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam --redefineSignalPOIs r
+combineTool.py -M Impacts -d tHq_1_1.card.root -m 125 -o impacts.json  --setParameters kappa_t=1.0,kappa_V=1.0 --freezeParameters kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam --redefineSignalPOIs r
 
 plotImpacts.py -i impacts.json -o impacts --per-page 20
 ```
@@ -123,24 +123,18 @@ Note that this may require the renaming of root files:
 for f in *123456.root; do mv $f ${f%.123456.root}.root; done
 ```
 
-### Closure checks
+### Fit Diagnostics
 
-See also [here](https://twiki.cern.ch/twiki/bin/view/CMS/HiggsWG/HiggsPAGPreapprovalChecks).
-
-```
-combine -M MaxLikelihoodFit -t -1 --expectSignal 0 tHq_1_m1.card.txt
-python diffNuisances.py -a mlfit.root -g plots.root
-```
-
-Check that the fit result is `r=0` and that pulls for the background only fit are all 0.00.
+See also [here](https://twiki.cern.ch/twiki/bin/view/CMS/HiggsWG/HiggsPAGPreapprovalChecks) and [here](https://cms-hcomb.gitbooks.io/combine/content/part3/nonstandard.html#fitting-diagnostics) for instructions.
 
 ```
-combine -M MaxLikelihoodFit -t -1 --expectSignal 1 tHq_1_m1.card.txt
-python diffNuisances.py -a mlfit.root -g plots.root
+combine -M FitDiagnostics --setParameters kappa_t=1.0,kappa_V=1.0 --freezeParameters kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam --redefineSignalPOIs r tHq_1_m1.card.txt
+python diffNuisances.py fitDiagnostics.root
 ```
 
+<!-- Check that the fit result is `r=0` and that pulls for the background only fit are all 0.00.
 Check that the fit result is `r=1` and that pulls for the signal+background fit are all 0.00.
-
+ -->
 ### Limits using HCG models (scaling BRs with couplings)
 Note that all of these assume that the input yields (the 'rate' line in the datacards) correspond to standard model cross sections!
 
