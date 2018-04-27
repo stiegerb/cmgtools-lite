@@ -31,7 +31,7 @@ Might need to upgrade pip and/or install virtualenv
 [pip install virtualenv]
 virtualenv pyplot
 source pyplot/bin/activate
-pip install -r requirements [--user]
+pip install -r requirements.txt [--user]
 ```
 
 One more caveat to run the plotting scripts, as matplotlib doesn't play well with virtual envs we need to run the framework installation of python to call them. Either call it by hand like so:
