@@ -189,6 +189,23 @@ make_workspaces.sh K5 *.card.txt
 python runAllLimits.py -t K5 *K5.card.root
 ```
 
+### Limits on tHq/tHW only
+Using either the `multisignalModel` or the `LHCHCGModels:A1` signal strengths model, we can produce a limit on just tH production (or on ttH production):
+
+```
+text2workspace.py tHq_1_1.card.txt -o ws_tHq_1_1_A1.root -P HiggsAnalysis.CombinedLimit.LHCHCGModels:A1 -m 125
+combine -M AsymptoticLimits --redefineSignalPOIs mu_XS_tH ws_tHq_1_1_A1.root
+```
+
+or equivalently:
+
+```
+text2workspace.py tHq_1_1.card.txt -o ws_tHq_1_1_MSM_tHonly.root -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel -m 125  --PO 'map=.*/tH[qW].*:r_tH[1,-5,10]'
+combine -M AsymptoticLimits --redefineSignalPOIs r_tH ws_tHq_1_1_MSM_tHonly.root
+```
+
+Note that we need to be on the `comb2017` branch of combine for the A1 model to work with this.
+
 ### Limits ala Gritsan (no BR scaling)
 If we assume the relative fractions of WW/ZZ/tautau are the same for constant kt/kV (which is true if ktau=kt), we can set cross section limits for 33 distinct points of kt/kV (or kt**2/(kt**2+kV**2)) which are then valid for all other possible kt and kV points with the same ratio. To do so, we now just have to let tHq and tHW float with the ttH scale for a given point.
 
