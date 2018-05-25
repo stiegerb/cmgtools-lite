@@ -2,6 +2,9 @@
 import sys, os, re, shlex
 from subprocess import Popen, PIPE
 
+## FIXME: This should dump the limits for each card as it is running,
+##        not all together at the end.
+
 def runCombineCommand(combinecmd, card, verbose=False, queue=None, submitName=None):
     if queue:
         combinecmd = combinecmd.replace('combine', 'combineTool.py')
@@ -36,7 +39,7 @@ def parseName(card, printout=True):
 
 def setParamatersFreezeAll(ct,cv):
     addoptions = " --setParameters kappa_t=%.2f,kappa_V=%.2f" % (ct,cv)
-    addoptions += " --freezeParameters kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam"
+    addoptions += " --freezeParameters kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam,r_others"
     addoptions += " --redefineSignalPOIs r"
     return addoptions
 
@@ -79,6 +82,7 @@ def getLimits(card, model='K6', unblind=False, printCommand=False):
         print "\033[1m %5.2f \033[0m" % (liminfo['obs'])
     else:
         print ""
+
     return cv, ct, liminfo
 
 def getFitValues(card, model='K6', unblind=False, printCommand=False):
@@ -98,11 +102,11 @@ def getFitValues(card, model='K6', unblind=False, printCommand=False):
             combinecmd += setParamatersFreezeAll(ct, cv)
 
         if abs(ct/cv) > 3:        
-            combinecmd += " --robustFit 1 --setPhysicsModelParameterRanges r=0,1"
+            combinecmd += " --robustFit 1 --setParameterRanges r=0,1"
         else:
             # Note that these ranges don't work well for some points
             # e.g.: -3.0/1.0, -1.5/0.5, -1.25/0.5
-            combinecmd += " --robustFit 1 --setPhysicsModelParameterRanges r=-5,10"
+            combinecmd += " --robustFit 1 --setParameterRanges r=-5,10"
     comboutput = runCombineCommand(combinecmd, card, verbose=printCommand)
 
     fitinfo = {}
@@ -140,34 +144,65 @@ def getSignificance(card, model='K6', unblind=False, printCommand=False):
     print "\033[92m%5.2f\033[0m" %( significance['value'])
     return cv, ct, significance
 
-def main(args, options):
 
+def processInputs(args, options):
     cards = []
     if os.path.isdir(args[0]):
         inputdir = args[0]
 
-        if options.tag != None:
-            tag = "_"+options.tag
+        if options.tag is not None:
+            tag = "_" + options.tag
         elif options.tag == "":
             tag = ""
         else:
             # Try to get the tag from the input directory
-            if inputdir.endswith('/'): inputdir = inputdir[:-1]
-            tag = "_"+os.path.basename(inputdir)
-            assert( '/' not in tag )
+            if inputdir.endswith('/'):
+                inputdir = inputdir[:-1]
+            tag = "_" + os.path.basename(inputdir)
+            assert('/' not in tag)
 
         cards = [os.path.join(inputdir, c) for c in os.listdir(inputdir)]
 
     elif os.path.exists(args[0]):
         tag = options.tag or ""
-        if len(tag): tag = '_'+tag
+        if len(tag):
+            tag = '_' + tag
         cards = [c for c in args if os.path.exists(c)]
 
     cards = [c for c in cards if any([c.endswith(ext) for ext in ['card.txt', 'card.root', '.log']])]
     cards = sorted(cards)
+
     print "Found %d cards to run" % len(cards)
+    return cards, tag
+
+
+def main(args, options):
+    cards, tag = processInputs(args, options)
 
     if options.runmode.lower() == 'limits':
+        ## Individual limits, just process all cards and write
+        ## the results to a csv file
+        csvfname = 'limits_%s.csv'%options.tag
+        with open(csvfname, 'w') as csvfile:
+            if options.unblind:
+                csvfile.write('fname,cv,cf,twosigdown,onesigdown,exp,onesigup,twosigup,obs\n')
+            else:
+                csvfile.write('fname,cv,cf,twosigdown,onesigdown,exp,onesigup,twosigup\n')
+
+            for card in cards:
+                cv, ct, liminfo = getLimits(card, model=options.model,
+                                            unblind=options.unblind,
+                                            printCommand=options.printCommand)
+    
+                values = [card, cv, ct]
+                values += [liminfo[x] for x in ['twosigdown','onesigdown','exp','onesigup','twosigup']]
+                if options.unblind:
+                    values += [liminfo['obs']]
+                csvfile.write(','.join(map(str, values)) + '\n')
+
+        print "All done. Wrote limits to: %s" % csvfname
+
+    if options.runmode.lower() == 'ctcvlimits':
         limdata = {} # (cv,ct) -> (2sd, 1sd, lim, 1su, 2su, [obs])
         for card in cards:
             cv, ct, liminfo = getLimits(card, model=options.model,
@@ -207,10 +242,7 @@ def main(args, options):
             if not cv_ in [v for v,_ in fitdata.keys()]: continue
             csvfname = 'fits%s_cv_%s.csv' % (tag, str(cv_).replace('.','p'))
             with open(csvfname, 'w') as csvfile:
-                if options.unblind:
-                    csvfile.write('cv,cf,median,downerror,uperror\n')
-                else:
-                    csvfile.write('cv,cf,median,downerror,uperror\n')
+                csvfile.write('cv,cf,median,downerror,uperror\n')
                 for cv,ct in sorted(fitdata.keys()):
                     if not cv == cv_: continue
                     values = [cv, ct]
@@ -262,7 +294,7 @@ if __name__ == '__main__':
     """
     parser = OptionParser(usage=usage)
     parser.add_option("-r","--run", dest="runmode", type="string", default="limits",
-                      help="What to run (limits|fit|sig)")
+                      help="What to run (limits|ctcvlimits|fit|sig)")
     parser.add_option("-t","--tag", dest="tag", type="string", default=None,
                       help="Tag to put in name of output csv files")
     parser.add_option("-m","--model", dest="model", type="string", default="K6",

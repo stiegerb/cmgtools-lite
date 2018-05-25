@@ -113,7 +113,7 @@ if __name__ == '__main__':
     parser.add_option("-o", "--outdir", dest="outdir",
                       type="string", default="combined/")
     parser.add_option("-c", "--binnames", dest="binnames",
-                      type="string", default="2lss_mm,2lss_em,3l,bb_3m,bb_4m,bb_dilep",
+                      type="string", default="2lss_mm,2lss_em,3l,bb_3m,bb_4m,bb_dilep,aa",
                       help="Comma separated list of bin names ('tHq_' will be prepended)")
     (options, args) = parser.parse_args()
 

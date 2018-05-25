@@ -40,14 +40,14 @@ def setKappaV(workspace, cv):
 
 print "\n\n XS x BF scalings"
 
-xsbrs = ["c7_XSBRscal_ttH_hww_13TeV", "c7_XSBRscal_ttH_hzz_13TeV", "c7_XSBRscal_ttH_htt_13TeV", "c7_XSBRscal_ttH_hbb_13TeV",
-         "c7_XSBRscal_tHq_hww_13TeV", "c7_XSBRscal_tHq_hzz_13TeV", "c7_XSBRscal_tHq_htt_13TeV", "c7_XSBRscal_tHq_hbb_13TeV",
-         "c7_XSBRscal_tHW_hww_13TeV", "c7_XSBRscal_tHW_hzz_13TeV", "c7_XSBRscal_tHW_htt_13TeV", "c7_XSBRscal_tHW_hbb_13TeV"]
+xsbrs = ["c7_XSBRscal_ttH_hww_13TeV", "c7_XSBRscal_ttH_hzz_13TeV", "c7_XSBRscal_ttH_htt_13TeV", "c7_XSBRscal_ttH_hbb_13TeV", "c7_XSBRscal_ttH_hgg_13TeV",
+         "c7_XSBRscal_tHq_hww_13TeV", "c7_XSBRscal_tHq_hzz_13TeV", "c7_XSBRscal_tHq_htt_13TeV", "c7_XSBRscal_tHq_hbb_13TeV", "c7_XSBRscal_tHq_hgg_13TeV",
+         "c7_XSBRscal_tHW_hww_13TeV", "c7_XSBRscal_tHW_hzz_13TeV", "c7_XSBRscal_tHW_htt_13TeV", "c7_XSBRscal_tHW_hbb_13TeV", "c7_XSBRscal_tHW_hgg_13TeV"]
 xsbrscalings = {} # (cv,ct) -> scalings
 for cv in [1.0, 0.5, 1.5]:
     print "--------------------------------------------------------------------"
     print " CV = {:.1f}".format(cv)
-    print "  Ct    ttHww    ttHzz    ttHtt    ttHbb    tHqww    tHqzz    tHqtt    tHqbb    tHWww    tHWzz    tHWtt    tHWbb"
+    print "  Ct    ttHww    ttHzz    ttHtt    ttHbb    ttHgg    tHqww    tHqzz    tHqtt    tHqbb    tHqgg    tHWww    tHWzz    tHWtt    tHWbb    tHWgg"
     setKappaV(ws, cv)
     for ct in cts:
         ws.var("kappa_t").setVal(ct)
@@ -57,7 +57,7 @@ for cv in [1.0, 0.5, 1.5]:
         xsbrscalings[(cv,ct)] = scaling
 
 with open('xsbr_scalings.csv', 'w') as csvfile:
-    csvfile.write("cv,ct,ttHww,ttHzz,ttHtt,ttHbb,tHqww,tHqzz,tHqtt,tHqbb,tHWww,tHWzz,tHWtt,tHWbb\n")
+    csvfile.write("cv,ct,ttHww,ttHzz,ttHtt,ttHbb,ttHgg,tHqww,tHqzz,tHqtt,tHqbb,tHqgg,tHWww,tHWzz,tHWtt,tHWbb,tHWgg\n")
     for (cv,ct),scaling in sorted(xsbrscalings.iteritems()):
         sscaling = ["{:.4f}".format(s) for s in scaling]
         csvfile.write(','.join(map(str, [cv,ct]+list(sscaling))))

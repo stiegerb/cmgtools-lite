@@ -92,7 +92,7 @@ make_workspaces.sh K6 *.card.root
 Then use `runAllLimits.py` to run on all the workspaces (cards) in one directory and produce a .csv file with the kt/kV points, the expected limit, and the one and two sigma bands.
 
 ```
-python runAllLimits.py -t comb6 
+python runAllLimits.py -t comb6 ws_tHq_*_K7.root
 ```
 
 Run it with `-u/--unblind` to run the limits unblinded and add a column for the observed limit in the csv file.
@@ -118,6 +118,14 @@ combineTool.py -M Impacts -d tHq_1_1.card.root -m 125 -o impacts.json  --setPara
 plotImpacts.py -i impacts.json -o impacts --per-page 20
 ```
 
+These additional fit options may be necessary to make it converge:
+```
+--robustFit 1 --rMin=0 --rMax=20
+--X-rtd ADDNLL_RECURSIVE=0
+--setCrossingTolerance 1E-6
+--cminDefaultMinimizerStrategy 0.
+```
+
 Note that this may require the renaming of root files:
 ```
 for f in *123456.root; do mv $f ${f%.123456.root}.root; done
@@ -138,25 +146,17 @@ Check that the fit result is `r=1` and that pulls for the signal+background fit 
 ### Limits using HCG models (scaling BRs with couplings)
 Note that all of these assume that the input yields (the 'rate' line in the datacards) correspond to standard model cross sections!
 
-A few possibilities:
-
-- 'lambda_FV' in [LambdasReduced](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/74x-root6/python/LHCHCGModels.py#L626-L788) is basically our Ct/CV, 'kappa_VV' should correspond to CV^2.
-
-- Could also use [KappaVKappaF](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/74x-root6/python/LHCHCGModels.py#L522-L624) which directly has Ct and CV (as 'kappa_F', 'kappa_V').
-
-- Currently using [KappaTKappaV](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/pull/369), either with K4 (resolved) or K5 (non-resolved)
-
 All of these need to have '13TeV' string in bin names. We can use `combineCards.py` for that, or just our `combineChannels.py`.
 
 ```
 combineCards.py tHq_3l_1_m1_13TeV=tHq_3l_1_m1.card.txt &> tHq_3l_1_m1_13TeV.txt
 ```
 
-To use the models, we need to use `text2workspace.py` to produce a RooWorkspace with all the scaling functions, etc. (e.g. for K5):
+To use the models, we need to use `text2workspace.py` to produce a RooWorkspace with all the scaling functions, etc. (e.g. for K7):
 
 ```
 text2workspace.py tHq_1_m1.card.txt \
--P HiggsAnalysis.CombinedLimit.LHCHCGModels:K5 \
+-P HiggsAnalysis.CombinedLimit.LHCHCGModels:K7 \
 --PO verbose \
 --PO BRU=0 \
 -m 125
@@ -194,7 +194,7 @@ Using either the `multisignalModel` or the `LHCHCGModels:A1` signal strengths mo
 
 ```
 text2workspace.py tHq_1_1.card.txt -o ws_tHq_1_1_A1.root -P HiggsAnalysis.CombinedLimit.LHCHCGModels:A1 -m 125
-combine -M AsymptoticLimits --redefineSignalPOIs mu_XS_tH ws_tHq_1_1_A1.root
+combine -M AsymptoticLimits --redefineSignalPOIs mu_XS_tH ws_tHq_1_1_A1.root -m 125
 ```
 
 or equivalently:
@@ -206,35 +206,25 @@ combine -M AsymptoticLimits --redefineSignalPOIs r_tH ws_tHq_1_1_MSM_tHonly.root
 
 Note that we need to be on the `comb2017` branch of combine for the A1 model to work with this.
 
-### Limits ala Gritsan (no BR scaling)
-If we assume the relative fractions of WW/ZZ/tautau are the same for constant kt/kV (which is true if ktau=kt), we can set cross section limits for 33 distinct points of kt/kV (or kt**2/(kt**2+kV**2)) which are then valid for all other possible kt and kV points with the same ratio. To do so, we now just have to let tHq and tHW float with the ttH scale for a given point.
-
-Note that tHq and tHW are proportional to kt**2 (and therefore r_ttH) for fixed kt/kV ratios. The relative fractions then depend on the value of the ratio as follows (where a = kt/kV):
-
-- r_tHq = (2.633 + 3.578/a**2 - 5.211/a) * r_ttH
-- r_tHW = (2.909 + 2.310/a**2 - 4.220/a) * r_ttH
-- r_ttH is left floating
-
-We can make a workspace with these scaling by using the `HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel` with mapping commands. We just have to provide the kt/kV ratio (e.g. for a kt=-3, kV=1.5 point):
-
-```
-text2workspace.py tHq_1p5_m3.card.txt -o ws_tHq_1p5_m3_K6.card.root \
--P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel -m 125 \
---PO 'map=.*/ttH.*:r_ttH[1,-5,10]' \
---PO 'map=.*/tHq.*:r_tHq=expr::r_tHq("(2.633+3.578/(@1*@1)-5.211/(@1))*@0",r_ttH,-2.00)' \
---PO 'map=.*/tHW.*:r_tHW=expr::r_tHW("(2.909+2.310/(@1*@1)-4.220/(@1))*@0",r_ttH,-2.00)'
-```
-
 ### Run the unblinded fit
 To run the final fit on the unblinded data:
 
 ```
-combine -M MaxLikelihoodFit \
+combine -M FitDiagnostics \
 --saveShapes --saveWithUncertainties \
---setPhysicsModelParameters kappa_t=-1.0,kappa_V=1.0 \
---freezeNuisances kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam \
+--setParameters kappa_t=-1.0,kappa_V=1.0 \
+--freezeParameters kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam \
 --redefineSignalPOIs r \
 ws_tHq_1_m1_K6.card.root
+```
+
+Again we might need additional fit options to have it converge:
+
+```
+--robustFit 1 --rMin=0 --rMax=20
+--X-rtd ADDNLL_RECURSIVE=0
+--setCrossingTolerance 1E-6
+--cminDefaultMinimizerStrategy 0.
 ```
 
 This will produce the `mlfit.root` file needed to produce post-fit plots (using `postFitPlotsTHQ.py`).
@@ -288,4 +278,38 @@ runSMExpectedLimits.py workspaces/ws_*.root --ntoys 100 --split 10 --queue 2nd -
 ```
 python limitStatsFromCombineLogs.py *.log
 ```
+
+### Produce NLL scans
+
+To produce a likelihood scan, we can run combine with the `MultiDimFit` option and `--algo fixed --fixedPointPOIs`, once with r=1 and once with r=0. This first runs the nominal fit with floating signal strength, then repeats the fit with fixed signal strength, and reports the difference in log likelihood values. By always running one fit with r=0 (which is identical in each point), we can use that likelihood value as the reference and subtract it from the r=1 difference, to get comparable numbers for the likelihood outputs of the nominal fits.
+
+The exact fit options are:
+```
+combine -M MultiDimFit --algo fixed --fixedPointPOIs r=1 \
+ --rMin=0 --rMax=20 --X-rtd ADDNLL_RECURSIVE=0 \
+ --cminDefaultMinimizerStrategy 0 \
+ -m 125 --verbose 0 -n _nll_scan_r1_tag
+ --setParameters kappa_t=<ct>/<cv>,kappa_V=1.0 \
+ --freezeParameters kappa_t,kappa_V,kappa_mu,kappa_b, \
+kappa_c,kappa_g,kappa_gam,r_others \
+--redefineSignalPOIs r \
+workspace.root
+```
+
+(and then repeated with `--fixedPointPOIs r=0`).
+
+This produces the scan for the fit to observed data. To produce the expected likelihood scan, we repeat the procedure, but use toy data produced for the SM point. Generated with:
+
+```
+combine -M GenerateOnly -t -1 --expectSignal 1 \
+--setParameters kappa_t=1.0,kappaV=1.0 \
+--freezeParameters ... \
+--saveToys \
+workspace_SM.root
+```
+
+and passed to the scanning options above with `-t -1 --toysFile toy.root`.
+
+The resulting series of likelihood values are adjusted such that the lowest value is at zero (by simply subtracting the lowest value from each point).
+
 

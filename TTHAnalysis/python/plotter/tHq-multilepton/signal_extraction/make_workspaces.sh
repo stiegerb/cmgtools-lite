@@ -7,7 +7,12 @@ COMBINEDIR="/afs/cern.ch/user/s/stiegerb/combine707/"
 cd $COMBINEDIR; eval `scramv1 runtime -sh`; cd -;
 
 MODEL="K5"
-if [[ "$1" == "K5" || "$1" == "K4" || "$1" == "K6"  || "$1" == "K6b" || "$1" == "K7" ]]; then
+if [[ "$1" == "K5" ||
+	  "$1" == "K4" ||
+      "$1" == "K6"  ||
+      "$1" == "K6b" ||
+      "$1" == "K7" ||
+      "$1" == "A1" ]]; then
 	MODEL=$1
 	shift;
 fi
@@ -30,7 +35,10 @@ for card in "$@"
 do 
 	echo "...processing $card"
 	# Use one of the HCG models:
-	OPTIONS="-P HiggsAnalysis.CombinedLimit.LHCHCGModels:${MODEL} --PO BRU=0 -m 125"
+	OPTIONS="-P HiggsAnalysis.CombinedLimit.LHCHCGModels:${MODEL} -m 125"
+	if [[ ${MODEL} != "A1" ]]; then
+		OPTIONS="${OPTIONS} --PO BRU=0"
+	fi
 	OUTNAME="ws_${card%.card.txt}_${MODEL}.card.root"
 
 	# Or do the scaling by hand:

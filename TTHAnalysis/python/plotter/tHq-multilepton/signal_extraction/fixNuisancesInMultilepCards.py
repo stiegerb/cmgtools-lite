@@ -3,7 +3,7 @@ import os
 import sys
 import shutil
 
-CLEANUP = False
+CLEANUP = True
 
 """
 - Change lumi uncertainty from 1.026 to 1.025
