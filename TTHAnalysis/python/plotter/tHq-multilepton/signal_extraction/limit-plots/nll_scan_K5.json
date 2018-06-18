@@ -1,0 +1,71 @@
+{
+    "name" : "nll_scan_K5_Jun14",
+    "inputdir" : "nllscans/Jun14",
+    "tag3" : "$\\kappa_{\\mathrm{V}}=1.0$, resolved",
+    "entries" : [
+        {
+            "csv_file" : "nll_scan_K5.csv",
+            "label" : "Observed",
+            "color" : "black",
+            "line_width" : 2.0,
+            "line_style" : "-",
+            "marker_style" : "o"
+        },
+        {
+            "csv_file" : "nll_scan_K5_toys.csv",
+            "label" : "Expected (SM)",
+            "color" : "black",
+            "line_width" : 2.0,
+            "line_style" : "--",
+            "marker_style" : ""
+        },
+        {
+            "csv_file" : "nll_scan_K5_ml.csv",
+            "label" : "Observed (Multilepton)",
+            "color" : "blue",
+            "line_width" : 1.0,
+            "line_style" : "-",
+            "marker_style" : "."
+        },
+        {
+            "csv_file" : "nll_scan_K5_ml_toys.csv",
+            "label" : "Expected (Multilepton)",
+            "color" : "blue",
+            "line_width" : 1.0,
+            "line_style" : "dotted",
+            "marker_style" : ""
+        },
+        {
+            "csv_file" : "nll_scan_K5_aa.csv",
+            "label" : "Observed ($\\gamma\\gamma$)",
+            "color" : "red",
+            "line_width" : 1.0,
+            "line_style" : "-",
+            "marker_style" : "."
+        },
+        {
+            "csv_file" : "nll_scan_K5_aa_toys.csv",
+            "label" : "Expected ($\\gamma\\gamma$)",
+            "color" : "red",
+            "line_width" : 1.0,
+            "line_style" : "dotted",
+            "marker_style" : ""
+        },
+        {
+            "csv_file" : "nll_scan_K5_bb.csv",
+            "label" : "Observed ($\\mathrm{b}\\overline{\\mathrm{b}}$)",
+            "color" : "green",
+            "line_width" : 1.0,
+            "line_style" : "-",
+            "marker_style" : "."
+        },
+        {
+            "csv_file" : "nll_scan_K5_bb_toys.csv",
+            "label" : "Expected ($\\mathrm{b}\\overline{\\mathrm{b}}$)",
+            "color" : "green",
+            "line_width" : 1.0,
+            "line_style" : "dotted",
+            "marker_style" : ""
+        }
+    ]
+}
