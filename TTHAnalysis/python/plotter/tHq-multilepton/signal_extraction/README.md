@@ -83,16 +83,16 @@ Note: there's a little bug in combine (see [here](https://github.com/cms-analysi
 
 ### Running limits for several kt/kV points
 
-Generate the workspaces from the cards, using `make_workspaces.sh`, which calls `text2workspace.py`, e.g. for the K6 model:
+Generate the workspaces from the cards, using `makeWorkspaces.py`, which calls `text2workspace.py`, e.g. for the K6 model:
 
 ```
-make_workspaces.sh K6 *.card.root
+makeWorkspaces.py K6 *.card.root -j 8
 ```
 
 Then use `runAllLimits.py` to run on all the workspaces (cards) in one directory and produce a .csv file with the kt/kV points, the expected limit, and the one and two sigma bands.
 
 ```
-python runAllLimits.py -t comb6 ws_tHq_*_K7.root
+python runAllLimits.py -t comb6 ws_tHq_*_K7.root -j 8
 ```
 
 Run it with `-u/--unblind` to run the limits unblinded and add a column for the observed limit in the csv file.
@@ -123,7 +123,9 @@ These additional fit options may be necessary to make it converge:
 --robustFit 1 --rMin=0 --rMax=20
 --X-rtd ADDNLL_RECURSIVE=0
 --setCrossingTolerance 1E-6
---cminDefaultMinimizerStrategy 0.
+--cminDefaultMinimizerStrategy 0
+--cminDefaultMinimizerTolerance 0.01
+--cminPreScan.
 ```
 
 Note that this may require the renaming of root files:
@@ -140,9 +142,6 @@ combine -M FitDiagnostics --setParameters kappa_t=1.0,kappa_V=1.0 --freezeParame
 python diffNuisances.py fitDiagnostics.root
 ```
 
-<!-- Check that the fit result is `r=0` and that pulls for the background only fit are all 0.00.
-Check that the fit result is `r=1` and that pulls for the signal+background fit are all 0.00.
- -->
 ### Limits using HCG models (scaling BRs with couplings)
 Note that all of these assume that the input yields (the 'rate' line in the datacards) correspond to standard model cross sections!
 
@@ -185,8 +184,8 @@ Recipe with shortcut scripts:
 
 ```
 python combineChannels -o comb3 2lss_mm/ 2lss_em/ 3l/
-make_workspaces.sh K5 *.card.txt
-python runAllLimits.py -t K5 *K5.card.root
+makeWorkspaces.py K5 *.card.txt -j 8
+runAllLimits.py -t K5 *K5.card.root -j 8
 ```
 
 ### Limits on tHq/tHW only

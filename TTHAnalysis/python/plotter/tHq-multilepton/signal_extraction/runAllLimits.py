@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import sys, os, re, shlex
+import multiprocessing
 from subprocess import Popen, PIPE
 
 ## FIXME: This should dump the limits for each card as it is running,
@@ -19,7 +20,7 @@ def runCombineCommand(combinecmd, card, verbose=False, queue=None, submitName=No
         p = Popen(shlex.split(combinecmd) + [card] , stdout=PIPE, stderr=PIPE)
         comboutput = p.communicate()[0]
     except OSError:
-        print "combine command not known. Try this: cd /afs/cern.ch/user/s/stiegerb/combine/ ; cmsenv ; cd -"
+        print "combine command not known"
         comboutput = None
     return comboutput
 
@@ -37,9 +38,12 @@ def parseName(card, printout=True):
         print "%-40s CV=%5.2f, Ct=%5.2f : " % (os.path.basename(card), cv, ct),
     return cv, ct, tag
 
-def setParamatersFreezeAll(ct,cv):
+def setParamatersFreezeAll(ct,cv,freezeAlso=None):
     addoptions = " --setParameters kappa_t=%.2f,kappa_V=%.2f" % (ct,cv)
-    addoptions += " --freezeParameters kappa_t,kappa_V,kappa_tau,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam,r_others"
+    addoptions += " --freezeParameters kappa_t,kappa_V,kappa_tau,kappa_mu,"
+    addoptions += "kappa_b,kappa_c,kappa_g,kappa_gam,r_others"
+    if freezeAlso:
+        addoptions += ','.join(freezeAlso)
     addoptions += " --redefineSignalPOIs r"
     return addoptions
 
@@ -48,8 +52,8 @@ def getLimits(card, model='K6', unblind=False, printCommand=False):
     Run combine on a single card, return a tuple of 
     (cv,ct,twosigdown,onesigdown,exp,onesigup,twosigup)
     """
-    cv,ct,tag = parseName(card)
-    if printCommand: print ""
+    cv,ct,tag = parseName(card, printout=False)
+    printout = "%-40s CV=%5.2f, Ct=%5.2f : " % (os.path.basename(card), cv, ct)
 
     combinecmd =  "combine -M AsymptoticLimits"
     if not unblind:
@@ -75,13 +79,13 @@ def getLimits(card, model='K6', unblind=False, printCommand=False):
             elif 'Expected 84.0%' in line: liminfo['onesigup']   = value
             elif 'Expected 97.5%' in line: liminfo['twosigup']   = value
 
-    print "%5.2f, %5.2f, \033[92m%5.2f\033[0m, %5.2f, %5.2f" %(
+    printout += "%5.2f, %5.2f, \033[92m%5.2f\033[0m, %5.2f, %5.2f" % (
         liminfo['twosigdown'], liminfo['onesigdown'], liminfo['exp'],
-        liminfo['onesigup'], liminfo['twosigup']),
+        liminfo['onesigup'], liminfo['twosigup'])
     if 'obs' in liminfo: # Add observed limit to output, in case it's there
-        print "\033[1m %5.2f \033[0m" % (liminfo['obs'])
-    else:
-        print ""
+        printout += "\033[1m %5.2f \033[0m" % (liminfo['obs'])
+
+    print printout
 
     return cv, ct, liminfo
 
@@ -116,7 +120,9 @@ def getFitValues(card, model='K6', unblind=False, printCommand=False):
             fitinfo['downerror'] = float((line.split('  ')[1]).split('/')[0])
             fitinfo['uperror'] = float((line.split('+')[1]).split('  (')[0])
 
-    print "\033[92m%5.2f\033[0m, %5.2f, %5.2f" %( fitinfo['median'], fitinfo['downerror'], fitinfo['uperror'])
+    print "\033[92m%5.2f\033[0m, %5.2f, %5.2f" %( fitinfo['median'],
+                                                  fitinfo['downerror'],
+                                                  fitinfo['uperror'])
     return cv, ct, fitinfo
 
 def getSignificance(card, model='K6', unblind=False, printCommand=False):
@@ -126,7 +132,7 @@ def getSignificance(card, model='K6', unblind=False, printCommand=False):
     cv,ct,tag = parseName(card)
     if printCommand: print ""
 
-    combinecmd =  "combine -M ProfileLikelihood --signif"
+    combinecmd =  "combine -M Significance --signif"
     combinecmd += " -m 125 --verbose 0 -n cvct%s"%tag
     if model in ['K4', 'K5', 'K6', 'K7']:
         if model == 'K6': # Rescale to cv = 1, we only care about the ct/cv ratio
@@ -203,13 +209,20 @@ def main(args, options):
         print "All done. Wrote limits to: %s" % csvfname
 
     if options.runmode.lower() == 'ctcvlimits':
-        limdata = {} # (cv,ct) -> (2sd, 1sd, lim, 1su, 2su, [obs])
+        pool = multiprocessing.Pool(processes=options.jobs)
+        futures = []
         for card in cards:
-            cv, ct, liminfo = getLimits(card, model=options.model,
-                                        unblind=options.unblind,
-                                        printCommand=options.printCommand)
+
+            future = pool.apply_async(getLimits, (card, options.model,
+                                                  options.unblind,
+                                                  options.printCommand))
+            futures.append((card, future))
+
+        limdata = {} # (cv,ct) -> (2sd, 1sd, lim, 1su, 2su, [obs])
+        for card, future in futures:
+            cv, ct, liminfo = future.get() # catch timeout?
             limdata[(cv,ct)] = liminfo
-    
+
         fnames = []
         for cv_ in [0.5, 1.0, 1.5]:
             if not cv_ in [v for v,_ in limdata.keys()]: continue
@@ -222,7 +235,11 @@ def main(args, options):
                 for cv,ct in sorted(limdata.keys()):
                     if not cv == cv_: continue
                     values = [cv, ct]
-                    values += [limdata[(cv,ct)][x] for x in ['twosigdown','onesigdown','exp','onesigup','twosigup']]
+                    values += [limdata[(cv,ct)][x] for x in ['twosigdown',
+                                                             'onesigdown',
+                                                             'exp',
+                                                             'onesigup',
+                                                             'twosigup']]
                     if options.unblind:
                         values += [limdata[(cv,ct)]['obs']]
                     csvfile.write(','.join(map(str, values)) + '\n')
@@ -295,6 +312,8 @@ if __name__ == '__main__':
     parser = OptionParser(usage=usage)
     parser.add_option("-r","--run", dest="runmode", type="string", default="limits",
                       help="What to run (limits|ctcvlimits|fit|sig)")
+    parser.add_option("-j","--jobs", dest="jobs", type="int", default=1,
+                      help="Number of jobs to run in parallel")
     parser.add_option("-t","--tag", dest="tag", type="string", default=None,
                       help="Tag to put in name of output csv files")
     parser.add_option("-m","--model", dest="model", type="string", default="K6",

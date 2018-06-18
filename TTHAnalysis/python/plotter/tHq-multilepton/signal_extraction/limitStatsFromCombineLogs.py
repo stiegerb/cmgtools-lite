@@ -34,6 +34,7 @@ def getLimitVals(logfile):
 
     if kappa_t is None or kappa_V is None:
         print "failed to determine kappas for", logfile
+        raise RuntimeError("Empty logs in %s ?" % logfile)
 
     ktdivkV = float("%.3f" % (kappa_t / kappa_V))
     ktdivkV = EXPANDPRECISION.get(ktdivkV, ktdivkV)

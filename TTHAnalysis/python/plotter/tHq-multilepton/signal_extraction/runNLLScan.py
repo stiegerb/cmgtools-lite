@@ -16,14 +16,14 @@ from runAllLimits import processInputs
 def parseOutput(comboutput):
     for line in comboutput.split('\n'):
         if "WARNING: MultiDimFit failed" in line:
-            print "\033[91mFailed\033[0m"
+            print "\033[91mFit Failed\033[0m"
         m = re.match(r'Done in [\d\.]+ min \(cpu\), ([\d\.]*) min \(real\)', line)
         if not m:
             continue
 
         return float(m.group(1))
 
-    print "\033[91mFailed\033[0m"
+    print "\033[91mFailed to parse output\033[0m"
     return None
 
 
@@ -45,9 +45,12 @@ def runNLLScan(card, verbose=False, toysFile=None):
     printout = "%-40s CV=%5.2f, Ct=%5.2f : " % (os.path.basename(card), cv, ct)
     combinecmd = "combine -M MultiDimFit --algo fixed --fixedPointPOIs r=1"
     combinecmd += " --rMin=0 --rMax=20 --X-rtd ADDNLL_RECURSIVE=0"
-    combinecmd += " --cminDefaultMinimizerStrategy 0"
+    combinecmd += " --cminDefaultMinimizerStrategy 0" # default is 1
+    combinecmd += " --cminDefaultMinimizerTolerance 0.01" # default is 0.1
+    combinecmd += " --cminPreScan" # default is off
     combinecmd += " -m 125 --verbose 0 -n _nll_scan_r1_%s" % tag
-    combinecmd += setParamatersFreezeAll(ct / cv, 1.0)
+    combinecmd += setParamatersFreezeAll(ct / cv, 1.0, freezeAlso=['pdfindex_TTHHadronicTag_13TeV',
+                                                                   'pdfindex_TTHLeptonicTag_13TeV'])
 
     if toysFile:
         assert(os.path.isfile(toysFile)), "file not found %s" % toysFile
