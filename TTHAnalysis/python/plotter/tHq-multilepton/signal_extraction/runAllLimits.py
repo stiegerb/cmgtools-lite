@@ -43,6 +43,7 @@ def setParamatersFreezeAll(ct,cv,freezeAlso=None):
     addoptions += " --freezeParameters kappa_t,kappa_V,kappa_tau,kappa_mu,"
     addoptions += "kappa_b,kappa_c,kappa_g,kappa_gam,r_others"
     if freezeAlso:
+        addoptions += ','
         addoptions += ','.join(freezeAlso)
     addoptions += " --redefineSignalPOIs r"
     return addoptions

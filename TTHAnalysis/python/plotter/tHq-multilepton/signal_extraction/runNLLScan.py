@@ -13,6 +13,43 @@ from runAllLimits import setParamatersFreezeAll
 from runAllLimits import processInputs
 
 
+ADD_RATIO_VALS = {
+    -6.000 : [-5.5, -5.0, -4.5],
+    -4.000 : [-3.75, -3.5, -3.25, -5.5, -5.0, -4.5],
+    -3.000 : [-2.875, -2.75, -2.625, -3.75, -3.5, -3.25],
+    -2.500 : [-2.375, -2.25, -2.125, -2.875, -2.75, -2.625],
+    -2.000 : [-1.875, -1.75, -1.625, -2.375, -2.25, -2.125],
+    -1.500 : [-1.4582, -1.4165, -1.3748, -1.875, -1.75, -1.625],
+    -1.333 : [-1.3122, -1.2915, -1.2708, -1.4582, -1.4165, -1.3748],
+    -1.250 : [-1.1875, -1.125, -1.0625, -1.3122, -1.2915, -1.2708],
+    -1.000 : [-0.9582, -0.9165, -0.8748, -1.1875, -1.125, -1.0625],
+    -0.833 : [-0.8122, -0.7915, -0.7708, -0.9582, -0.9165, -0.8748],
+    -0.750 : [-0.7292, -0.7085, -0.6878, -0.8122, -0.7915, -0.7708],
+    -0.667 : [-0.6253, -0.5835, -0.5417, -0.7292, -0.7085, -0.6878],
+    -0.500 : [-0.4582, -0.4165, -0.3748, -0.6253, -0.5835, -0.5417],
+    -0.333 : [-0.3123, -0.2915, -0.2708, -0.4582, -0.4165, -0.3748],
+    -0.250 : [-0.2292, -0.2085, -0.1878, -0.3123, -0.2915, -0.2708],
+    -0.167 : [-0.1252, -0.0835, -0.0418, -0.2292, -0.2085, -0.1878],
+    -0.000 : [0.0418, 0.0835, 0.1252, -0.1252, -0.0835, -0.0418],
+     0.167 : [0.1878, 0.2085, 0.2292, 0.0418, 0.0835, 0.1252],
+     0.250 : [0.2708, 0.2915, 0.3123, 0.1878, 0.2085, 0.2292],
+     0.333 : [0.3748, 0.4165, 0.4582, 0.2708, 0.2915, 0.3123],
+     0.500 : [0.5417, 0.5835, 0.6253, 0.3748, 0.4165, 0.4582],
+     0.667 : [0.6878, 0.7085, 0.7292, 0.5417, 0.5835, 0.6253],
+     0.750 : [0.7708, 0.7915, 0.8122, 0.6878, 0.7085, 0.7292],
+     0.833 : [0.8748, 0.9165, 0.9582, 0.7708, 0.7915, 0.8122],
+     1.000 : [1.0625, 1.125, 1.1875, 0.8748, 0.9165, 0.9582],
+     1.250 : [1.2708, 1.2915, 1.3122, 1.0625, 1.125, 1.1875],
+     1.333 : [1.3748, 1.4165, 1.4582, 1.2708, 1.2915, 1.3122],
+     1.500 : [1.625, 1.75, 1.875, 1.3748, 1.4165, 1.4582],
+     2.000 : [2.125, 2.25, 2.375, 1.625, 1.75, 1.875],
+     2.500 : [2.625, 2.75, 2.875, 2.125, 2.25, 2.375],
+     3.000 : [3.25, 3.5, 3.75, 2.625, 2.75, 2.875],
+     4.000 : [4.5, 5.0, 5.5, 3.25, 3.5, 3.75],
+     6.000 : [4.5, 5.0, 5.5],
+}
+
+
 def parseOutput(comboutput):
     for line in comboutput.split('\n'):
         if "WARNING: MultiDimFit failed" in line:
@@ -31,7 +68,7 @@ def getNLLFromRootFile(rfilename):
     tf = TFile.Open(rfilename, 'read')
     tree = tf.Get("limit")
     if not tree:
-        raise RunTimeError("Unable to read limit tree from file %s" % rfilename)
+        raise RuntimeError("Unable to read limit tree from file %s" % rfilename)
 
     data = [(float(e.r), float(e.deltaNLL)) for e in tree]
     tf.Close()
@@ -40,17 +77,21 @@ def getNLLFromRootFile(rfilename):
     return data
 
 
-def runNLLScan(card, verbose=False, toysFile=None):
+def runNLLScan(card, setratio=None, verbose=False, toysFile=None):
     cv, ct, tag = parseName(card, printout=False)
-    printout = "%-40s CV=%5.2f, Ct=%5.2f : " % (os.path.basename(card), cv, ct)
+    printout = "%-40s CV=%5.2f, Ct=%5.2f" % (os.path.basename(card), cv, ct)
     combinecmd = "combine -M MultiDimFit --algo fixed --fixedPointPOIs r=1"
     combinecmd += " --rMin=0 --rMax=20 --X-rtd ADDNLL_RECURSIVE=0"
     combinecmd += " --cminDefaultMinimizerStrategy 0" # default is 1
     combinecmd += " --cminDefaultMinimizerTolerance 0.01" # default is 0.1
     combinecmd += " --cminPreScan" # default is off
-    combinecmd += " -m 125 --verbose 0 -n _nll_scan_r1_%s" % tag
-    combinecmd += setParamatersFreezeAll(ct / cv, 1.0, freezeAlso=['pdfindex_TTHHadronicTag_13TeV',
-                                                                   'pdfindex_TTHLeptonicTag_13TeV'])
+
+    ratio = setratio or round(ct/cv, 3)
+    filetag = "%s_%s" % (tag, str(ratio))
+    printout += ", Ratio=%7.4f: " % setratio
+    combinecmd += " -m 125 --verbose 0 -n _nll_scan_r1_%s" % (filetag)
+    combinecmd += setParamatersFreezeAll(ratio, 1.0, freezeAlso=['pdfindex_TTHHadronicTag_13TeV',
+                                                                 'pdfindex_TTHLeptonicTag_13TeV'])
 
     if toysFile:
         assert(os.path.isfile(toysFile)), "file not found %s" % toysFile
@@ -59,7 +100,7 @@ def runNLLScan(card, verbose=False, toysFile=None):
     comboutput = runCombineCommand(combinecmd, card, verbose=verbose)
     elapsed = parseOutput(comboutput)
     try:
-        data1 = getNLLFromRootFile("higgsCombine_nll_scan_r1_%s.MultiDimFit.mH125.root" % tag)
+        data1 = getNLLFromRootFile("higgsCombine_nll_scan_r1_%s.MultiDimFit.mH125.root" % filetag)
         printout += "r=%5.2f, dNLL_r1=%5.2f " % (data1[0][0], data1[1][1])
     except AssertionError, IndexError:
         return np.nan, np.nan, np.nan
@@ -70,7 +111,7 @@ def runNLLScan(card, verbose=False, toysFile=None):
     elapsed += parseOutput(comboutput)
 
     try:
-        data0 = getNLLFromRootFile("higgsCombine_nll_scan_r0_%s.MultiDimFit.mH125.root" % tag)
+        data0 = getNLLFromRootFile("higgsCombine_nll_scan_r0_%s.MultiDimFit.mH125.root" % filetag)
         printout += "dNLL_r0=%5.2f" % data0[1][1]
     except AssertionError, IndexError:
         return np.nan, np.nan, np.nan
@@ -84,6 +125,7 @@ def runNLLScan(card, verbose=False, toysFile=None):
 
     return (data1[0][0], data1[1][1], data0[1][1])
 
+
 def main(args, options):
     cards, runtag = processInputs(args, options)
 
@@ -94,24 +136,35 @@ def main(args, options):
 
     futures = []
     for card in cards:
+        cv, ct, tag = parseName(card, printout=False)
+        ratio = round(ct/cv, 3)
         future = pool.apply_async(runNLLScan, (card,
+                                               ratio,
                                                options.printCommand,
                                                options.toysFile))
-        futures.append((card, future))
+        futures.append((card, ratio, future))
 
+        if options.addValues:
+            for added_val in ADD_RATIO_VALS.get(ratio):
+                future = pool.apply_async(runNLLScan, (card,
+                                                       added_val,
+                                                       options.printCommand,
+                                                       options.toysFile))
+                futures.append((card, added_val, future))
 
     with open(csvfname, 'w') as csvfile:
-        csvfile.write('fname,cv,cf,bestfitr,nllr1,nllr0\n')
-        for card, future in futures:
+        csvfile.write('fname,cv,cf,ratio,bestfitr,nllr1,nllr0\n')
+        for card, ratio, future in futures:
             cv, ct, tag = parseName(card, printout=False)
             bfr, nllr1, nllr0 = future.get() # catch timeout?
-            csvfile.write(','.join(map(str, [card, cv, ct, bfr, nllr1, nllr0])) + '\n')
+            csvfile.write(','.join(map(str, [card, cv, ct, ratio, bfr, nllr1, nllr0])) + '\n')
 
         csvfile.write('\n')
 
     print "...wrote results to %s" % csvfname
 
     return 0
+
 
 if __name__ == '__main__':
     from optparse import OptionParser
@@ -136,6 +189,8 @@ if __name__ == '__main__':
                       help="File from which to read toys for expected nll")
     parser.add_option("-p","--printCommand", dest="printCommand", action='store_true',
                       help="Print the combine command that is run")
+    parser.add_option("--addValues", dest="addValues", action='store_true',
+                      help="Add three steps between each point for interpolation")
     (options, args) = parser.parse_args()
 
     sys.exit(main(args, options))
