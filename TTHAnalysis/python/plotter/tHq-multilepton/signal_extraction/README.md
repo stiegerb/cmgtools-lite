@@ -312,3 +312,45 @@ and passed to the scanning options above with `-t -1 --toysFile toy.root`.
 The resulting series of likelihood values are adjusted such that the lowest value is at zero (by simply subtracting the lowest value from each point).
 
 
+### Fit tH and ttH simultaneously
+
+To assess the correlation between tH and ttH signal strengths, we can run a multidimensional fit floating both simultaneously and then investigate the 2-dimensional likelihood scan. We use the `A1` model from above, which includes the relevant POIs `mu_XS_tH`, `mu_XS_ttH`, and `mu_XS_ttHtH`.
+
+To just float both and get the minimum point, we can use `-M MultiDimFit --algo singles`:
+```
+combine -M MultiDimFit --algo singles ws_tHq_1_1_A1.root \
+--redefineSignalPOIs mu_XS_tH,mu_XS_ttH --autoBoundsPOIs=* \
+-m 125 --verbose 0 -n testing \
+--X-rtd ADDNLL_RECURSIVE=0 --X-rtd MINIMIZER_analytic \
+--cminDefaultMinimizerTolerance 0.01 --cminDefaultMinimizerStrategy 0 --cminPreScan
+```
+
+To produce a grid of likelihood points in a certain range, we use `--algo grid --points N`. The `--fastScan` option skips the profiling of nuisances and speeds up by a factor 10-100.
+
+```
+combine -M MultiDimFit --algo grid --points 10000 ws_tHq_1_1_A1.root  \ 
+--redefineSignalPOIs mu_XS_ttH,mu_XS_tH \
+--setParameterRanges mu_XS_tH=-5,20:mu_XS_ttH=0.0,5.0 \ 
+--fastScan \
+-m 125 --verbose 0 -n testing \
+--X-rtd ADDNLL_RECURSIVE=0 --X-rtd MINIMIZER_analytic \
+--cminDefaultMinimizerTolerance 0.01 --cminDefaultMinimizerStrategy 0 --cminPreScan
+```
+
+To run the full scan (without `--fastScan`), we submit jobs to lxbatch:
+
+```
+combineTool.py -d ws_tHq_1_1_A1.root -M MultiDimFit  --algo grid --points 10000 \
+--redefineSignalPOIs mu_XS_ttH,mu_XS_tH  \
+--setParameterRanges mu_XS_tH=-5,20:mu_XS_ttH=0.0,5.0  \
+--job-mode lxbatch  \
+--split-points 100 --sub-opts='-q 8nh' --task-name tHttH_grid \
+-m 125 --verbose 0 -n grid_tH_ttH_comb7 \
+--X-rtd ADDNLL_RECURSIVE=0 --X-rtd MINIMIZER_analytic \
+--cminDefaultMinimizerTolerance 0.01 --cminDefaultMinimizerStrategy 0 --cminPreScan \
+```
+
+See also the relevant sections in the combine help for additional info:
+https://cms-hcomb.gitbooks.io/combine/content/part3/commonstatsmethods.html#likelihood-fits-and-scans
+https://cms-hcomb.gitbooks.io/combine/content/part3/runningthetool.html#submission-to-lsf-batch
+

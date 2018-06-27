@@ -102,7 +102,7 @@ if __name__ == '__main__':
     Copy also the input.root files to the output directory.
 
     Assumes the input directories (channels) are ordered as follows:
-    2lss_mm, 2lss_em, 3l, bb_3m, bb_4m, bb_dilep
+    2lss_mm, 2lss_em, 3l, bb_3m, bb_4m, bb_dilep, gamgam
 
     Change this order (and the output bin names) by using -c/--binnames
 
