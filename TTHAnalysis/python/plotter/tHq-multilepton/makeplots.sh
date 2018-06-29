@@ -97,6 +97,49 @@ case "$PLOTTAG" in
 
         DONE
         ;;
+    "PAPER" )
+        SELECTPLOTS=" --sP dPhiHighestPtSSPair --sP maxEtaJet25_40 --sP nJet25 --sP finalBins_40"
+        # DRAWOPTIONS=" --showRatio --maxRatioRange -1.5 3.2 --fixRatioRange --showMCError --subPredInRatios"
+        # DRAWOPTIONS=" --showRatio --maxRatioRange 0 3.2 --fixRatioRange --showMCError"
+        DRAWOPTIONS=" --showRatio --maxRatioRange -0.4 4.2 --fixRatioRange --showMCError --paper"
+
+        # Note: to produce the input file, run the mca...-PAS.txt with --AP option
+        # 3L
+        MCA="tHq-multilepton/mca-thq-3l-mcdata-frdata-PAS.txt"
+        CUTS="tHq-multilepton/cuts-thq-3l.txt"
+        PLOTS="tHq-multilepton/plots-thq-3l-kinMVA.txt"
+        INPUTFILE="/afs/cern.ch/user/s/stiegerb/www/tHq13TeV/2017/May4/3l/plots-thq-3l-kinMVA.root"
+        OPTIONS="--outDir ${OUTDIR} ${DRAWOPTIONS} ${SELECTPLOTS} --sP thqMVA_tt_3l_40 --sP thqMVA_ttv_3l_40"
+
+        ARGUMENTS="${MCA} ${PLOTS} ${INPUTFILE}"
+        OPTIONS="${TREEINPUTS} ${FRIENDTREES} ${BASEOPTIONS} ${OPTIONS}"
+        python tHq-multilepton/plotTHQ.py ${ARGUMENTS} ${OPTIONS}
+
+        # 2LSS
+        MCA="tHq-multilepton/mca-thq-2lss-mcdata-frdata-PAS.txt"
+        CUTS="tHq-multilepton/cuts-thq-2lss.txt"
+        PLOTS="tHq-multilepton/plots-thq-2lss-kinMVA.txt"
+
+        # mumu
+        INPUTFILE="/afs/cern.ch/user/s/stiegerb/www/tHq13TeV/2017/May4/2lss-mm/plots-thq-2lss-kinMVA.root"
+        OPTIONS="--outDir ${OUTDIR} ${DRAWOPTIONS} --xp data_flips"
+
+        ARGUMENTS="${MCA} ${PLOTS} ${INPUTFILE}"
+        OPTIONS="${TREEINPUTS} ${FRIENDTREES} ${BASEOPTIONS} ${OPTIONS}"
+        python tHq-multilepton/plotTHQ.py ${ARGUMENTS} ${OPTIONS} ${SELECTPLOTS}
+        python tHq-multilepton/plotTHQ.py ${ARGUMENTS} ${OPTIONS} --sP finalBins_40 --sP thqMVA_tt_2lss_40 --sP thqMVA_ttv_2lss_40
+
+        # emu
+        INPUTFILE="/afs/cern.ch/user/s/stiegerb/www/tHq13TeV/2017/May4/2lss-em/plots-thq-2lss-kinMVA.root"
+        OPTIONS="--outDir ${OUTDIR} ${DRAWOPTIONS}"
+        OPTIONS="${OPTIONS} ${SELECTPLOTS} --sP thqMVA_tt_2lss_40 --sP thqMVA_ttv_2lss_40"
+
+        ARGUMENTS="${MCA} ${PLOTS} ${INPUTFILE}"
+        OPTIONS="${TREEINPUTS} ${FRIENDTREES} ${BASEOPTIONS} ${OPTIONS}"
+        python tHq-multilepton/plotTHQ.py ${ARGUMENTS} ${OPTIONS}
+
+        DONE
+        ;;
     "3l" )
         OPTIONS="${OPTIONS} ${DRAWOPTIONS} ${OPT3L}"
         MCA="tHq-multilepton/mca-thq-3l-mcdata-frdata-PAS.txt"
@@ -335,6 +378,34 @@ case "$PLOTTAG" in
 
         PLOTINPUT="www/Mar28_unblinding/2lss-em/plots-thq-2lss-kinMVA.root"
         python tHq-multilepton/postFitPlotsTHq.py ${MCA1} ${MCA2} ${PLOTINPUT} ${FITRESULT} 2lss_em --outDir ${OUTDIR} ${DRAWOPTIONS} --doLog 
+        python tHq-multilepton/postFitPlotsTHq.py ${MCA1} ${MCA2} ${PLOTINPUT} ${FITRESULT} 2lss_em --outDir ${OUTDIR} ${DRAWOPTIONS}
+
+        DONE
+        ;;
+
+    "postfitcomb" )
+        # FITRESULT="tHq-multilepton/signal_extraction/cards_Mar28_unblinded/comb3/mlfit_1_m1.root"
+        FITRESULT="tHq-multilepton/signal_extraction/combination/comb7_Jun22/fitdiag/Jun26_woBarlBeest/fitDiagnostics.root"
+        # DRAWOPTIONS="--maxRatioRange 0 3.2 --fixRatioRange"
+        DRAWOPTIONS="--maxRatioRange 0 3.2 --fixRatioRange --lspam #bf{CMS}"
+        # DRAWOPTIONS="--maxRatioRange -5.2 10.8 --fixRatioRange --bkgSub"
+
+        # MCA1="tHq-multilepton/mca-thq-3l-mcdata-frdata.txt"
+        MCA1="tHq-multilepton/mca-thq-3l-mcdata-frdata-PAS.txt"
+        MCA2="tHq-multilepton/signal_extraction/mca-thq-3l-mcdata-frdata_limits.txt"
+        PLOTINPUT="www/2017/Mar28_unblinding/3l/plots-thq-3l-kinMVA.root"
+        # python tHq-multilepton/postFitPlotsTHq.py ${MCA1} ${MCA2} ${PLOTINPUT} ${FITRESULT} 3l --outDir ${OUTDIR} ${DRAWOPTIONS} --doLog 
+        python tHq-multilepton/postFitPlotsTHq.py ${MCA1} ${MCA2} ${PLOTINPUT} ${FITRESULT} 3l --outDir ${OUTDIR} ${DRAWOPTIONS}
+
+        # MCA1="tHq-multilepton/mca-thq-2lss-mcdata-frdata.txt"
+        MCA1="tHq-multilepton/mca-thq-2lss-mcdata-frdata-PAS.txt"
+        MCA2="tHq-multilepton/signal_extraction/mca-thq-2lss-mcdata-frdata_limits.txt"
+        PLOTINPUT="www/2017/Mar28_unblinding/2lss-mm/plots-thq-2lss-kinMVA.root"
+        # python tHq-multilepton/postFitPlotsTHq.py ${MCA1} ${MCA2} ${PLOTINPUT} ${FITRESULT} 2lss_mm --outDir ${OUTDIR} ${DRAWOPTIONS} --doLog 
+        python tHq-multilepton/postFitPlotsTHq.py ${MCA1} ${MCA2} ${PLOTINPUT} ${FITRESULT} 2lss_mm --outDir ${OUTDIR} ${DRAWOPTIONS}
+
+        PLOTINPUT="www/2017/Mar28_unblinding/2lss-em/plots-thq-2lss-kinMVA.root"
+        # python tHq-multilepton/postFitPlotsTHq.py ${MCA1} ${MCA2} ${PLOTINPUT} ${FITRESULT} 2lss_em --outDir ${OUTDIR} ${DRAWOPTIONS} --doLog 
         python tHq-multilepton/postFitPlotsTHq.py ${MCA1} ${MCA2} ${PLOTINPUT} ${FITRESULT} 2lss_em --outDir ${OUTDIR} ${DRAWOPTIONS}
 
         DONE

@@ -59,6 +59,19 @@ LABELS = {
     'data_flips' : 'Charge flips'
 }
 
+CHANNEL_LABELS = {
+    '3l' : "3 lep.",
+    'mm' : "#mu^{#pm}#mu^{#pm}",
+    'em' : "e^{#pm}#mu^{#pm}",
+    'ee' : "e^{#pm}e^{#pm}"
+}
+
+CHANNEL_LABEL_POS = {
+    ('dPhiHighestPtSSPair', 'mm') : (0.82, 0.82),
+    ('dPhiHighestPtSSPair', 'em') : (0.82, 0.82),
+    ('dPhiHighestPtSSPair', '3l') : (0.82, 0.82),
+}
+
 def doTinyCmsPrelim(textLeft="_default_",
                     textRight="_default_",
                     hasExpo=False,
@@ -195,6 +208,8 @@ if __name__ == "__main__":
                       help="Output directory for postfit plots");
     parser.add_option("--doLog", dest="doLog", action="store_true",
                       help="Do logarithmic scale plots");
+    parser.add_option("--paper", dest="paper", action="store_true",
+                      help="Make paper version of plots");
     parser.add_option("--subPredInRatios", dest="subPredInRatios", action="store_true",
                       help="Subtract prediction in ratios");
     parser.add_option("--doRebinning", dest="doRebinning", action="store_true",
@@ -350,7 +365,7 @@ if __name__ == "__main__":
 
         doTinyCmsPrelim(hasExpo = False,
                         textSize=(0.055), xoffs=-0.03,
-                        textLeft = "#bf{CMS} #it{Preliminary}",
+                        textLeft = "#bf{CMS} #it{Preliminary}" if not options.paper else "#bf{CMS}",
                         textRight = "%(lumi) (13 TeV)",
                         lumi = options.lumi,
                         ypos=0.935)
@@ -363,6 +378,14 @@ if __name__ == "__main__":
 
         if pspec.hasOption('Logy'):
             p1.SetLogy(True)
+
+        ## Add labels for each channel
+        tlat = ROOT.TLatex()
+        tlat.SetNDC(True)
+        tlat.SetTextFont(43); tlat.SetTextSize(28);
+        tlat.DrawLatex(CHANNEL_LABEL_POS.get((pspec.name, channel), (0.82, 0.60))[0],
+                       CHANNEL_LABEL_POS.get((pspec.name, channel), (0.82, 0.60))[1],
+                       CHANNEL_LABELS.get(channel, "Undef."))
 
         # Make the ratios
         p2.cd()

@@ -77,6 +77,13 @@ YAXIS_RANGE = { # For log plots
     'tHq_2lss_ee_13TeV' : (0.5, 70),
 }
 
+CHANNEL_LABELS = {
+    'tHq_3l_13TeV'      : "3 leptons",
+    'tHq_2lss_mm_13TeV' : "#mu^{#pm}#mu^{#pm}",
+    'tHq_2lss_em_13TeV' : "e^{#pm}#mu^{#pm}",
+    'tHq_2lss_ee_13TeV' : "e^{#pm}e^{#pm}"
+}
+
 REBINMAP_3l = {7:9, 2:5, 9:7, 5:2}
 REBINMAP_2l = {3:2, 2:4, 5:3, 4:8, 6:5, 9:6, 8:10, 10:9}
 
@@ -385,7 +392,10 @@ if __name__ == "__main__":
 
     mca_merged = MCAnalysis(args[0], options) # for the merged processes (plots)
     mca_indivi = MCAnalysis(args[1], options) # for the individual processes (fit)
-    channel = {'3l': 'tHq_3l_13TeV', '2lss_mm':'tHq_2lss_mm_13TeV', '2lss_em':'tHq_2lss_em_13TeV'}[args[4]]
+    channel = {'3l': 'tHq_3l_13TeV', 
+               '2lss_mm':'tHq_2lss_mm_13TeV',
+               '2lss_em':'tHq_2lss_em_13TeV',
+               '2lss_ee':'tHq_2lss_ee_13TeV'}[args[4]]
     rebinmap = REBINMAP_3l if '3l' in channel else REBINMAP_2l
 
     var = "finalBins_40"
@@ -619,6 +629,12 @@ if __name__ == "__main__":
 
         if options.doLog:
             p1.SetLogy(True)
+
+        ## Add labels for each channel
+        tlat = ROOT.TLatex()
+        tlat.SetNDC(True)
+        tlat.SetTextFont(43); tlat.SetTextSize(28);
+        tlat.DrawLatex(0.28, 0.82, CHANNEL_LABELS.get(channel, "Undef."))
 
         ## Do the ratio plot
         ## Draw relative prediction in the bottom frame
