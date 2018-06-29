@@ -80,18 +80,23 @@ def getNLLFromRootFile(rfilename):
 def runNLLScan(card, setratio=None, verbose=False, toysFile=None):
     cv, ct, tag = parseName(card, printout=False)
     printout = "%-40s CV=%5.2f, Ct=%5.2f" % (os.path.basename(card), cv, ct)
-    combinecmd = "combine -M MultiDimFit --algo fixed --fixedPointPOIs r=1"
+    combinecmd = "combine -M MultiDimFit --algo fixed --fixedPointPOIs r=0,r_others=0"
     combinecmd += " --rMin=0 --rMax=20 --X-rtd ADDNLL_RECURSIVE=0"
     combinecmd += " --cminDefaultMinimizerStrategy 0" # default is 1
     combinecmd += " --cminDefaultMinimizerTolerance 0.01" # default is 0.1
     combinecmd += " --cminPreScan" # default is off
+    combinecmd += " --X-rtd MINIMIZER_analytic" # trying out for aa toys
 
     ratio = setratio or round(ct/cv, 3)
     filetag = "%s_%s" % (tag, str(ratio))
     printout += ", Ratio=%7.4f: " % setratio
     combinecmd += " -m 125 --verbose 0 -n _nll_scan_r1_%s" % (filetag)
-    combinecmd += setParamatersFreezeAll(ratio, 1.0, freezeAlso=['pdfindex_TTHHadronicTag_13TeV',
-                                                                 'pdfindex_TTHLeptonicTag_13TeV'])
+    combinecmd += " --setParameters kappa_t=%.2f,kappa_V=1.0,r=1,r_others=1" % ratio
+    combinecmd += " --freezeParameters kappa_t,kappa_V,kappa_tau,kappa_mu,"
+    combinecmd += "kappa_b,kappa_c,kappa_g,kappa_gam,r_others,"
+    combinecmd += "pdfindex_TTHHadronicTag_13TeV,pdfindex_TTHLeptonicTag_13TeV"
+    combinecmd += " --redefineSignalPOIs r"
+
 
     if toysFile:
         assert(os.path.isfile(toysFile)), "file not found %s" % toysFile
@@ -101,29 +106,29 @@ def runNLLScan(card, setratio=None, verbose=False, toysFile=None):
     elapsed = parseOutput(comboutput)
     try:
         data1 = getNLLFromRootFile("higgsCombine_nll_scan_r1_%s.MultiDimFit.mH125.root" % filetag)
-        printout += "r=%5.2f, dNLL_r1=%5.2f " % (data1[0][0], data1[1][1])
+        printout += "r=%5.2f, dNLL=%5.2f " % (data1[0][0], data1[1][1])
     except AssertionError, IndexError:
         return np.nan, np.nan, np.nan
 
-    combinecmd = combinecmd.replace("--fixedPointPOIs r=1", "--fixedPointPOIs r=0")
-    combinecmd = combinecmd.replace("-n _nll_scan_r1_", "-n _nll_scan_r0_")
-    comboutput = runCombineCommand(combinecmd, card, verbose=verbose)
-    elapsed += parseOutput(comboutput)
+    # combinecmd = combinecmd.replace("--fixedPointPOIs r=1,r_others=1", "--fixedPointPOIs r=0,r_others=0")
+    # combinecmd = combinecmd.replace("-n _nll_scan_r1_", "-n _nll_scan_r0_")
+    # comboutput = runCombineCommand(combinecmd, card, verbose=verbose)
+    # elapsed += parseOutput(comboutput)
 
-    try:
-        data0 = getNLLFromRootFile("higgsCombine_nll_scan_r0_%s.MultiDimFit.mH125.root" % filetag)
-        printout += "dNLL_r0=%5.2f" % data0[1][1]
-    except AssertionError, IndexError:
-        return np.nan, np.nan, np.nan
+    # try:
+    #     data0 = getNLLFromRootFile("higgsCombine_nll_scan_r0_%s.MultiDimFit.mH125.root" % filetag)
+    #     printout += "dNLL_r0=%5.2f" % data0[1][1]
+    # except AssertionError, IndexError:
+    #     return np.nan, np.nan, np.nan
 
-    # floating fit has to be identical and perfect
-    assert(data1[0] == data0[0]), "r=1 and r=0 fits give different results"
-    assert(data1[0][1] == 0.0), "dNLL for floating r not equal to 0"
+    # # floating fit has to be identical and perfect
+    # assert(data1[0] == data0[0]), "r=1 and r=0 fits give different results"
+    # assert(data1[0][1] == 0.0), "dNLL for floating r not equal to 0"
 
     printout += "  \033[92mDone\033[0m in %.2f min" % elapsed
     print printout
 
-    return (data1[0][0], data1[1][1], data0[1][1])
+    return (data1[0][0], data1[1][1])
 
 
 def main(args, options):
@@ -153,11 +158,11 @@ def main(args, options):
                 futures.append((card, added_val, future))
 
     with open(csvfname, 'w') as csvfile:
-        csvfile.write('fname,cv,cf,ratio,bestfitr,nllr1,nllr0\n')
+        csvfile.write('fname,cv,cf,ratio,bestfitr,dnll\n')
         for card, ratio, future in futures:
             cv, ct, tag = parseName(card, printout=False)
-            bfr, nllr1, nllr0 = future.get() # catch timeout?
-            csvfile.write(','.join(map(str, [card, cv, ct, ratio, bfr, nllr1, nllr0])) + '\n')
+            bfr, dnll = future.get() # catch timeout?
+            csvfile.write(','.join(map(str, [card, cv, ct, ratio, bfr, dnll])) + '\n')
 
         csvfile.write('\n')
 
