@@ -69,7 +69,7 @@ if __name__ == '__main__':
             continue
 
         copts = "-P %s:%s -m 125" % (options.baseModel, options.model)
-        if options.model in ['K%d'%d for d in [4, 5, 6, 7, 8, 9]]:
+        if not options.model == "A1":
             copts += " --PO BRU=0"
 
         trunk = os.path.basename(card).replace('.card.txt', '')
