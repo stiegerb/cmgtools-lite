@@ -1,7 +1,8 @@
 {
-    "name" : "nll_scan_K5_Jun14",
-    "inputdir" : "nllscans/Jun14",
+    "name" : "nll_scan_K5_Aug3",
+    "inputdir" : "results_Aug3",
     "tag3" : "$\\kappa_{\\mathrm{V}}=1.0$, resolved",
+    "header_left" : "$\\mathbf{CMS}$",
     "entries" : [
         {
             "csv_file" : "nll_scan_K5.csv",

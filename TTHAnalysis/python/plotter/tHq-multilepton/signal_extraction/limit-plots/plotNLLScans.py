@@ -22,10 +22,14 @@ from plotLimit import readConfig
 from plotLimit import setUpMPL
 
 
-def process(inputfile):
+def process(inputfile, added=None):
     df = pd.read_csv(inputfile, sep=",", index_col=None)
+
     # Calculate relative NLL
-    df['dnll'] = 2*(df.nllr1 - df.nllr0)
+    if not 'dnll'in df.columns:
+        df['dnll'] = 2*(df.nllr1 - df.nllr0)
+    else:
+        df['dnll'] = -2*df.dnll
 
     # Add in ratio column if it's not there
     if not 'ratio' in df.columns:
@@ -40,66 +44,131 @@ def process(inputfile):
     df.sort_values(by='ratio', inplace=True)
     df.index = range(1,len(df)+1)
 
+    # Add interpolating points?
+    if added:
+        df = addInterpolatingPoints(df, added, npoints=3)
+
+
     # Shift dnll up by lowest value
     dnllmin = np.min(df.dnll)
     idxmin = df.dnll.idxmin()
     assert(df.loc[idxmin].dnll == dnllmin), "inconsistent minimum?"
     print '... shifting dnll values by %5.3f (at %4.2f) for %s' % (np.abs(dnllmin), df.loc[idxmin].ratio, inputfile)
     df['dnll'] = df.dnll + np.abs(dnllmin)
+    df.dropna(subset=['dnll'], inplace=True)
+
     return df
 
 
-def plotNLLScans(config, outdir='plots/', tag='', nosplines=False):
-    for entry in config['entries']:
+def addInterpolatingPoints(dframe, filename, npoints=3):
+    """
+    Add additional, interpolating points. dframe should contain the original points
+
+    FIXME: - Take only ONE file and do it automatically
+           - Need to pass a list of predefined ratio values
+    """
+    print "Adding interpolating points from", filename
+    files  = {v:os.path.basename(f) for v,f in zip(dframe.ratio, dframe.fname)}
+
+    def addvalues(x, y, nvals=1):
+        return [np.round(v, 4) for v in list(np.linspace(x,y, nvals+2))[1:-1]]
+
+    added_values = {} # new ratio value -> (file1, weight1), (file2, weight2)
+    for x,y in zip(list(dframe.ratio)[:-1], list(dframe.ratio)[1:]):
+        to_add = addvalues(x, y, npoints)
+        weights = [float(n)/(npoints+1) for n in range(npoints, 0, -1)]
+
+        for val, weight in zip(to_add, weights):
+            added_values[val] = ((files[x], weight), (files[y], 1.0-weight))
+        
+    df = pd.read_csv(filename)
+    df['fname'] = df.fname.apply(os.path.basename)
+    df.sort_values(by='ratio', inplace=True)
+    df.index = range(1,len(df)+1)
+    df['dnll'] = 2*(df.nllr1 - df.nllr0)
+
+    def get_dll(ratio, fname, dframe=df, att='dnll'):
+        return float(dframe.loc[dframe.fname==fname].loc[dframe.ratio==ratio][att])
+
+    df_added = pd.DataFrame(sorted(added_values.keys()), columns=['ratio'])
+    df_added['file1']   = [added_values[k][0][0] for k in df_added.ratio]
+    df_added['weight1'] = [added_values[k][0][1] for k in df_added.ratio]
+    df_added['file2']   = [added_values[k][1][0] for k in df_added.ratio]
+    df_added['weight2'] = [added_values[k][1][1] for k in df_added.ratio]
+
+    df_added['dnll1'] = np.vectorize(partial(get_dll, dframe=df, att='dnll'))(df_added.ratio, df_added.file1)
+    df_added['dnll2'] = np.vectorize(partial(get_dll, dframe=df, att='dnll'))(df_added.ratio, df_added.file2)
+    df_added['dnll'] = df_added.weight1*df_added.dnll1 + df_added.weight2*df_added.dnll2
+    df_added['bfr1'] = np.vectorize(partial(get_dll, dframe=df, att='bestfitr'))(df_added.ratio, df_added.file1)
+    df_added['bfr2'] = np.vectorize(partial(get_dll, dframe=df, att='bestfitr'))(df_added.ratio, df_added.file2)
+    df_added['bestfitr'] = df_added.weight1*df_added.bfr1 + df_added.weight2*df_added.bfr2
+
+    # Drop temporary columns
+    df_added = df_added.drop(columns=['file1', 'weight1', 'file2', 'weight2', 'dnll1', 'dnll2', 'bfr1', 'bfr2'])
+
+    dframe = dframe.append(df_added)
+    dframe.sort_values(by='ratio', inplace=True)
+    dframe.index = range(1,len(dframe)+1)
+
+    return dframe
+
+
+def plotNLLScans(cfg, outdir='plots/', tag='', nosplines=False, smoothing=0.0):
+    for entry in cfg['entries']:
         filename = entry['csv_file']
-        if 'inputdir' in config:
-            filename = os.path.join(config['inputdir'], entry['csv_file'])
+        if 'inputdir' in cfg:
+            filename = os.path.join(cfg['inputdir'], entry['csv_file'])
         entry['df'] = process(filename)
+        # entry['df'] = process(filename, added=entry.get('csv_file_interp'))
 
     fig, ax = plt.subplots(1)
 
-    x = sorted(list(set(config['entries'][0]['df'].ratio.values.tolist())))
+    x = sorted(list(set(cfg['entries'][0]['df'].ratio.values.tolist())))
     x2 = np.linspace(-6, 6, 100) # Evaluate spline at more points
 
-    for entry in config['entries']:
+    for entry in cfg['entries']:
         df = entry['df']
         if nosplines:
-            ax.plot(df.loc[df.ratio<=config['xmax']].loc[df.ratio>=-config['xmax']].ratio,
-                    df.loc[df.ratio<=config['xmax']].loc[df.ratio>=-config['xmax']].dnll,
+            ax.plot(df.loc[df.ratio<=cfg['xmax']].loc[df.ratio>=-cfg['xmax']].ratio,
+                    df.loc[df.ratio<=cfg['xmax']].loc[df.ratio>=-cfg['xmax']].dnll,
                     lw=entry['line_width'], c=entry['color'], ls=entry['line_style'])
         else:
-            spline = splev(x2, splrep(df.ratio, df.dnll, s=0.0, k=3))
+            spline = splev(x2, splrep(df.ratio, df.dnll, s=cfg.get('smoothing', 0.0), k=3))
             ax.plot(x2, spline, ls=entry['line_style'], lw=entry['line_width'], color=entry['color'],zorder=0)
-        ax.scatter(df.loc[df.ratio<=config['xmax']].loc[df.ratio>=-config['xmax']].ratio,
-                   df.loc[df.ratio<=config['xmax']].loc[df.ratio>=-config['xmax']].dnll,
+        ax.scatter(df.loc[df.ratio<=cfg['xmax']].loc[df.ratio>=-cfg['xmax']].ratio,
+                   df.loc[df.ratio<=cfg['xmax']].loc[df.ratio>=-cfg['xmax']].dnll,
                 marker=entry['marker_style'], s=30, c=entry['color'], lw=entry['line_width'])
 
     # Configure axes
     ax.get_xaxis().set_tick_params(which='both', direction='in')
     ax.get_xaxis().set_major_locator(mpl.ticker.MultipleLocator(1.0))
     ax.get_xaxis().set_minor_locator(mpl.ticker.MultipleLocator(0.10))
-    ax.set_xlim(-config['xmax'], config['xmax'])
+    ax.set_xlim(-cfg['xmax'], cfg['xmax'])
 
     ax.axhline(1.0, lw=0.5, ls='--', color='gray')
     ax.axhline(4.0, lw=0.5, ls='--', color='gray')
     ax.axhline(9.0, lw=0.5, ls='--', color='gray')
     ax.axhline(16.0, lw=0.5, ls='--', color='gray')
     ax.axhline(25.0, lw=0.5, ls='--', color='gray')
-    plt.text(-config['xmax'] + 0.02*config['xmax'], 1.15, "1$\\sigma$", fontsize=14, color='gray')
-    plt.text(-config['xmax'] + 0.02*config['xmax'], 4.15, "2$\\sigma$", fontsize=14, color='gray')
-    plt.text(-config['xmax'] + 0.02*config['xmax'], 9.15, "3$\\sigma$", fontsize=14, color='gray')
-    plt.text(-config['xmax'] + 0.02*config['xmax'], 16.15, "4$\\sigma$", fontsize=14, color='gray')
-    plt.text(-config['xmax'] + 0.02*config['xmax'], 25.15, "5$\\sigma$", fontsize=14, color='gray')
+    plt.text(cfg['xmax'] + 0.02*cfg['xmax'], 1.0-0.2, "1$\\sigma$", fontsize=14, color='gray')
+    plt.text(cfg['xmax'] + 0.02*cfg['xmax'], 4.0-0.2, "2$\\sigma$", fontsize=14, color='gray')
+    plt.text(cfg['xmax'] + 0.02*cfg['xmax'], 9.0-0.2, "3$\\sigma$", fontsize=14, color='gray')
+    plt.text(cfg['xmax'] + 0.02*cfg['xmax'], 16.0-0.2, "4$\\sigma$", fontsize=14, color='gray')
+    plt.text(cfg['xmax'] + 0.02*cfg['xmax'], 25.0-0.2, "5$\\sigma$", fontsize=14, color='gray')
 
-    ax.set_ylim(0., config['ymax'])
+    ## Draw 95% C.L. line:
+    # ax.axhline(3.84, lw=0.5, ls='-.', color='gray')
+    # plt.text(-cfg['xmax'] + 0.02*cfg['xmax'], 3.84-0.2, "95\\% C.L.", fontsize=14, color='gray')
+
+    ax.set_ylim(0., cfg['ymax'])
     ax.set_yscale("linear", nonposy='clip')
     ax.get_yaxis().set_tick_params(which='both', direction='in')
-    ax.get_yaxis().set_major_locator(mpl.ticker.MultipleLocator(config['y_major_ticks']))
-    ax.get_yaxis().set_minor_locator(mpl.ticker.MultipleLocator(config['y_minor_ticks']))
+    ax.get_yaxis().set_major_locator(mpl.ticker.MultipleLocator(cfg['y_major_ticks']))
+    ax.get_yaxis().set_minor_locator(mpl.ticker.MultipleLocator(cfg['y_minor_ticks']))
 
     # Set axis labels
-    ax.set_xlabel(config['x_axis_label'], fontsize=24, labelpad=20)
-    ax.set_ylabel(config['y_axis_label'], fontsize=24, labelpad=20)
+    ax.set_xlabel(cfg['x_axis_label'], fontsize=24, labelpad=20)
+    ax.set_ylabel(cfg['y_axis_label'], fontsize=24, labelpad=20)
 
     def print_text(x, y, text, fontsize=24, addbackground=True, bgalpha=0.8):
         if addbackground:
@@ -109,29 +178,29 @@ def plotNLLScans(config, outdir='plots/', tag='', nosplines=False):
             ptext = plt.text(x, y, text, fontsize=fontsize, transform=ax.transAxes)
 
     # Print stuff
-    print_text(0.03, 1.02, config["header_left"], 28, addbackground=False)
-    print_text(0.65, 1.02, config["header_right"], addbackground=False)
-    print_text(0.06, 0.92, config["tag1"], bgalpha=config["text_bg_alpha"])
-    print_text(0.06, 0.86, config["tag2"], bgalpha=config["text_bg_alpha"])
-    print_text(0.06, 0.78, config["tag3"], bgalpha=config["text_bg_alpha"])
+    print_text(0.03, 1.02, cfg["header_left"], 28, addbackground=False)
+    print_text(0.65, 1.02, cfg["header_right"], addbackground=False)
+    print_text(0.06, 0.92, cfg["tag1"], bgalpha=cfg["text_bg_alpha"])
+    print_text(0.06, 0.86, cfg["tag2"], bgalpha=cfg["text_bg_alpha"])
+    print_text(0.06, 0.78, cfg["tag3"], bgalpha=cfg["text_bg_alpha"])
 
     # Cosmetics
     import matplotlib.patches as mpatches
     legentries = []
-    for entry in config['entries']:
+    for entry in cfg['entries']:
         legentries.append(mpl.lines.Line2D([], [],
                           color=entry['color'], linestyle=entry['line_style'],
                           label=entry['label'], marker=entry['marker_style'], markersize=14, linewidth=2))
 
     # Legend
     legend = plt.legend(handles=legentries, fontsize=18, loc='upper right', 
-                        frameon=True, framealpha=config["text_bg_alpha"])
+                        frameon=True, framealpha=cfg["text_bg_alpha"])
     legend.get_frame().set_facecolor('white')
     legend.get_frame().set_linewidth(0)
 
     # Save to pdf/png
-    outfile = os.path.join(outdir, config['name'])
-    # outfile = os.path.join(outdir, os.path.splitext(os.path.basename(config['entries'][0]['csv_file']))[0])
+    outfile = os.path.join(outdir, cfg['name'])
+    # outfile = os.path.join(outdir, os.path.splitext(os.path.basename(cfg['entries'][0]['csv_file']))[0])
     if tag:
         outfile += '_%s' % tag
     plt.savefig("%s.pdf"%outfile, bbox_inches='tight')
@@ -154,6 +223,16 @@ if __name__ == '__main__':
                       type="string", default="defaults_nllscan.json",
                       help="Config file for default options")
 
+    parser.add_option("--inputdir", dest="inputdir",
+                      type="string", default=None,
+                      help="Take csv files from this input directory (override config file)")
+    parser.add_option("-n", "--name", dest="name",
+                      type="string", default=None,
+                      help="Output name (override config file)")
+    parser.add_option("--header_left", dest="header_left",
+                      type="string", default=None,
+                      help="Header left (override config file)")
+
     parser.add_option("--ymax", dest="ymax", type='float',
                       default=None, help="Y axis maximum")
     parser.add_option("--xmax", dest="xmax", type='float',
@@ -162,6 +241,8 @@ if __name__ == '__main__':
                       default=None, help="Major ticks on y axis")
     parser.add_option("--y_minor_ticks", dest="y_minor_ticks", type='float',
                       default=None, help="Minor ticks on y axis")
+    parser.add_option("--smoothing", dest="smoothing", type='float',
+                      default=None, help="Smoothing for splines")
     (options, args) = parser.parse_args()
 
     try:
@@ -179,9 +260,12 @@ if __name__ == '__main__':
         plotConfig.update(readConfig(ifile))
 
         # Do fixes here
-        for attr in ['xmax', 'ymax', 'y_major_ticks', 'y_minor_ticks']:
+        for attr in ['xmax', 'ymax', 'y_major_ticks', 'y_minor_ticks', 'smoothing']:
             if getattr(options, attr, None) is not None:
                 plotConfig[attr] = float(getattr(options, attr, plotConfig[attr]))
+        for attr in ['inputdir', 'name', 'header_left']:
+            if getattr(options, attr, None) is not None:
+                plotConfig[attr] = str(getattr(options, attr, plotConfig[attr]))
         
         plotNLLScans(plotConfig, outdir=options.outdir, tag=options.tag, nosplines=options.nosplines)
 

@@ -188,7 +188,8 @@ def plotLimits(cfg, outdir='plots/', tag=''):
 
     def print_text(x, y, text, fontsize=24, addbackground=True, bgalpha=0.8):
         if addbackground:
-            ptext = plt.text(x, y, text, fontsize=fontsize, transform=ax.transAxes, backgroundcolor='white')
+            ptext = plt.text(x, y, text, fontsize=fontsize, transform=ax.transAxes,
+                                         backgroundcolor='white')
             ptext.set_bbox(dict(alpha=bgalpha, color='white'))
         else:
             ptext = plt.text(x, y, text, fontsize=fontsize, transform=ax.transAxes)
@@ -199,6 +200,8 @@ def plotLimits(cfg, outdir='plots/', tag=''):
     print_text(0.06, 0.92, cfg["tag1"], bgalpha=cfg["text_bg_alpha"])
     print_text(0.06, 0.86, cfg["tag2"], bgalpha=cfg["text_bg_alpha"])
     print_text(0.06, 0.78, cfg["tag3"], bgalpha=cfg["text_bg_alpha"])
+    if "tag4" in cfg:
+        print_text(0.06, 0.70, cfg["tag4"], bgalpha=cfg["text_bg_alpha"])
 
 
     # Cosmetics
@@ -249,6 +252,16 @@ if __name__ == '__main__':
                       type="string", default="defaults_limits.json",
                       help="Config file for default options")
 
+    parser.add_option("--inputdir", dest="inputdir",
+                      type="string", default=None,
+                      help="Take csv files from this input directory (override config file)")
+    parser.add_option("-n", "--name", dest="name",
+                      type="string", default=None,
+                      help="Output name (override config file)")
+    parser.add_option("--header_left", dest="header_left",
+                      type="string", default=None,
+                      help="Header left (override config file)")
+
     parser.add_option("--ymax", dest="ymax", type="float",
                       default=5.0, help="Y axis maximum")
     parser.add_option("--xmax", dest="xmax", type="float",
@@ -279,6 +292,9 @@ if __name__ == '__main__':
         for attr in ['xmax', 'ymax', 'y_major_ticks', 'y_minor_ticks']:
             if getattr(options, attr, None) is not None:
                 plotConfig[attr] = float(getattr(options, attr, plotConfig[attr]))
+        for attr in ['inputdir', 'name', 'header_left']:
+            if getattr(options, attr, None) is not None:
+                plotConfig[attr] = str(getattr(options, attr, plotConfig[attr]))
         
         plotLimits(plotConfig, outdir=options.outdir, tag=options.tag)
 

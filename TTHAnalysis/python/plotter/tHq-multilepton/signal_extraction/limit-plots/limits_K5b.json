@@ -1,24 +1,27 @@
 {
-    "name" : "limits_K5b_Jun14",
-    "inputdir" : "limits_Jun14",
+    "name" : "limits_K5b_Aug3",
+    "inputdir" : "results_Aug3",
     "tag1" : "$\\mathrm{pp}\\to\\mathrm{tH}$",
-    "tag3" : "$\\kappa_{\\mathrm{V}}=1.0$, resolved",
+    "tag3" : "$\\kappa_{\\mathrm{V}}=1.0$, $\\mu_{\\mathrm{ttH}} = 1.0$",
+    "tag3_unused" : "$\\kappa_{\\mathrm{V}}=1.0$, resolved",
+    "tag4_unused" : "$\\mu_{\\mathrm{ttH}} = 1.0$",
+    "header_left" : "$\\mathbf{CMS}$",
     "y_axis_label" : "$\\sigma_{\\mathrm{tH}}\\times$ BR [pb]",
     "x_axis_label" : "$\\kappa_\\mathrm{t}$",
     "xsecs" : "xsecs/xsecs_tH_ttH_WWZZttbbgg_K5.csv",
     "xsec_att" : "thtot",
     "observed" : {
         "csv_files" : [
-            "limits_K5b_cv_0p5.csv",
-            "limits_K5b_cv_1p0.csv",
-            "limits_K5b_cv_1p5.csv"
+            "limits_cv_0p5.csv",
+            "limits_cv_1p0.csv",
+            "limits_cv_1p5.csv"
         ]
     },
     "expected" : {
         "csv_files" : [
-            "limits_K5b_cv_0p5.csv",
-            "limits_K5b_cv_1p0.csv",
-            "limits_K5b_cv_1p5.csv"
+            "limits_cv_0p5.csv",
+            "limits_cv_1p0.csv",
+            "limits_cv_1p5.csv"
         ],
         "smoothing" : 0.0,
         "smoothing1s" : 0.0,
