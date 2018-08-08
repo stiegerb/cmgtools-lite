@@ -300,9 +300,9 @@ workspace.root
 This produces the scan for the fit to observed data. To produce the expected likelihood scan, we repeat the procedure, but use toy data produced for the SM point. Generated with:
 
 ```
-combine -M GenerateOnly -t -1 --expectSignal 1 \
---setParameters kappa_t=1.0,kappaV=1.0 \
---freezeParameters ... \
+combine -M GenerateOnly -t -1 -m 125 \
+--setParameters r=1.0,kappa_t=1.0,kappaV=1.0 \
+--freezeParameters kappa_t,kappa_V,kappa_mu,kappa_b,kappa_c,kappa_g,kappa_gam,r_others \
 --saveToys \
 workspace_SM.root
 ```

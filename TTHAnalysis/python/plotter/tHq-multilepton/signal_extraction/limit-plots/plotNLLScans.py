@@ -25,6 +25,9 @@ from plotLimit import setUpMPL
 def process(inputfile, added=None):
     df = pd.read_csv(inputfile, sep=",", index_col=None)
 
+    # Drop failed fit results
+    df.dropna(subset=['dnll'], inplace=True)
+
     # Calculate relative NLL
     if not 'dnll'in df.columns:
         df['dnll'] = 2*(df.nllr1 - df.nllr0)
@@ -55,7 +58,6 @@ def process(inputfile, added=None):
     assert(df.loc[idxmin].dnll == dnllmin), "inconsistent minimum?"
     print '... shifting dnll values by %5.3f (at %4.2f) for %s' % (np.abs(dnllmin), df.loc[idxmin].ratio, inputfile)
     df['dnll'] = df.dnll + np.abs(dnllmin)
-    df.dropna(subset=['dnll'], inplace=True)
 
     return df
 
