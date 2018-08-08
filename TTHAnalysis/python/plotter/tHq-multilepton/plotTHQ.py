@@ -37,9 +37,29 @@ PLOTRANGES = {
     ('thqMVA_ttv_3l_40', '3l')    : (0.0, 41.),
 }
 
-AXISLABELS = {
+RATIORANGES = {
+    'dPhiHighestPtSSPair' : (-0.4, 3.2),
+    'maxEtaJet25_40'      : (-0.4, 4.2),
+    'nJet25'              : (-0.4, 2.8),
+}
+
+XAXISLABELS = {
     'dPhiHighestPtSSPair' : "#Delta#phi of highest p_{T} same-sign lepton pair",
+    'maxEtaJet25_40' : "Max. |#eta| of any untagged jet",
     'nJet25' : "N(jets, p_{T} > 25 GeV, |#eta| < 2.4)",
+    'thqMVA_tt_2lss_40' : "MVA (tHq vs t#bar{t}+jets)",
+    'thqMVA_ttv_2lss_40' : "MVA (tHq vs t#bar{t}V)",
+    'thqMVA_tt_3l_40' : "MVA (tHq vs t#bar{t}+jets)",
+    'thqMVA_ttv_3l_40' : "MVA (tHq vs t#bar{t}V)",
+}
+
+YAXISLABELS = {
+    'nJet25' : "Events",
+    'finalBins_40' : "Events",
+}
+
+YAXISUNIT = {
+    'dPhiHighestPtSSPair' : " rad.",
 }
 
 MERGEMAP = {
@@ -56,7 +76,8 @@ MERGEMAP = {
 LABELS = {
     'tZq' : 'tZ, W^{#pm}W^{#pm}, t#bar{t}t#bar{t}, VVV',
     'ZZ'  : 'tZ, W^{#pm}W^{#pm}, t#bar{t}t#bar{t}, VVV',
-    'data_flips' : 'Charge flips'
+    'data_fakes' : 'Nonprompt',
+    'data_flips' : 'Charge misid.'
 }
 
 CHANNEL_LABELS = {
@@ -247,10 +268,13 @@ if __name__ == "__main__":
         # Check that all histos are there
         for process in mca.listProcesses(allProcs=True):
             h = infile.Get("%s_%s"%(pspec.name, process))
-            if not h:
+            if not h and process in mca.listProcesses():
                 print "ERROR: missing %s_%s in %s" % (pspec.name, process, infile.GetName())
 
             if not process in mca.listProcesses(): continue # skip 'SkipMe=True' ones
+
+            # Explicit skip of flips for mm (somehow doesn't work otherwise?)
+            if channel == 'mm' and process == 'data_flips': continue
 
             h.SetDirectory(0)
             pout = MERGEMAP.get(process, process)
@@ -266,8 +290,8 @@ if __name__ == "__main__":
 
         hbkg = infile.Get("%s_background" % pspec.name)
         htot = hbkg.Clone("%s_htot" % pspec.name)
-        if pspec.name in AXISLABELS:
-            htot.GetXaxis().SetTitle(AXISLABELS[pspec.name])
+        if pspec.name in XAXISLABELS:
+            htot.GetXaxis().SetTitle(XAXISLABELS[pspec.name])
 
         for process in mca.listSignals():
             hsig = infile.Get("%s_%s"%(pspec.name, process)).Clone('%s_%s_clone' % (pspec.name, process))
@@ -350,9 +374,9 @@ if __name__ == "__main__":
                        totalError=None,
                        cutoff=0.01,
                        cutoffSignals=True,
-                       legWidth=0.58,
+                       legWidth=0.62,
                        nColumns=2)
-        leg.AddEntry(totalError, "Total uncert.","F") 
+        leg.AddEntry(totalError, "Total uncertainty","F") 
         leg.AddEntry(hthq_itc, "tHq (#kappa_{t}=-1.0)", "L") 
         leg.AddEntry(hthw_itc, "tHW (#kappa_{t}=-1.0)", "L") 
 
@@ -422,10 +446,13 @@ if __name__ == "__main__":
             else:
                 unity.SetBinError(ibin, 0)
 
-        unity.SetFillStyle(1001);
-        unity.SetFillColor(ROOT.kCyan);
-        unity.SetMarkerStyle(1);
-        unity.SetMarkerColor(ROOT.kCyan);
+        # unity.SetFillStyle(1001);
+        # unity.SetFillColor(ROOT.kCyan);
+        # unity.SetMarkerStyle(1);
+        # unity.SetMarkerColor(ROOT.kCyan);
+        unity.SetFillStyle(3244);
+        unity.SetFillColor(ROOT.kGray+2)
+        unity.SetMarkerStyle(0)
         ROOT.gStyle.SetErrorX(0.5);
 
         if options.errorBandOnRatio:
@@ -444,6 +471,8 @@ if __name__ == "__main__":
         rmax = options.maxRatioRange[1]
         rmin = float(pspec.getOption("RMin", rmin))
         rmax = float(pspec.getOption("RMax", rmax))
+        rmin, rmax = RATIORANGES.get(pspec.name, (rmin, rmax))
+
         unity.GetYaxis().SetRangeUser(rmin, rmax)
         unity.GetXaxis().SetTitleFont(43)
         unity.GetXaxis().SetTitleSize(26)
@@ -472,6 +501,13 @@ if __name__ == "__main__":
         htot.GetYaxis().SetLabelFont(43)
         htot.GetYaxis().SetLabelSize(22)
         htot.GetYaxis().SetLabelOffset(0.007)
+
+        # Hack y axis title (assume fixed bin width!)
+        yaxistitle = YAXISLABELS.get(pspec.name,
+                                     "Events / %.2f" % htot.GetXaxis().GetBinWidth(1))
+        yaxistitle += YAXISUNIT.get(pspec.name, "")
+        htot.GetYaxis().SetTitle(yaxistitle)
+
         binlabels = pspec.getOption("xBinLabels","")
         if binlabels != "" and len(binlabels.split(",")) == unity.GetNbinsX():
             blist = binlabels.split(",")
@@ -503,10 +539,12 @@ if __name__ == "__main__":
         #         ratio.Draw("E SAME")
 
         xoffs = 0.03
+        if pspec.name == 'dPhiHighestPtSSPair' and channel == 'mm':
+            xoffs = 0.1
         leg0 = ROOT.TLegend(0.18+xoffs, 0.82, 0.35+xoffs, 0.9)
         leg0.AddEntry(nomratio, "Data/SM", "P")
         leg3 = ROOT.TLegend(0.35+xoffs, 0.82, 0.52+xoffs, 0.9)
-        leg3.AddEntry(unity, "Tot. SM unc.", "F")
+        leg3.AddEntry(unity, "Total uncertainty", "F")
         leg1 = ROOT.TLegend(0.18+xoffs, 0.33, 0.40+xoffs, 0.41)
         leg1.AddEntry(thqratio, "(#kappa_{t}=-1.0)/SM", "L")
         leg2 = ROOT.TLegend(0.40+xoffs, 0.33, 0.60+xoffs, 0.41)

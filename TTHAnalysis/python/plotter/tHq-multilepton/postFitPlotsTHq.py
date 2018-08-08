@@ -273,10 +273,13 @@ def doRatioHistsCustom(pspec, pmap, total, totalSyst, maxRange,
     if rmax > maxRange[1] or fixRange: rmax = maxRange[1];
     if (rmax > 3 and rmax <= 3.4): rmax = 3.4
     if (rmax > 2 and rmax <= 2.4): rmax = 2.4
-    unity.SetFillStyle(1001);
-    unity.SetFillColor(ROOT.kCyan);
-    unity.SetMarkerStyle(1);
-    unity.SetMarkerColor(ROOT.kCyan);
+    unity.SetFillStyle(3244);
+    unity.SetFillColor(ROOT.kGray+2)
+    unity.SetMarkerStyle(0)
+    # unity.SetFillStyle(1001);
+    # unity.SetFillColor(ROOT.kCyan);
+    # unity.SetMarkerStyle(1);
+    # unity.SetMarkerColor(ROOT.kCyan);
     unity0.SetFillStyle(1001);
     unity0.SetFillColor(ROOT.kBlue-7);
     unity0.SetMarkerStyle(1);
@@ -349,14 +352,14 @@ def doRatioHistsCustom(pspec, pmap, total, totalSyst, maxRange,
     leg0.SetTextFont(43)
     leg0.SetTextSize(18)
     leg0.AddEntry(unity0, "stat. bkg. unc.", "F")
-    if showStatTotLegend: leg0.Draw()
-    leg1 = ROOT.TLegend(0.25 if doWide else 0.45, 0.8, 0.38 if doWide else 0.7, 0.9)
+    # if showStatTotLegend: leg0.Draw()
+    leg1 = ROOT.TLegend(0.2, 0.8, 0.5, 0.9)
     leg1.SetFillColor(0)
     leg1.SetShadowColor(0)
     leg1.SetLineColor(0)
     leg1.SetTextFont(43)
     leg1.SetTextSize(18)
-    leg1.AddEntry(unity, "total bkg. unc.", "F")
+    leg1.AddEntry(unity, "Total uncertainty", "F")
     if showStatTotLegend: leg1.Draw()
     global legendratio0_, legendratio1_
     legendratio0_ = leg0
@@ -589,6 +592,19 @@ if __name__ == "__main__":
             line.SetLineColor(1)
             line.Draw("L")
 
+        ## Add prefit signal shape
+        thqprefit = infile.Get("%s_tHq_hww" % var).Clone("%s_tHq_prefit"%var)
+        thwprefit = infile.Get("%s_tHW_hww" % var).Clone("%s_tHW_prefit"%var)
+        thwprefit.Add(thwprefit)
+        thqprefit.SetLineWidth(3)
+        thqprefit.SetFillStyle(0)
+        thqprefit.SetMarkerSize(0)
+        thqprefit.SetLineColor(thqprefit.GetFillColor())
+
+        ## Adjust scale
+        sigscalefactor = 10
+        thqprefit.Scale(float(sigscalefactor))
+        thqprefit.Draw("HIST SAME")
 
         ## Do the legend
         leg = None
@@ -611,7 +627,8 @@ if __name__ == "__main__":
                            cutoffSignals=not options.bkgSub,
                            legBorder=False,
                            legWidth=0.28)
-        leg.AddEntry(totalError, "Total uncert.","F") 
+        leg.AddEntry(totalError, "Total uncertainty","F") 
+        leg.AddEntry(thqprefit, "%d#times tH (expected)" % sigscalefactor,"L") 
         
         lspam = options.lspam
         if channel == 'em':
@@ -651,8 +668,17 @@ if __name__ == "__main__":
                                                       ratioDen=options.ratioDen,
                                                       ylabel="Data/Pred." if not options.bkgSub else "(Data-Bkg)/Sig",
                                                       doWide=options.wideplot,
-                                                      showStatTotLegend=False)
+                                                      showStatTotLegend=True)
         rnorm2.Delete()
+
+        # ## Legend for uncertainties
+        # leg2 = ROOT.TLegend(x1,y1,x2,y2)
+        # leg2.SetFillColor(0)
+        # leg2.SetShadowColor(0)
+        # leg2.SetLineColor(0)
+        # leg2.SetTextFont(43)
+        # leg2.SetTextSize(18)
+        # leg2.AddEntry(, mca.getProcessOption('data','Label','Data', noThrow=True), 'LPE')
 
         ## Save the plots
         c1.cd()
