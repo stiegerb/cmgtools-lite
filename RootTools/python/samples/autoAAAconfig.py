@@ -13,5 +13,5 @@ def autoAAA(selectedComponents):
         if not tier2Checker.available(comp.dataset):
             print "Dataset %s is not available, will use AAA" % comp.dataset
             changeComponentAccessMode.convertComponent(comp, "root://cms-xrd-global.cern.ch/%s")
-            if 'X509_USER_PROXY' not in os.environ or "/afs/" not in os.environ['X509_USER_PROXY']:
+            if 'X509_USER_PROXY' not in os.environ: # or "/afs/" not in os.environ['X509_USER_PROXY']:
                 raise RuntimeError, "X509_USER_PROXY not defined or not pointing to /afs"

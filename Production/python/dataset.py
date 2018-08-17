@@ -152,13 +152,14 @@ class CMSDataset( BaseDataset ):
             else:
                 print "WARNING: queries with run ranges are slow in DAS"
                 query += "   run between [%s,%s]" % ( run_range[0],run_range[1] )
-        dbs='das_client.py --query="file %s=%s"'%(qwhat,query)
-        if begin >= 0:
-            dbs += ' --index %d' % begin
-        if end >= 0:
-            dbs += ' --limit %d' % (end-begin+1)
-        else:
-            dbs += ' --limit 0' 
+        dbs='dasgoclient --query="file %s=%s"'%(qwhat,query)
+        if begin >= 0 or end >= 0:
+            print "WARNING: begin/end needs to re-implemented in %s" % __file__
+        #     dbs += ' --index %d' % begin
+        # if end >= 0:
+        #     dbs += ' --limit %d' % (end-begin+1)
+        # else:
+        #     dbs += ' --limit 0' 
         dbsOut = _dasPopen(dbs)
         files = []
         for line in dbsOut:
@@ -239,20 +240,27 @@ class CMSDataset( BaseDataset ):
             else:
                 print "WARNING: queries with run ranges are slow in DAS"
                 query = "%s run between [%d, %d]" % (query,runmin if runmin > 0 else 1, runmax if runmax > 0 else 999999)
-        dbs='das_client.py --query="summary %s=%s"'%(qwhat,query)
-        dbsOut = _dasPopen(dbs).readlines()
+        dbs='dasgoclient --query="summary %s=%s"'%(qwhat,query)
+        dbsOut = _dasPopen(dbs)
 
         events = []
         files = []
         lumis = []
-        for line in dbsOut:
-            line = line.replace('\n','')
-            if "nevents" in line:
-                events.append(int(line.split(":")[1]))
-            if "nfiles" in line:
-                files.append(int(line.split(":")[1]))
-            if "nlumis" in line:
-                lumis.append(int(line.split(":")[1]))
+
+        # for line in dbsOut:
+        #     line = line.replace('\n','')
+        #     if "nevents" in line:
+        #         events.append(int(line.split(":")[1]))
+        #     if "nfiles" in line:
+        #         files.append(int(line.split(":")[1]))
+        #     if "nlumis" in line:
+        #         lumis.append(int(line.split(":")[1]))
+        import json
+        summary = json.load(dbsOut)
+        events.append(int(summary.get('nevents', -1)))
+        files.append(int(summary.get('nfiles', -1)))
+        lumis.append(int(summary.get('nlumis', -1)))
+
         if not events: events = [-1]
         if not files:  files  = [-1]
         if not lumis:  lumis  = [-1]
@@ -397,7 +405,7 @@ class PrivateDataset ( BaseDataset ):
     def buildListOfFilesDBS(self, name, dbsInstance):
         entries = self.findPrimaryDatasetNumFiles(name, dbsInstance, -1, -1)
         files = []
-        dbs = 'das_client.py --query="file dataset=%s instance=prod/%s" --limit=%s' % (name, dbsInstance, entries)
+        dbs = 'dasgoclient --query="file dataset=%s instance=prod/%s" --limit=%s' % (name, dbsInstance, entries)
         dbsOut = _dasPopen(dbs)
         for line in dbsOut:
             if line.find('/store')==-1:
@@ -423,7 +431,7 @@ class PrivateDataset ( BaseDataset ):
             else:
                 print "WARNING: queries with run ranges are slow in DAS"
                 query = "%s run between [%d, %d]" % (query,runmin if runmin > 0 else 1, runmax if runmax > 0 else 999999)
-        dbs='das_client.py --query="summary %s=%s instance=prod/%s"'%(qwhat, query, dbsInstance)
+        dbs='dasgoclient --query="summary %s=%s instance=prod/%s"'%(qwhat, query, dbsInstance)
         dbsOut = _dasPopen(dbs).readlines()
 
         entries = []
@@ -447,7 +455,7 @@ class PrivateDataset ( BaseDataset ):
             else:
                 print "WARNING: queries with run ranges are slow in DAS"
                 query = "%s run between [%d, %d]" % (query,runmin if runmin > 0 else 1, runmax if runmax > 0 else 999999)
-        dbs='das_client.py --query="summary %s=%s instance=prod/%s"'%(qwhat, query, dbsInstance)
+        dbs='dasgoclient --query="summary %s=%s instance=prod/%s"'%(qwhat, query, dbsInstance)
         dbsOut = _dasPopen(dbs).readlines()
         
         entries = []
