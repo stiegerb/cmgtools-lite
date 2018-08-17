@@ -151,7 +151,8 @@ treeProducer = cfg.Analyzer(
 ## histo counter
 susyCoreSequence.insert(susyCoreSequence.index(skimAnalyzer),
                         susyCounter)
-susyScanAna.doLHE=False # until a proper fix is put in the analyzer
+# susyScanAna.doLHE=False # until a proper fix is put in the analyzer
+susyScanAna.doLHE=True
 
 treeProducer.globalVariables.append(NTupleVariable("Flag_badChargedHadronFilter", lambda ev: ev.badChargedHadron, help="bad charged hadron filter decision"))
 treeProducer.globalVariables.append(NTupleVariable("Flag_badMuonFilter", lambda ev: ev.badMuon, help="bad muon filter decision"))
@@ -211,7 +212,8 @@ from CMGTools.RootTools.samples.samples_13TeV_DATA2016 import *
 from CMGTools.HToZZ4L.tools.configTools import printSummary, configureSplittingFromTime, cropToLumi, prescaleComponents, insertEventSelector
 
 # selectedComponents = [TTLep_pow]
-selectedComponents = [THQ, THW]
+# selectedComponents = [THQ, THW]
+selectedComponents = [TTH_ctcvcp]
 
 
 sig_ttv = [TTHnobb_pow,TTWToLNu_ext,TTWToLNu_ext2,TTZToLLNuNu_ext,TTZToLLNuNu_m1to10] # signal + TTV
