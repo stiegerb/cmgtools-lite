@@ -47,10 +47,10 @@ XAXISLABELS = {
     'dPhiHighestPtSSPair' : "#Delta#phi of highest p_{T} same-sign lepton pair",
     'maxEtaJet25_40' : "Max. |#eta| of any untagged jet",
     'nJet25' : "N(jets, p_{T} > 25 GeV, |#eta| < 2.4)",
-    'thqMVA_tt_2lss_40' : "MVA (tHq vs t#bar{t}+jets)",
-    'thqMVA_ttv_2lss_40' : "MVA (tHq vs t#bar{t}V)",
-    'thqMVA_tt_3l_40' : "MVA (tHq vs t#bar{t}+jets)",
-    'thqMVA_ttv_3l_40' : "MVA (tHq vs t#bar{t}V)",
+    'thqMVA_tt_2lss_40' : "BDT (tHq vs t#bar{t}+jets)",
+    'thqMVA_ttv_2lss_40' : "BDT (tHq vs t#bar{t}V)",
+    'thqMVA_tt_3l_40' : "BDT (tHq vs t#bar{t}+jets)",
+    'thqMVA_ttv_3l_40' : "BDT (tHq vs t#bar{t}V)",
 }
 
 YAXISLABELS = {

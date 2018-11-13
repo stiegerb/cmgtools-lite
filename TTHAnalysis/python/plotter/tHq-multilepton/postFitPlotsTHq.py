@@ -89,7 +89,7 @@ REBINMAP_2l = {3:2, 2:4, 5:3, 4:8, 6:5, 9:6, 8:10, 10:9}
 
 from plotTHQ import LABELS
 
-AXISLABEL = 'BDT bin'
+AXISLABEL = 'Combined BDT bin'
 
 def doTinyCmsPrelim(textLeft="_default_",
                     textRight="_default_",
