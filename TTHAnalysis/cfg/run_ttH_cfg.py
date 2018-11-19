@@ -508,6 +508,14 @@ if selectedEvents!="":
         )
     susyCoreSequence.insert(0, eventSelector)
 
+if keepGenPart:
+    from CMGTools.TTHAnalysis.analyzers.ttHTypes import genParticleWithAncestryType
+    treeProducer.collections.update({
+        "generatorSummary" : NTupleCollection("GenSummary", genParticleWithAncestryType, 50, help="Generator summary"),
+        "genParticles"     : NTupleCollection("GenPart", genParticleType, 100, help="All GenParticles")
+    })
+
+
 #-------- SEQUENCE -----------
 
 sequence = cfg.Sequence(susyCoreSequence+[
