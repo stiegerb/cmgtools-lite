@@ -1,0 +1,19 @@
+ttW : TTWToLNu_fxfx : xsec ; FillColor=ROOT.kGreen-5,   Label='t\#bar{t}W'
+
+ttW2j : TTWToLNu_fxfx : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge && nAddPartons>=2; FillColor=ROOT.kMagenta-3, Label='t\#bar{t}W + 2'
+ttW1j : TTWToLNu_fxfx : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge && nAddPartons==1; FillColor=ROOT.kAzure-9,   Label='t\#bar{t}W + 1'
+ttW0j : TTWToLNu_fxfx : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge && nAddPartons==0; FillColor=ROOT.kAzure+2,   Label='t\#bar{t}W + 0'
+
+ttW6m : TTWToLNu_fxfx : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge && nJetsFromHard==6; FillColor=ROOT.kOrange-9,   Label='t\#bar{t}W (6 matched)'
+ttW5m : TTWToLNu_fxfx : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge && nJetsFromHard==5; FillColor=ROOT.kOrange+10,  Label='t\#bar{t}W (5 matched)'
+ttW4m : TTWToLNu_fxfx : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge && nJetsFromHard==4; FillColor=ROOT.kOrange+7,   Label='t\#bar{t}W (4 matched)'
+ttW3m : TTWToLNu_fxfx : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge && nJetsFromHard==3; FillColor=ROOT.kOrange+3,   Label='t\#bar{t}W (3 matched)'
+ttW2m : TTWToLNu_fxfx : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge && nJetsFromHard==2; FillColor=ROOT.kOrange+4,   Label='t\#bar{t}W (2 matched)'
+ttW1m : TTWToLNu_fxfx : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge && nJetsFromHard==1; FillColor=ROOT.kOrange+1,   Label='t\#bar{t}W (1 matched)'
+ttW0m : TTWToLNu_fxfx : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge && nJetsFromHard==0; FillColor=ROOT.kOrange+8,   Label='t\#bar{t}W (0 matched)'
+
+ttW3um : TTWToLNu_fxfx : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge && (nJet25-nJetsFromHard)>=3; FillColor=ROOT.kOrange+10, Label='\#geq 3 unmatched'
+ttW2um : TTWToLNu_fxfx : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge && (nJet25-nJetsFromHard)==2; FillColor=ROOT.kMagenta-3, Label='2 unmatched'
+ttW1um : TTWToLNu_fxfx : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge && (nJet25-nJetsFromHard)==1; FillColor=ROOT.kAzure-9,   Label='1 unmatched'
+ttW0um : TTWToLNu_fxfx : xsec : LepGood1_isMatchRightCharge && LepGood2_isMatchRightCharge && (nJet25-nJetsFromHard)==0; FillColor=ROOT.kAzure+2,   Label='All matched'
+
