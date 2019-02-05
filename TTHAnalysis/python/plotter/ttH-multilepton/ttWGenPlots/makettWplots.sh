@@ -21,9 +21,12 @@ BASEOPTIONS=" -f -j 2 -l ${LUMI} --s2v"\
 " --exclude-cut tauveto" # ignore the trigger and tau veto for now
 TREEINPUTS="-P /afs/cern.ch/user/s/stiegerb/work/TTHTrees/13TeV/ttWgen_production_Nov1/"
 FRIENDTREES=" --Fs /afs/cern.ch/user/s/stiegerb/work/TTHTrees/13TeV/ttWgen_production_Nov1/1_recleaner_011118/"\
-" --Fs /afs/cern.ch/user/s/stiegerb/work/TTHTrees/13TeV/ttWgen_production_Nov1/x_matchedJets_Nov19/"
-DRAWOPTIONS="--cmsprel 'Internal' --legendFontSize 0.035"\
-" --showRatio --maxRatioRange 0 2 --fixRatioRange --showMCError"\
+" --Fs /afs/cern.ch/user/s/stiegerb/work/TTHTrees/13TeV/ttWgen_production_Nov1/x_matchedJets_Nov19/"\
+" --Fs /afs/cern.ch/user/s/stiegerb/work/TTHTrees/13TeV/ttWgen_production_Nov1/y_BDTs/"
+DRAWOPTIONS=" --legendFontSize 0.035"
+# DRAWOPTIONS="--cmsprel Simulation, work in progress --legendFontSize 0.035"
+#" --showMCError"
+# " --showRatio --maxRatioRange 0 2 --fixRatioRange --showMCError"\
 
 OPTIONS="--pdir ${OUTDIR}"
 OPTIONS="${OPTIONS} ${DRAWOPTIONS} ${OPT3L}"
@@ -42,11 +45,15 @@ echo "mca  : ${MCA}"
 echo "cuts : ${CUTS}"
 echo "plots: ${PLOTS}"
 
-python mcPlots.py ${ARGUMENTS} ${OPTIONS} --select-plot nJet25_unmatches -p ttW[0-6]+um
-python mcPlots.py ${ARGUMENTS} ${OPTIONS} --select-plot nJet25_matches -p ttW[0-6]+m
-python mcPlots.py ${ARGUMENTS} ${OPTIONS} --select-plot nAddPartons -p ttW
-python mcPlots.py ${ARGUMENTS} ${OPTIONS} --select-plot nAddPartons_uw -p ttW -u
-python mcPlots.py ${ARGUMENTS} ${OPTIONS} --select-plot nJet25 -p ttW[0-2]+j
-python mcPlots.py ${ARGUMENTS} ${OPTIONS} --select-plot nJet25_log -p ttW[0-2]+j
+# python mcPlots.py ${ARGUMENTS} ${OPTIONS} --select-plot nJet25_unmatches -p ttW[0-6]+um -p ttH --showSigShape --noStackSig
+# python mcPlots.py ${ARGUMENTS} ${OPTIONS} --select-plot kinMVA_ttV -p ttW[0-6]+um
+python mcPlots.py ${ARGUMENTS} ${OPTIONS} --select-plot kinMVA_ttV_jets -p ttW[0-6]+j -p ttH --showSigShape --noStackSig --cmsprel "Simulation, work in progress"
+# python mcPlots.py ${ARGUMENTS} ${OPTIONS} --select-plot kinMVA_ttV_norm -p ttW[0-6]+um --plotmode norm
+python mcPlots.py ${ARGUMENTS} ${OPTIONS} --select-plot kinMVA_ttV_jets_norm -p ttW[0-6]+j -p ttH --plotmode norm --cmsprel "Simulation, work in progress"
+# python mcPlots.py ${ARGUMENTS} ${OPTIONS} --select-plot nJet25_matches -p ttW[0-6]+m
+# python mcPlots.py ${ARGUMENTS} ${OPTIONS} --select-plot nAddPartons -p ttW
+# python mcPlots.py ${ARGUMENTS} ${OPTIONS} --select-plot nAddPartons_uw -p ttW -u
+# python mcPlots.py ${ARGUMENTS} ${OPTIONS} --select-plot nJet25 -p ttW[0-2]+p
+# python mcPlots.py ${ARGUMENTS} ${OPTIONS} --select-plot nJet25_log -p ttW[0-2]+p
     
 DONE

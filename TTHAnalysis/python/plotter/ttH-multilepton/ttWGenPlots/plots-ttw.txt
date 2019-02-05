@@ -7,3 +7,8 @@ nJetsFromME : nJetsFromHard : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5] ; XTitle='N
 
 nAddPartons   : nAddPartons : [-0.5,0.5,1.5,2.5] ; XTitle='Additional partons'
 nAddPartons_uw: nAddPartons : [-0.5,0.5,1.5,2.5,3.5] ; XTitle='Additional partons\, unweighted'
+
+kinMVA_ttV      : kinMVA_2lss_ttV : 20,-1.0,1.0 ; XTitle='kinBDT (t#bar{t}H vs t#bar{t}V)'
+kinMVA_ttV_jets : kinMVA_2lss_ttV : 20,-1.0,1.0 ; XTitle='kinBDT (t#bar{t}H vs t#bar{t}V)', LegendWidth=0.15
+kinMVA_ttV_norm : kinMVA_2lss_ttV : 20,-1.0,1.0 ; XTitle='kinBDT (t#bar{t}H vs t#bar{t}V)'
+kinMVA_ttV_jets_norm : kinMVA_2lss_ttV : 20,-1.0,1.0 ; XTitle='kinBDT (t#bar{t}H vs t#bar{t}V)', LegendWidth=0.15

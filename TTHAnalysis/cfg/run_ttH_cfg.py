@@ -202,39 +202,46 @@ triggerFlagsAna.unrollbits = True
 triggerFlagsAna.saveIsUnprescaled = True
 triggerFlagsAna.checkL1Prescale = True
 
-from CMGTools.RootTools.samples.samples_13TeV_RunIIFall17MiniAOD import *
-from CMGTools.RootTools.samples.samples_13TeV_DATA2017 import *
+# from CMGTools.RootTools.samples.samples_13TeV_RunIIFall17MiniAOD import *
+# from CMGTools.RootTools.samples.samples_13TeV_DATA2017 import *
+from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator
+kreator = ComponentCreator()
+TTWToLNu_fxfx = kreator.makeMCComponent("TTWToLNu_fxfx", "/TTWJetsToLNu_TuneCP5_PSweights_13TeV-amcatnloFXFX-madspin-pythia8/RunIIFall17MiniAOD-94X_mc2017_realistic_v10-v1/MINIAODSIM", "CMS", ".*root", 0.2043, fracNegWeights=0.227)
+TTHnobb_fxfx = kreator.makeMCComponent("TTHnobb_fxfx", "/ttHJetToNonbb_M125_TuneCP5_13TeV_amcatnloFXFX_madspin_pythia8/RunIIFall17MiniAOD-94X_mc2017_realistic_v10-v1/MINIAODSIM", "CMS", ".*root", 0.5071*(1-0.582), fracNegWeights=0.344)
+
 from CMGTools.RootTools.samples.configTools import printSummary, configureSplittingFromTime, cropToLumi, prescaleComponents, insertEventSelector, mergeExtensions
 from CMGTools.RootTools.samples.autoAAAconfig import *
 
-selectedComponents = [TTLep_pow]
+# selectedComponents = [TTWToLNu_fxfx]
+selectedComponents = [TTHnobb_fxfx]
 
 
-sig_ttv = [TTHnobb_pow,TTHnobb_fxfx,TTWToLNu_fxfx,TTZToLLNuNu_amc,TTZToLLNuNu_m1to10] # signal + TTV
-ttv_lo = [TTW_LO,TTZ_LO] # TTV LO
-rares = [ZZTo4L,WW_DPS,TZQToLL,GGHZZ4L,VHToNonbb,WpWpJJ,tWll]+TTXXs # rares
-single_t = Ts + [THQ,THW] # single top + tW
-convs = [TTGJets,TGJets_lep] # X+G # MISSING: WGToLNuG_amcatnlo_ext,WGToLNuG_amcatnlo_ext2,ZGTo2LG_ext
-v_jets = [WJetsToLNu_LO,DYJetsToLL_M10to50_LO,DYJetsToLL_M50_LO,WWTo2L2Nu] # V+jets
-v_jets_more = [ W1JetsToLNu_LO, W2JetsToLNu_LO, W3JetsToLNu_LO, W4JetsToLNu_LO ] + DYNJetsToLL + DYJetsToLLM4to50HT
-tt_1l = [TTSemi_pow, TTJets_SingleLeptonFromT, TTJets_SingleLeptonFromTbar] # TT 1l
-tt_2l = [TTLep_pow, TTJets_DiLepton] # TT 2l
-boson = [WZTo3LNu_fxfx] + TriBosons # multi-boson # MISSING: WZTo3LNu_pow
+# sig_ttv = [TTHnobb_pow,TTHnobb_fxfx,TTWToLNu_fxfx,TTZToLLNuNu_amc,TTZToLLNuNu_m1to10] # signal + TTV
+# ttv_lo = [TTW_LO,TTZ_LO] # TTV LO
+# rares = [ZZTo4L,WW_DPS,TZQToLL,GGHZZ4L,VHToNonbb,WpWpJJ,tWll]+TTXXs # rares
+# single_t = Ts + [THQ,THW] # single top + tW
+# convs = [TTGJets,TGJets_lep] # X+G # MISSING: WGToLNuG_amcatnlo_ext,WGToLNuG_amcatnlo_ext2,ZGTo2LG_ext
+# v_jets = [WJetsToLNu_LO,DYJetsToLL_M10to50_LO,DYJetsToLL_M50_LO,WWTo2L2Nu] # V+jets
+# v_jets_more = [ W1JetsToLNu_LO, W2JetsToLNu_LO, W3JetsToLNu_LO, W4JetsToLNu_LO ] + DYNJetsToLL + DYJetsToLLM4to50HT
+# tt_1l = [TTSemi_pow, TTJets_SingleLeptonFromT, TTJets_SingleLeptonFromTbar] # TT 1l
+# tt_2l = [TTLep_pow, TTJets_DiLepton] # TT 2l
+# boson = [WZTo3LNu_fxfx] + TriBosons # multi-boson # MISSING: WZTo3LNu_pow
 
-samples_slow = sig_ttv + ttv_lo + rares + convs + boson + tt_2l
-samples_fast = single_t + v_jets + tt_1l + v_jets_more
+# samples_slow = sig_ttv + ttv_lo + rares + convs + boson + tt_2l
+# samples_fast = single_t + v_jets + tt_1l + v_jets_more
 
-if getHeppyOption("mergeExtensions"):
-    verbose = (getHeppyOption("mergeExtensions") != "quiet")
-    samples_slow = mergeExtensions(samples_slow,verbose=verbose)[0]
-    samples_fast = mergeExtensions(samples_fast,verbose=verbose)[0]
+# if getHeppyOption("mergeExtensions"):
+#     verbose = (getHeppyOption("mergeExtensions") != "quiet")
+#     samples_slow = mergeExtensions(samples_slow,verbose=verbose)[0]
+#     samples_fast = mergeExtensions(samples_fast,verbose=verbose)[0]
 
-cropToLumi(rares,500)
-cropToLumi(v_jets_more,50)
-configureSplittingFromTime(samples_fast,50,3)
-configureSplittingFromTime(samples_slow,100,3)
+# cropToLumi(rares,500)
+# cropToLumi(v_jets_more,50)
+# configureSplittingFromTime(samples_fast,50,3)
+# configureSplittingFromTime(samples_slow,100,3)
+configureSplittingFromTime([TTWToLNu_fxfx],100,3)
 
-selectedComponents = samples_slow+samples_fast
+# selectedComponents = samples_slow+samples_fast
 
 if scaleProdToLumi>0: # select only a subset of a sample, corresponding to a given luminosity (assuming ~30k events per MiniAOD file, which is ok for central production)
     target_lumi = scaleProdToLumi # in inverse picobarns

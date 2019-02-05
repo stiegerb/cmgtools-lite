@@ -208,8 +208,8 @@ def doStackSignalNorm(pspec,pmap,individuals,extrascale=1.0,norm=True):
             sigs = [pmap[x] for x in mca.listBackgrounds() if pmap.has_key(x) and pmap[x].Integral() > 0]
             sig = sigs[0].Clone(sigs.GetName()+"_norm")
         sig.SetFillStyle(0)
-        sig.SetLineColor(206)
-        sig.SetLineWidth(4)
+        sig.SetLineColor(sig.GetFillColor())
+        sig.SetLineWidth(3)
         if norm and sig.Integral() > 0:
             sig.Scale(total*extrascale/sig.Integral())
         sig.Draw("HIST SAME")
@@ -982,8 +982,8 @@ class PlotMaker:
                 if options.showSigShape or options.showIndivSigShapes or options.showIndivSigs: 
                     signorms = doStackSignalNorm(pspec,pmap,options.showIndivSigShapes or options.showIndivSigs,extrascale=options.signalPlotScale, norm=not options.showIndivSigs)
                     for signorm in signorms:
-                        if outputDir: 
-                            signorm.SetDirectory(outputDir); outputDir.WriteTObject(signorm)
+                        # if outputDir: 
+                        #     signorm.SetDirectory(outputDir); outputDir.WriteTObject(signorm)
                         reMax(total,signorm,islog,doWide=doWide)
                 if options.showDatShape: 
                     datnorm = doDataNorm(pspec,pmap)
