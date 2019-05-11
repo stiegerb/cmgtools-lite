@@ -181,8 +181,8 @@ fi
 if [[ "$1" == "all" || "$1" == "2lss_mm" ]]; then
     OPT_2L="${T2L} ${OPTIONS} -W vtxWeight2017*eventBTagSF*NonPrefiringProb*leptonSF_ttH(LepGood_pdgId[iLepFO_Recl[0]],LepGood_pt[iLepFO_Recl[0]],LepGood_eta[iLepFO_Recl[0]],2)*leptonSF_ttH(LepGood_pdgId[iLepFO_Recl[1]],LepGood_pt[iLepFO_Recl[1]],LepGood_eta[iLepFO_Recl[1]],2)*triggerSF_ttH(LepGood_pdgId[iLepFO_Recl[0]],LepGood_pt[iLepFO_Recl[0]],LepGood_pdgId[iLepFO_Recl[1]],LepGood_pt[iLepFO_Recl[1]],nLepTight_Recl,0)"
 
-    echo python makeShapeCardsTHQ.py ${DOFILE} tHq-multilepton/signal_extraction/mca-thq-2lss-mcdata-frdata_limits_new.txt tHq-multilepton/cuts-thq-2lss.txt -E mm_chan ${FUNCTION_2L} $SYSTS $OPT_2L --binname tHq_2lss_mm --asimov signal --savefile;
-    python makeShapeCardsTHQ.py ${DOFILE} tHq-multilepton/signal_extraction/mca-thq-2lss-mcdata-frdata_limits_new.txt tHq-multilepton/cuts-thq-2lss.txt -E mm_chan ${FUNCTION_2L} $SYSTS $OPT_2L --binname tHq_2lss_mm --asimov signal --savefile;
+    echo python makeShapeCardsTHQ.py ${DOFILE} tHq-multilepton/signal_extraction/mca-thq-2lss-mcdata-frdata_limits_new.txt tHq-multilepton/cuts-thq-2lss.txt -E mm_chan ${FUNCTION_2L} $SYSTS $OPT_2L --binname tHq_2lss_mm --savefile;
+    python makeShapeCardsTHQ.py ${DOFILE} tHq-multilepton/signal_extraction/mca-thq-2lss-mcdata-frdata_limits_new.txt tHq-multilepton/cuts-thq-2lss.txt -E mm_chan ${FUNCTION_2L} $SYSTS $OPT_2L --binname tHq_2lss_mm --savefile;
 
     echo "Done at $(date)"
 
