@@ -2,9 +2,9 @@
 
 
 ### Alias definitions. Careful to avoid trailing '.*' to avoid matching _promptsub
-$alias : ttH : ttH|ttH_h[a-z]{2}|ttH_h[a-z]{2}_[mp\d]+_[mp\d]+
-$alias : tHq : tHq|tHq_h[a-z]{2}|tHq_h[a-z]{2}_[mp\d]+_[mp\d]+
-$alias : tHW : tHW|tHW_h[a-z]{2}|tHW_h[a-z]{2}_[mp\d]+_[mp\d]+
+$alias : ttH : ttH|ttH_h[a-z]{2}|ttH_h[a-z]{2}_[mp\d]+_[mp\d]|ttH_h[a-z]{2}_[mp\d]+
+$alias : tHq : tHq|tHq_h[a-z]{2}|tHq_h[a-z]{2}_[mp\d]+_[mp\d]|tHq_h[a-z]{2}_[mp\d]+
+$alias : tHW : tHW|tHW_h[a-z]{2}|tHW_h[a-z]{2}_[mp\d]+_[mp\d]|tHW_h[a-z]{2}_[mp\d]+
 $alias : ttHX : $ttH|$tHq|$tHW
 $alias : ttV  : TT[WZ]|TTWW
 $alias : PromptFromMC : $ttHX|$ttV|Rares|Convs|WZ|ZZ|EWK|TZQ
@@ -96,8 +96,8 @@ QCDscale_ttH   : $ttH  : .* : normAsymm : 0.907 : 1.058
 QCDscale_ttW   : TTW   : .* : normAsymm : 0.885 : 1.129
 QCDscale_ttZ   : TTZ   : .* : normAsymm : 0.904 : 1.112
 QCDscale_ttWW  : TTWW  : .* : normAsymm : 0.891 : 1.081
-#QCDscale_tHq   : $tHq  : .* : normAsymm : 0.933 : 1.041
-#QCDscale_tHW   : $tHW  : .* : normAsymm : 0.939 : 1.046
+#QCDscale_tHq   : $tHq  : .* : normAsymm : 0.933 : 1.041  #(SM)
+#QCDscale_tHW   : $tHW  : .* : normAsymm : 0.939 : 1.046  #(SM)
 QCDscale_tHq   : tHq_.*_1_m3      : .* : normAsymm : 0.969 : 1.021
 QCDscale_tHq   : tHq_.*_1_m2      : .* : normAsymm : 0.968 : 1.026
 QCDscale_tHq   : tHq_.*_1_m1p5    : .* : normAsymm : 0.964 : 1.025
@@ -201,6 +201,50 @@ QCDscale_tHW   : tHW_.*_0p5_1p25  : .* : normAsymm : 0.948 : 1.037
 QCDscale_tHW   : tHW_.*_0p5_1p5   : .* : normAsymm : 0.951 : 1.035
 QCDscale_tHW   : tHW_.*_0p5_2     : .* : normAsymm : 0.957 : 1.030
 QCDscale_tHW   : tHW_.*_0p5_3     : .* : normAsymm : 0.960 : 1.028
+
+QCDscale_tHq   : tHq_.*_m1p0      : .* : normAsymm : 0.933 : 1.041
+QCDscale_tHq   : tHq_.*_m0p9      : .* : normAsymm : 0.933 : 1.041
+QCDscale_tHq   : tHq_.*_m0p8      : .* : normAsymm : 0.933 : 1.041
+QCDscale_tHq   : tHq_.*_m0p7      : .* : normAsymm : 0.933 : 1.041
+QCDscale_tHq   : tHq_.*_m0p6      : .* : normAsymm : 0.933 : 1.041
+QCDscale_tHq   : tHq_.*_m0p5      : .* : normAsymm : 0.933 : 1.041
+QCDscale_tHq   : tHq_.*_m0p4      : .* : normAsymm : 0.933 : 1.041
+QCDscale_tHq   : tHq_.*_m0p3      : .* : normAsymm : 0.933 : 1.041
+QCDscale_tHq   : tHq_.*_m0p2      : .* : normAsymm : 0.933 : 1.041
+QCDscale_tHq   : tHq_.*_m0p1      : .* : normAsymm : 0.933 : 1.041
+QCDscale_tHq   : tHq_.*_0p0       : .* : normAsymm : 0.933 : 1.041
+QCDscale_tHq   : tHq_.*_0p1       : .* : normAsymm : 0.933 : 1.041
+QCDscale_tHq   : tHq_.*_0p2       : .* : normAsymm : 0.933 : 1.041
+QCDscale_tHq   : tHq_.*_0p3       : .* : normAsymm : 0.933 : 1.041
+QCDscale_tHq   : tHq_.*_0p4       : .* : normAsymm : 0.933 : 1.041
+QCDscale_tHq   : tHq_.*_0p5       : .* : normAsymm : 0.933 : 1.041
+QCDscale_tHq   : tHq_.*_0p6       : .* : normAsymm : 0.933 : 1.041
+QCDscale_tHq   : tHq_.*_0p7       : .* : normAsymm : 0.933 : 1.041
+QCDscale_tHq   : tHq_.*_0p8       : .* : normAsymm : 0.933 : 1.041
+QCDscale_tHq   : tHq_.*_0p9       : .* : normAsymm : 0.933 : 1.041
+QCDscale_tHq   : tHq_.*_1p0       : .* : normAsymm : 0.933 : 1.041
+
+QCDscale_tHW   : tHW_.*_m1p0      : .* : normAsymm : 0.939 : 1.046
+QCDscale_tHW   : tHW_.*_m0p9      : .* : normAsymm : 0.939 : 1.046
+QCDscale_tHW   : tHW_.*_m0p8      : .* : normAsymm : 0.939 : 1.046
+QCDscale_tHW   : tHW_.*_m0p7      : .* : normAsymm : 0.939 : 1.046
+QCDscale_tHW   : tHW_.*_m0p6      : .* : normAsymm : 0.939 : 1.046
+QCDscale_tHW   : tHW_.*_m0p5      : .* : normAsymm : 0.939 : 1.046
+QCDscale_tHW   : tHW_.*_m0p4      : .* : normAsymm : 0.939 : 1.046
+QCDscale_tHW   : tHW_.*_m0p3      : .* : normAsymm : 0.939 : 1.046
+QCDscale_tHW   : tHW_.*_m0p2      : .* : normAsymm : 0.939 : 1.046
+QCDscale_tHW   : tHW_.*_m0p1      : .* : normAsymm : 0.939 : 1.046
+QCDscale_tHW   : tHW_.*_0p0       : .* : normAsymm : 0.939 : 1.046
+QCDscale_tHW   : tHW_.*_0p1       : .* : normAsymm : 0.939 : 1.046
+QCDscale_tHW   : tHW_.*_0p2       : .* : normAsymm : 0.939 : 1.046
+QCDscale_tHW   : tHW_.*_0p3       : .* : normAsymm : 0.939 : 1.046
+QCDscale_tHW   : tHW_.*_0p4       : .* : normAsymm : 0.939 : 1.046
+QCDscale_tHW   : tHW_.*_0p5       : .* : normAsymm : 0.939 : 1.046
+QCDscale_tHW   : tHW_.*_0p6       : .* : normAsymm : 0.939 : 1.046
+QCDscale_tHW   : tHW_.*_0p7       : .* : normAsymm : 0.939 : 1.046
+QCDscale_tHW   : tHW_.*_0p8       : .* : normAsymm : 0.939 : 1.046
+QCDscale_tHW   : tHW_.*_0p9       : .* : normAsymm : 0.939 : 1.046
+QCDscale_tHW   : tHW_.*_1p0       : .* : normAsymm : 0.939 : 1.046
 
 pdf_Higgs_ttH  : $ttH  : .* : normSymm : 1.036
 pdf_gg         : TTZ   : .* : normSymm : 0.966
