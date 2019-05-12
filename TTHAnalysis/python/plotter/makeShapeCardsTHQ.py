@@ -62,7 +62,6 @@ class ShapeCardMaker:
     def saveReport(self, filename):
         tfile = ROOT.TFile(filename, "recreate")
         for n,h in self.report.iteritems():
-            print h.GetName()
             h.writeToFile(tfile, takeOwnership=False)
         tfile.Close()
         print "...report written to %s" % filename
