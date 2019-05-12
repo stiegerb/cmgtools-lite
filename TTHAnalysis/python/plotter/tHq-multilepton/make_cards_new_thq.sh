@@ -25,7 +25,7 @@ LUMI="$1"; shift
 echo "Normalizing to ${LUMI}/fb";
 OPTIONS=" --tree treeProducerSusyMultilepton --s2v -j $J -l ${LUMI} -f --WA prescaleFromSkim"
 test -d cards/$OUTNAME || mkdir -p cards/$OUTNAME
-OPTIONS="${OPTIONS} --od cards/$OUTNAME ";
+OPTIONS="${OPTIONS} --od /afs/cern.ch/work/p/pdas/tth/TTHTrees/2017/cards/$OUTNAME ";
 
 SYSTS="--unc tHq-multilepton/signal_extraction/systsUnc.txt"
 case $1 in
@@ -40,7 +40,7 @@ BTight=" -E ^BTight "
 SPLITDECAYS="-splitdecays"
 
 PROMPTSUB="--plotgroup data_fakes+=.*_promptsub"
-OPTIONS="${OPTIONS} -L ttH-multilepton/functionsTTH.cc -L tHq-multilepton/functionsTHQ.cc --mcc ttH-multilepton/lepchoice-ttH-FO.txt ${PROMPTSUB} --neg" # neg necessary for subsequent rebin
+OPTIONS="${OPTIONS} -L ttH-multilepton/functionsTTH.cc -L tHq-multilepton/functionsTHQ.cc --mcc ttH-multilepton/lepchoice-ttH-FO.txt --neg" # neg necessary for subsequent rebin
 CATPOSTFIX=""
 
 FUNCTION_2L="tHq_MVAto1D_2lss_8(thqMVA_tt_2lss_60,thqMVA_ttv_2lss_60) [0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5]"
@@ -181,7 +181,7 @@ fi
 if [[ "$1" == "all" || "$1" == "2lss_mm" ]]; then
     OPT_2L="${T2L} ${OPTIONS} -W vtxWeight2017*eventBTagSF*NonPrefiringProb*leptonSF_ttH(LepGood_pdgId[iLepFO_Recl[0]],LepGood_pt[iLepFO_Recl[0]],LepGood_eta[iLepFO_Recl[0]],2)*leptonSF_ttH(LepGood_pdgId[iLepFO_Recl[1]],LepGood_pt[iLepFO_Recl[1]],LepGood_eta[iLepFO_Recl[1]],2)*triggerSF_ttH(LepGood_pdgId[iLepFO_Recl[0]],LepGood_pt[iLepFO_Recl[0]],LepGood_pdgId[iLepFO_Recl[1]],LepGood_pt[iLepFO_Recl[1]],nLepTight_Recl,0)"
 
-    echo python makeShapeCardsTHQ.py ${DOFILE} tHq-multilepton/signal_extraction/mca-thq-2lss-mcdata-frdata_limits_new.txt tHq-multilepton/cuts-thq-2lss.txt -E mm_chan ${FUNCTION_2L} $SYSTS $OPT_2L --binname tHq_2lss_mm --savefile;
+    echo python makeShapeCardsTHQ.py ${DOFILE} tHq-multilepton/signal_extraction/mca-thq-2lss-mcdata-frdata_limits_new.txt tHq-multilepton/cuts-thq-2lss.txt -E mm_chan ${FUNCTION_2L} $SYSTS $OPT_2L --binname tHq_2lss_mm --savefile
     python makeShapeCardsTHQ.py ${DOFILE} tHq-multilepton/signal_extraction/mca-thq-2lss-mcdata-frdata_limits_new.txt tHq-multilepton/cuts-thq-2lss.txt -E mm_chan ${FUNCTION_2L} $SYSTS $OPT_2L --binname tHq_2lss_mm --savefile;
 
     echo "Done at $(date)"
