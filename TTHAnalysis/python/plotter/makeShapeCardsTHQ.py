@@ -62,6 +62,7 @@ class ShapeCardMaker:
     def saveReport(self, filename):
         tfile = ROOT.TFile(filename, "recreate")
         for n,h in self.report.iteritems():
+            print h.GetName()
             h.writeToFile(tfile, takeOwnership=False)
         tfile.Close()
         print "...report written to %s" % filename
@@ -113,6 +114,24 @@ class ShapeCardMaker:
         if self.options.verbose > 1:
             print "...merging %s for asimov dataset ('data_obs')" % repr([x.GetName() for x in tomerge])
 
+    def mergepromptsub(self, signals=None, backgrounds=None, point=None):
+        signals = signals or self.mca.listSignals()
+        backgrounds = backgrounds or self.mca.listBackgrounds()
+        mcpromptsub = signals + backgrounds
+ 
+        mcpromptsub = [p for p in mcpromptsub if p.endswith('_promptsub')]
+        tomerge = None
+        for p in mcpromptsub:
+            if p in self.report:
+                if tomerge is None:
+                    tomerge = self.report['data_fakes'].Clone("x_data_fakes")
+                    tomerge.SetDirectory(None)
+                else:
+                    tomerge.Add(self.report[p], -1)
+
+        self.report['data_fakes'] = tomerge
+        self.allyields['data_fakes'] = self.report['data_fakes'].Integral()
+
     def setProcesses(self, signals=None, backgrounds=None):
         signals = signals or self.mca.listSignals()
         backgrounds = backgrounds or self.mca.listBackgrounds()
@@ -156,7 +175,7 @@ class ShapeCardMaker:
                             hv.Scale(0.5)
 
                         elif k < 0.2 or k > 5:
-                            print "Warning: big shift in template for %s %s %s %s: kappa = %g " % (binname, p, name, d, k)
+                            print "Warning: big shift in template for %s %s %s %s: kappa = %g " % (self.binname, p, name, d, k)
 
                     effshape[p] = variants 
 
@@ -368,9 +387,13 @@ if __name__ == '__main__':
                    'ttH_hww_%s'%point, 'ttH_htt_%s'%point, 'ttH_hzz_%s'%point]
                    # 'WH_hww', 'WH_htt', 'WH_hzz', 'ggH_hzz']
 
+        cardMaker.mergepromptsub(signals=cardMaker.mca.listSignals(), backgrounds=cardMaker.mca.listBackgrounds(), point=point)
+        backgrounds = cardMaker.mca.listBackgrounds()
+        backgrounds = [b for b in backgrounds if not b.endswith('_promptsub')]
+
         if options.asimov:
-            cardMaker.prepareAsimov(signals=signals, backgrounds=cardMaker.mca.listBackgrounds())
-        cardMaker.setProcesses(signals=signals, backgrounds=cardMaker.mca.listBackgrounds())
+            cardMaker.prepareAsimov(signals=signals, backgrounds=backgrounds)
+        cardMaker.setProcesses(signals=signals, backgrounds=backgrounds)
         ofilename = "%s_%s.card.txt" % (cardMaker.binname, point)
 
         # Remove points from process names in card and input file
