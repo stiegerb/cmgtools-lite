@@ -5,6 +5,7 @@ import sys
 import os
 import os.path
 import math
+import copy
 from itertools import product
 
 from CMGTools.TTHAnalysis.plotter.mcAnalysis import MCAnalysis
@@ -12,6 +13,7 @@ from CMGTools.TTHAnalysis.plotter.mcAnalysis import CutsFile
 from CMGTools.TTHAnalysis.plotter.mcAnalysis import addMCAnalysisOptions
 from CMGTools.TTHAnalysis.plotter.histoWithNuisances import mergePlots
 from CMGTools.TTHAnalysis.plotter.histoWithNuisances import listAllNuisances
+from CMGTools.TTHAnalysis.plotter.histoWithNuisances import cropNegativeBins
 from CMGTools.TTHAnalysis.plotter.histoWithNuisances import readHistoWithNuisances
 from CMGTools.TTHAnalysis.plotter.histoWithNuisances import HistoWithNuisances
 from CMGTools.TTHAnalysis.plotter.tree2yield import makeHistFromBinsAndSpec
@@ -62,7 +64,7 @@ class ShapeCardMaker:
         self.updateAllYields()
 
     def resetReport(self):
-        self.report = self.report_original.copy()
+        self.report = copy.deepcopy(self.report_original)
 
     def saveReport(self, filename):
         tfile = ROOT.TFile(filename, "recreate")
@@ -77,7 +79,6 @@ class ShapeCardMaker:
         
         rawplots = self.mca.getPlotsRaw("x", self.var, self.bins, self.cuts.allCuts(), nodata=self.options.asimov)
         for name,histo in rawplots.iteritems():
-            histo.cropNegativeBins()
             report[name] = histo.Clone('x_%s' % name)
 
         if not self.options.asimov: ## FIXME this didn't work?
@@ -121,25 +122,45 @@ class ShapeCardMaker:
     def doPromptsub(self, signals=None, backgrounds=None):
         """Subtract the promptsub from the fakes"""
         signals = signals or self.mca.listSignals()
+        signals = [p for p in self.mca.listSignals() if any([p.startswith(s) for s in signals]) if p.endswith('_promptsub')]
+
         backgrounds = backgrounds or self.mca.listBackgrounds()
-        mcpromptsub = signals + backgrounds
- 
-        mcpromptsub = [p for p in mcpromptsub if p.endswith('_promptsub')]
-        tomerge = None
-        for p in mcpromptsub:
-            if p in self.report:
-                if tomerge is None:
-                    tomerge = self.report['data_fakes'].Clone("x_data_fakes")
-                    tomerge.SetDirectory(None)
-                else:
-                    tomerge.Add(self.report[p], -1)
+        backgrounds = [p for p in backgrounds if p.endswith('_promptsub')]
+
+        tomerge = self.report['data_fakes'].Clone("x_data_fakes")
+        tomerge.SetDirectory(None)
+        for p in signals + backgrounds:
+            if not p in self.report:
+                print "WARNING: process %s not found for prompt subtraction" % p
+                continue
+
+            # Note that promptsub already have negative entries
+            if self.options.verbose > 0:
+                print "subtracting %s (%f integral) from data_fakes" % (p, self.report[p].raw().Integral())
+            tomerge.Add(self.report[p])
 
         self.report['data_fakes'] = tomerge
-        self.allyields['data_fakes'] = self.report['data_fakes'].Integral()
+
+    def cropNegativeBins(self):
+        for histo in self.report.values():
+            cropNegativeBins(histo)        
 
     def setProcesses(self, signals=None, backgrounds=None):
+        """
+        - Define the final list of processes for producing a card (i.e. select the signal points)
+        - Run the promptsub subtraction on 'data_fakes' with these processes
+        - Run cropNegativeBins on all the histos in the report
+        - Update the allyields dictionary
+        - Set the self.processes list and self.iproc to be used when writing the cards
+        """
         signals = signals or self.mca.listSignals()
         backgrounds = backgrounds or self.mca.listBackgrounds()
+
+        self.resetReport()
+        self.doPromptsub(signals=signals)
+        self.cropNegativeBins()
+        self.updateAllYields()
+
         self.processes = []
         self.iproc = {}
         for i,s in enumerate(signals):
@@ -148,6 +169,7 @@ class ShapeCardMaker:
             self.iproc[s] = i-len(signals)+1
 
         for i,b in enumerate(backgrounds):
+            if 'promptsub' in b: continue # Skip promptsub now
             if self.allyields.get(b, 0) == 0: continue
             self.processes.append(b)
             self.iproc[b] = i+1
@@ -175,12 +197,14 @@ class ShapeCardMaker:
                     for hv,d in zip(variants, ('up','down')):
                         k = hv.Integral()/n0
                         if k == 0: 
-                            print "Warning: underflow template for %s %s %s %s. Will take the nominal scaled down by a factor 2" % (self.binname, p, name, d)
+                            print ("Warning: underflow template for %s %s %s %s. Will take the nominal scaled "
+                                   "down by a factor 2" % (self.binname, p, name, d))
                             hv.Add(h.raw())
                             hv.Scale(0.5)
 
                         elif k < 0.2 or k > 5:
-                            print "Warning: big shift in template for %s %s %s %s: kappa = %g " % (self.binname, p, name, d, k)
+                            print "Warning: big shift in template for %s %s %s %s: kappa = %g " % (
+                                                           self.binname, p, name, d, k)
 
                     effshape[p] = variants 
 
@@ -212,9 +236,6 @@ class ShapeCardMaker:
         return sorted(self.systs.keys())
 
     def writeDataCard(self, ofilename=None, procnames=None):
-        if self.options.verbose:
-            print ("...writing datacard")
-
         if not os.path.exists(self.options.outdir):
             os.mkdir(self.options.outdir)
 
@@ -230,7 +251,7 @@ class ShapeCardMaker:
                                           ofilename.replace('.card.txt','.input.root'))
             datacard.write('##----------------------------------\n')
             datacard.write('bin         %s\n' % self.binname)
-            #datacard.write('observation %s\n' % self.allyields['data_obs'])
+            # datacard.write('observation %s\n' % self.allyields['data_obs'])
             datacard.write('observation -1\n')
             datacard.write('##----------------------------------\n')
 
@@ -243,7 +264,7 @@ class ShapeCardMaker:
             datacard.write(hpatt%'bin'     +"     "+(" ".join([kpatt % self.binname  for p in self.processes]))+"\n")
             datacard.write(hpatt%'process' +"     "+(" ".join([kpatt % procnames.get(p,p) for p in self.processes]))+"\n")
             datacard.write(hpatt%'process' +"     "+(" ".join([kpatt % self.iproc[p] for p in self.processes]))+"\n")
-            #datacard.write(hpatt%'rate'    +"     "+(" ".join([fpatt % self.allyields[p] for p in self.processes]))+"\n")
+            # datacard.write(hpatt%'rate'    +"     "+(" ".join([fpatt % self.allyields[p] for p in self.processes]))+"\n")
             datacard.write(hpatt%'rate'    +"     "+(" ".join([kpatt % '-1' for p in self.processes]))+"\n")
             datacard.write('##----------------------------------\n')
 
@@ -255,32 +276,6 @@ class ShapeCardMaker:
                     hists_to_store.append(hup.Clone("x_%s_%sUp"   % (p,name)))
                     hists_to_store.append(hdn.Clone("x_%s_%sDown" % (p,name)))
 
-            # for name, effmap in self.systs.iteritems():
-            #     datacard.write((hpatt%name+'  lnN') + " ".join([kpatt % effmap[p] for p in self.processes]) +"\n")
-
-            # for name, (effmap0,effmap12,mode) in self.systsEnv.iteritems():
-            #     if 'templstat' in name: # Throw out systs that don't apply to any in self.processes
-            #         if not any([p in name for p in self.processes]):
-            #             continue
-
-            #     if mode in ["templates", "alternateShape", "alternateShapeOnly"]:
-            #         datacard.write(hpatt%name+'shape')
-            #         datacard.write(" ".join([kpatt % effmap0[p] for p in self.processes]))
-            #         datacard.write("\n")
-
-            #     if re.match('envelop.*',mode):
-            #         datacard.write(hpatt%(name+'0')+'shape')
-            #         datacard.write(" ".join([kpatt % effmap0[p] for p in self.processes]))
-            #         datacard.write("\n")
-
-            #     if any([re.match(x+'.*',mode) for x in ["envelop", "shapeOnly"]]):
-            #         datacard.write(hpatt%(name+'1')+'shape')
-            #         datacard.write(" ".join([kpatt % effmap12[p] for p in self.processes]))
-            #         datacard.write("\n")
-            #         if "shapeOnly2D" not in mode:
-            #             datacard.write(hpatt%(name+'2')+'shape')
-            #             datacard.write(" ".join([kpatt % effmap12[p] for p in self.processes]))
-            #             datacard.write("\n")
             datacard.write("\n")
             datacard.write('* autoMCStats 0 0 1\n')
             datacard.write('param_alphaS param 0 1 [-7,7]\n')
@@ -293,6 +288,9 @@ class ShapeCardMaker:
             datacard.write('HiggsDecayWidthTHU_hgg param 0 1 [-7,7]\n')
             datacard.write('HiggsDecayWidthTHU_hzg param 0 1 [-7,7]\n')
             datacard.write('HiggsDecayWidthTHU_hgluglu param 0 1 [-7,7]\n')
+
+        if self.options.verbose:
+            print ("...wrote datacard to %s" % os.path.join(self.options.outdir, ofilename))
 
         hists_to_store += [h.raw() for n,h in self.report.iteritems() if any([n.startswith(p) for p in self.processes])]
         hists_to_store.append(self.report['data_obs'].raw())
@@ -393,14 +391,9 @@ if __name__ == '__main__':
                    'ttH_hww_%s'%point, 'ttH_htt_%s'%point, 'ttH_hzz_%s'%point]
                    # 'WH_hww', 'WH_htt', 'WH_hzz', 'ggH_hzz']
 
-        cardMaker.doPromptsub(signals=signals, backgrounds=cardMaker.mca.listBackgrounds())
-
-        backgrounds = cardMaker.mca.listBackgrounds()
-        backgrounds = [b for b in backgrounds if not b.endswith('_promptsub')]
-
+        cardMaker.setProcesses(signals=signals)
         if options.asimov:
-            cardMaker.prepareAsimov(signals=signals, backgrounds=backgrounds)
-        cardMaker.setProcesses(signals=signals, backgrounds=backgrounds)
+            cardMaker.prepareAsimov(signals=signals)
         ofilename = "%s_%s.card.txt" % (cardMaker.binname, point)
 
         # Remove points from process names in card and input file
