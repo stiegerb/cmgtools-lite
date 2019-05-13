@@ -74,17 +74,19 @@ class ShapeCardMaker:
         print "...report written to %s" % filename
 
     def produceReportFromMCA(self):
-        report = {}
+        report_original = {}
         print "...producing report"
         
         rawplots = self.mca.getPlotsRaw("x", self.var, self.bins, self.cuts.allCuts(), nodata=self.options.asimov)
         for name,histo in rawplots.iteritems():
-            report[name] = histo.Clone('x_%s' % name)
+            report_original[name] = histo.Clone('x_%s' % name)
 
         if not self.options.asimov: ## FIXME this didn't work?
-            report['data_obs'] = report['data'].Clone("x_data_obs")
+            report_original['data_obs'] = report_original['data'].Clone("x_data_obs")
 
-        self.report.update(report)
+        self.report_original.update(report_original)
+
+        self.resetReport()
         self.updateAllYields()
 
     def updateAllYields(self):
