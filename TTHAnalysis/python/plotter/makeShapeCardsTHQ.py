@@ -35,6 +35,7 @@ class ShapeCardMaker:
 
         self.systs = {}
         self.report = {}
+        self.report_original = {}
 
     def readReport(self, filename):
         if self.options.verbose > 0:
@@ -49,15 +50,19 @@ class ShapeCardMaker:
                         print "...read %s (%d entries) from %s" % (histo.raw().GetName(),
                                                                    histo.raw().GetEntries(),
                                                                    filename)
-                    self.report[proc] = histo
+                    self.report_original[proc] = histo
             except ReferenceError:
                 raise RuntimeError("ERROR: Key %s not found in %s" % (proc, filename))
 
         ## FIXME: Somehow the data_obs entry wasn't created? Fix it by hand:
-        if not 'data_obs' in self.report:
-            self.report['data_obs'] = self.report['data'].Clone("x_data_obs")
+        if not 'data_obs' in self.report_original:
+            self.report_original['data_obs'] = self.report_original['data'].Clone("x_data_obs")
 
+        self.resetReport()
         self.updateAllYields()
+
+    def resetReport(self):
+        self.report = self.report_original.copy()
 
     def saveReport(self, filename):
         tfile = ROOT.TFile(filename, "recreate")
@@ -113,7 +118,8 @@ class ShapeCardMaker:
         if self.options.verbose > 1:
             print "...merging %s for asimov dataset ('data_obs')" % repr([x.GetName() for x in tomerge])
 
-    def mergepromptsub(self, signals=None, backgrounds=None, point=None):
+    def doPromptsub(self, signals=None, backgrounds=None):
+        """Subtract the promptsub from the fakes"""
         signals = signals or self.mca.listSignals()
         backgrounds = backgrounds or self.mca.listBackgrounds()
         mcpromptsub = signals + backgrounds
@@ -294,6 +300,7 @@ class ShapeCardMaker:
         self.writeInputRootFile(ofilename=ofilename.replace('.card.txt', '.input.root'),
                                 procnames=procnames,
                                 hists_to_store=hists_to_store)
+        self.resetReport()
 
     def writeInputRootFile(self, hists_to_store, ofilename=None, procnames=None):
         ofilename = ofilename or self.binname+".input.root"
@@ -386,7 +393,8 @@ if __name__ == '__main__':
                    'ttH_hww_%s'%point, 'ttH_htt_%s'%point, 'ttH_hzz_%s'%point]
                    # 'WH_hww', 'WH_htt', 'WH_hzz', 'ggH_hzz']
 
-        cardMaker.mergepromptsub(signals=cardMaker.mca.listSignals(), backgrounds=cardMaker.mca.listBackgrounds(), point=point)
+        cardMaker.doPromptsub(signals=signals, backgrounds=cardMaker.mca.listBackgrounds())
+
         backgrounds = cardMaker.mca.listBackgrounds()
         backgrounds = [b for b in backgrounds if not b.endswith('_promptsub')]
 
