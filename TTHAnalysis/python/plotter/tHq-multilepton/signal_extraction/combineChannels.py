@@ -81,6 +81,8 @@ def main(args, options):
 
         # Check consistency of cards
         tagpat = re.compile(r'.*\_([\dpm]+\_[\dpm]+)\.card\.txt')
+        if options.cp:
+            tagpat = re.compile(r'.*\_([\dpm]+)\.card\.txt')
         tags = list(set([re.match(tagpat, c).groups()[0] for c in cards]))
         if len(tags) > 1:
             print ">>> Warning, mismatching cards?", tags
@@ -95,14 +97,14 @@ def main(args, options):
 if __name__ == '__main__':
     from optparse import OptionParser
     usage = """
-    %prog [options] dir1/ dir2/ [dir3/ dir4/]
+    %prog [options] dir1/ dir2/ [dir3/]
 
     Call combineCards.py on all tuples of *.card.txt files in the
     input directories and store the output in combined/
     Copy also the input.root files to the output directory.
 
     Assumes the input directories (channels) are ordered as follows:
-    2lss_mm, 2lss_em, 3l, bb_3m, bb_4m, bb_dilep, gamgam
+    2lss_mm, 2lss_em, 3l
 
     Change this order (and the output bin names) by using -c/--binnames
 
@@ -112,8 +114,10 @@ if __name__ == '__main__':
     parser = OptionParser(usage=usage)
     parser.add_option("-o", "--outdir", dest="outdir",
                       type="string", default="combined/")
+    parser.add_option("--cp", dest="cp", action="store_true",
+                      help="Process CP cards (i.e. different name matching)")
     parser.add_option("-c", "--binnames", dest="binnames",
-                      type="string", default="2lss_mm,2lss_em,3l,bb_3m,bb_4m,bb_dilep,aa",
+                      type="string", default="2lss_mm,2lss_em,3l",
                       help="Comma separated list of bin names ('tHq_' will be prepended)")
     (options, args) = parser.parse_args()
 
