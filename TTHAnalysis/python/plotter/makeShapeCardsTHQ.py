@@ -124,7 +124,8 @@ class ShapeCardMaker:
     def doPromptsub(self, signals=None, backgrounds=None):
         """Subtract the promptsub from the fakes"""
         signals = signals or self.mca.listSignals()
-        signals = [p for p in self.mca.listSignals() if any([p.startswith(s) for s in signals]) if p.endswith('_promptsub')]
+        #signals = [p for p in self.mca.listSignals() if any([p.startswith(s) for s in signals]) if p.endswith('_promptsub')]
+        signals = [p+'_promptsub' for p in signals]
 
         backgrounds = backgrounds or self.mca.listBackgrounds()
         backgrounds = [p for p in backgrounds if p.endswith('_promptsub')]
